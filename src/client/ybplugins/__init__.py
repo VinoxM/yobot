@@ -16,5 +16,5 @@ __all__ = [
     'push_news',
     'calender',
     'custom',
-    'repeat',
+    'yobot_msg_extra',
 ]
