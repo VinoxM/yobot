@@ -24,6 +24,7 @@ class Repeat:
 
     async def execute_async(self, ctx: Dict[str, Any]) -> Union[None, bool, str]:
         #判断上条和上上条信息是否已有值
+        print("Repeat Method!")
         if ctx['raw_message'] == ctx['message'] and ctx['message_type'] == 'group':
             if not self.last_msg is None and not self.pre_last_msg is None:
                 #判断上条信息和上上条信息相同
