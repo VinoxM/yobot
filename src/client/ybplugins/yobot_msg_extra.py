@@ -69,7 +69,3 @@ class Message_Extra:
                             await self.api.send_group_msg(group_id=ctx["group_id"], message=res)
                             return
                     await self.api.send_group_msg(group_id=ctx["group_id"], message="不骂，爬")
-
-                #测试图片发送
-                if msg=="test":
-                    await self.send_img(ctx["group_id"],"\\103601_01.jpg")
