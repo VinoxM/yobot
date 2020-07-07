@@ -226,18 +226,31 @@ class Yobot:
         jobs = [p.jobs() for p in self.plug_active]
         return reduce(lambda x, y: x+y, jobs)
 
+    def _valiPreffix(self,msg):
+        if self.glo_setting.get("preffix_on",False):
+            pres = self.glo_setting.get("preffix_string",None)
+            if not pres is None:
+                for i in pres:
+                    if msg.startswith(i):return i
+        return None
+
     async def proc_async(self, msg: dict, *args, **kwargs) -> str:
         '''
         receive a message and return a reply
         '''
-        # prefix
-        if self.glo_setting.get("preffix_on", False):
-            preffix = self.glo_setting.get("preffix_string", "")
-            if not msg["raw_message"].startswith(preffix):
-                return None
-            else:
-                msg["raw_message"] = (
-                    msg["raw_message"][len(preffix):])
+        # preffix
+        preffix = self._valiPreffix(msg["raw_message"])
+        if not preffix is None:
+            msg["raw_message"] = (msg["raw_message"][len(preffix):])
+        else:
+            return None
+        # if self.glo_setting.get("preffix_on", False):
+        #     preffix = self.glo_setting.get("preffix_string", "")
+        #     if not msg["raw_message"].startswith(preffix):
+        #         return None
+        #     else:
+        #         msg["raw_message"] = (
+        #             msg["raw_message"][len(preffix):])
 
         # black-list
         if msg["sender"]["user_id"] in self.black_list:
