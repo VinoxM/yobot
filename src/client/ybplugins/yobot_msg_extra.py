@@ -38,6 +38,7 @@ class Message_Extra:
             scheduler 是与机器人一同启动的AsyncIOScheduler实例
             app 是机器人后台Quart服务器实例
         '''
+        print("Initial……")
         # 注意：这个类加载时，asyncio事件循环尚未启动，且bot_api没有连接
         # 此时不要调用bot_api
         # 此时没有running_loop，不要直接使用await，请使用asyncio.ensure_future并指定loop=asyncio.get_event_loop()
@@ -72,7 +73,7 @@ class Message_Extra:
 
         # 如果需要使用，请注释掉下面一行
         # return
-            
+        print("Get Message!")
         if not self.last_msg is None and not self.pre_last_msg is None:
             if self.last_msg == self.pre_last_msg:
                 msg = ctx['raw_message']
