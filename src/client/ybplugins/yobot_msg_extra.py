@@ -38,7 +38,7 @@ class Message_Extra:
             scheduler 是与机器人一同启动的AsyncIOScheduler实例
             app 是机器人后台Quart服务器实例
         '''
-        print("Initial……")
+        print("Message_Extra Inital")
         # 注意：这个类加载时，asyncio事件循环尚未启动，且bot_api没有连接
         # 此时不要调用bot_api
         # 此时没有running_loop，不要直接使用await，请使用asyncio.ensure_future并指定loop=asyncio.get_event_loop()
