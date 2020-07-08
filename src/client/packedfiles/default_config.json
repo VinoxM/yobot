@@ -73,6 +73,8 @@
             "result":["不许好~","你又好了？","好起来了~"]
         }
     ],
+    "img_path":"C:\\Users\\maou8\\Pictures\\Camera Roll\\",
+    "abyss_img":["1.jpg","2.jpeg","3.jpeg","4.jpeg","5.jpeg","6.jpg","7.jpg"],
     "boss":{
         "jp": [
             [6000000, 8000000, 10000000, 12000000, 15000000],
