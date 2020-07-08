@@ -61,7 +61,7 @@
       <el-form-item label="前缀" :hidden="!setting.preffix_on">
         <el-input v-for="(v,i) in setting['preffix_string']" v-model="setting.preffix_string[i]" placeholder="#"></el-input>
       </el-form-item>
-      <el-form-item>
+      <el-form-item :hidden="!setting.preffix_on">
         <el-button size="mini" icon="el-icon-circle-plus-outline" @click="setting['preffix_string'].push(null)">添加
         </el-button>
         <el-button size="mini" icon="el-icon-remove-outline" @click="setting['preffix_string'].pop()">删除 </el-button>
@@ -200,6 +200,23 @@
         <el-checkbox v-model="setting.calender_on"></el-checkbox>
         <el-input :disabled="!setting.calender_on" v-model="setting.calender_time" placeholder="08:00">
         </el-input>
+      </el-form-item>
+      <el-divider content-position="left">其他功能设置</el-divider>
+      <el-form-item label="复读功能">
+        <el-checkbox v-model="setting.repeat_on" :label="setting.repeat_on?'启用':'禁用'"></el-checkbox>
+        <span :hidden="!setting.repeat_on" style="margin-left:20px">
+          <span style="margin-right:5px">开始复读消息次数:</span>
+          <el-checkbox v-model="setting.repeat_random" style="width:80px" :label="setting.repeat_random?'随机值':'固定值'"></el-checkbox>
+          <span :hidden="setting.repeat_random">
+            <el-input v-model="setting.repeat_count" placeholder="重复消息达到多少次开始复读" style="width:120px"></el-input>
+          </span>
+          <span :hidden="!setting.repeat_random">
+            <el-input v-model="setting['repeat_range'][0]" style="width:120px"></el-input>
+            <span>到</span>
+            <el-input v-model="setting['repeat_range'][1]" style="width:120px"></el-input>
+            <span>之间</span>
+          </span>
+        </span>
       </el-form-item>
     </el-form>
     <p>

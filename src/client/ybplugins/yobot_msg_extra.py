@@ -126,3 +126,5 @@ class Message_Extra:
                             await self.api.send_group_msg(group_id=ctx["group_id"], message=res)
                             return
                     await self.api.send_group_msg(group_id=ctx["group_id"], message="不骂，爬")
+
+            
