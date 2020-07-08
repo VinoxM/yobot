@@ -19,7 +19,7 @@ class Message_Extra:
         self.setting = glo_setting
         # 加载bot的api
         self.api = bot_api
-        # 存储上一条信息
+        # 存储上一条信息(用dict存储，防止乱窜群消息)
         self.last_msg = {}
         # 存储消息重复次数
         self.equal_count = {}

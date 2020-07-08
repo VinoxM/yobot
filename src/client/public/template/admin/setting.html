@@ -59,7 +59,12 @@
         <el-checkbox v-model="setting.preffix_on"></el-checkbox>
       </el-form-item>
       <el-form-item label="前缀" :hidden="!setting.preffix_on">
-        <el-input v-model="setting.preffix_string" placeholder="#"></el-input>
+        <el-input v-for="(v,i) in setting['preffix_string']" v-model="setting.preffix_string[i]" placeholder="#"></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button size="mini" icon="el-icon-circle-plus-outline" @click="setting['preffix_string'].push(null)">添加
+        </el-button>
+        <el-button size="mini" icon="el-icon-remove-outline" @click="setting['preffix_string'].pop()">删除 </el-button>
       </el-form-item>
       <el-form-item label="接受繁中输入">
         <el-checkbox v-model="setting.zht_in"></el-checkbox>
