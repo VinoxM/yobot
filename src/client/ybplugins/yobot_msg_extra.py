@@ -56,16 +56,14 @@ class Message_Extra:
             group_id = ctx['group_id']
             last_msg = None
             last_repeat = None
-            equal_count = 2
             repeat_random_count = 2 
             if self.last_msg.__contains__(group_id):
                 last_msg = self.last_msg.get(group_id)
                 last_repeat = self.last_repeat.get(group_id)
-                equal_count = self.equal_count.get(group_id)
             else:
                 self.last_msg[group_id]=None
                 self.last_repeat[group_id]=None
-                self.equal_count[group_id]=2
+                self.equal_count[group_id]=1
             if self.repeat_random:
                 if self.repeat_random_count.__contains__(group_id):
                     repeat_random_count=self.repeat_random_count.get(group_id)
@@ -79,11 +77,11 @@ class Message_Extra:
                     # 判断是否为过滤信息、是否与上条信息相同、复读信息是否重复
                     if ctx['raw_message']==ctx['message'] and last_msg==ctx['message'] and last_repeat!=ctx['message']:
                         # 重复信息数加一
-                        equal_count+=1
+                        self.equal_count[group_id]+=1
                         # 是随机复读值
                         if self.repeat_random:
                             # 达到复读值
-                            if repeat_random_count==equal_count:
+                            if repeat_random_count==self.equal_count[group_id]:
                                 # 开始复读
                                 await self.api.send_group_msg(group_id=ctx['group_id'],message=ctx['message'])
                                 # 重置数据
@@ -95,7 +93,7 @@ class Message_Extra:
                         # 不是随机复读值
                         else:
                             # 达到复读值    
-                            if self.repeat_count==equal_count:
+                            if self.repeat_count==self.equal_count[group_id]:
                                 # 开始复读
                                 await self.api.send_group_msg(group_id=ctx['group_id'],message=ctx['message'])
                                 # 重置数据
