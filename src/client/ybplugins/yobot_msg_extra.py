@@ -33,20 +33,6 @@ class Message_Extra:
     async def execute_async(self, ctx: Dict[str, Any]) -> Union[None, bool, str]:
         # 仅处理群聊消息
         if ctx['message_type'] == 'group':
-            # curse
-            # if ctx['raw_message'] != ctx['message']:
-            #     msg = ctx['raw_message']
-            #     if msg.startswith("骂"):
-            #         res = msg[len("骂"):]
-            #         filter_ = ["傻逼","煞笔","沙比","sb"]
-            #         for i in filter_:
-            #             if res.find(i)!=-1:
-            #                 if res.find("我")!=-1:res=res.replace("我","你")
-            #                 if res.find("xcw")!=-1:res=res.replace("xcw","你")
-            #                 await self.api.send_group_msg(group_id=ctx["group_id"], message=res)
-            #                 return
-            #         await self.api.send_group_msg(group_id=ctx["group_id"], message="不骂，爬")
-
             msg = ctx['raw_message']
             if ctx['raw_message'] != ctx['message']:
                 extras = self.extras_pre
@@ -57,16 +43,16 @@ class Message_Extra:
                     keyword = i.get("keyword",[])
                     if msg.startswith(keyword):
                         res = msg[len(keyword):]
-                        filter_ = i.get("filter",[])
                         if i.get("filter_on",False):
+                            filter_ = i.get("filter",[])
                             for j in filter_:
                                 if res.find(j)!=-1:
                                     if i.get("replace_on",False):
                                         for k in i.get("replace",[]):
                                             res = res.replace(k[0],k[1])
-                if not i.get("result_on",False):
-                    len_ = len(i.get("result",[]))
-                    ran = random.randint(0,len_-1)
-                    res = i.get("result",[])[ran]
-                await self.api.send_group_msg(group_id=ctx["group_id"], message=res)
-                return
+                        if not i.get("result_on",False):
+                            len_ = len(i.get("result",[]))
+                            ran = random.randint(0,len_-1)
+                            res = i.get("result",[])[ran]
+                        await self.api.send_group_msg(group_id=ctx["group_id"], message=res)
+                        return
