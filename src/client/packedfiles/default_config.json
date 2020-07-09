@@ -45,6 +45,34 @@
     "repeat_count":2,
     "repeat_random":true,
     "repeat_range":[2,4],
+    "extra":[
+        {
+            "title":"curse",
+            "on":true,
+            "preffix":true,
+            "keyword_on":true,
+            "keyword":"骂",
+            "filter_on":true,
+            "filter":["煞笔","shabi","傻逼","沙比","笨比","憨批","sb"],
+            "replace_on":true,
+            "replace":[["我","你"],["xcw","你"],["小仓唯","你"],["镜华","你"]],
+            "result_on":true,
+            "result":[]
+        },
+        {
+            "title":"好了",
+            "on":true,
+            "preffix":false,
+            "keyword_on":true,
+            "keyword":"我好了",
+            "filter_on":false,
+            "filter":[],
+            "replace_on":false,
+            "replace":[],
+            "result_on":false,
+            "result":["不许好~","你又好了？","好起来了~"]
+        }
+    ],
     "boss":{
         "jp": [
             [6000000, 8000000, 10000000, 12000000, 15000000],

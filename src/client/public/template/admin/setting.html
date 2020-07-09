@@ -201,7 +201,7 @@
         <el-input :disabled="!setting.calender_on" v-model="setting.calender_time" placeholder="08:00">
         </el-input>
       </el-form-item>
-      <el-divider content-position="left">其他功能设置</el-divider>
+      <el-divider content-position="left">复读功能设置</el-divider>
       <el-form-item label="复读功能">
         <el-checkbox v-model="setting.repeat_on" :label="setting.repeat_on?'启用':'禁用'"></el-checkbox>
         <span :hidden="!setting.repeat_on" style="margin-left:20px">
