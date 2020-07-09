@@ -73,8 +73,19 @@
             "result":["不许好~","你又好了？","好起来了~"]
         }
     ],
-    "img_path":"C:\\Users\\maou8\\Pictures\\Camera Roll\\",
-    "abyss_img":["1.jpg","2.jpeg","3.jpeg","4.jpeg","5.jpeg","6.jpg","7.jpg"],
+    "img_path":"C:\\Users\\maou8\\Pictures\\",
+    "trigger":[
+        {
+            "title":"abyss",
+            "label":"深渊提醒：每周三/周五晚上8点",
+            "day_of_week":"2,6",
+            "hour":"20",
+            "msg":"小仓唯提醒您：今晚深渊结算哦~",
+            "img_on":true,
+            "imgs":["1.jpg","2.jpeg","3.jpeg","4.jpg","5.jpeg","6.jpg","7.jpg"],
+            "groups":[902987930]
+        }
+    ],
     "boss":{
         "jp": [
             [6000000, 8000000, 10000000, 12000000, 15000000],
