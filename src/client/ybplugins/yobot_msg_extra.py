@@ -45,13 +45,15 @@ class Message_Extra:
                         res = msg[len(keyword):]
                         if i.get("filter_on",False):
                             filter_ = i.get("filter",[])
-                            res_t = res
+                            res_f = True
                             for j in filter_:
                                 if res.find(j)!=-1:
+                                    res_f = False
                                     if i.get("replace_on",False):
                                         for k in i.get("replace",[]):
                                             res = res.replace(k[0],k[1])
-                            if res==res_t:
+                                    break
+                            if res_f:
                                 len_ = len(i.get("result", []))
                                 ran = random.randint(0, len_ - 1)
                                 res = i.get("result", [])[ran]
