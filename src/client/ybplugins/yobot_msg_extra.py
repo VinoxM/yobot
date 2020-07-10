@@ -45,14 +45,26 @@ class Message_Extra:
                         res = msg[len(keyword):]
                         if i.get("filter_on",False):
                             filter_ = i.get("filter",[])
+                            res_t = res
                             for j in filter_:
                                 if res.find(j)!=-1:
                                     if i.get("replace_on",False):
                                         for k in i.get("replace",[]):
                                             res = res.replace(k[0],k[1])
+                            if res==res_t:
+                                len_ = len(i.get("result", []))
+                                ran = random.randint(0, len_ - 1)
+                                res = i.get("result", [])[ran]
+                                await self.api.send_group_msg(group_id=ctx["group_id"], message=res)
+                                return
+                        else:
+                            if i.get("replace_on", False):
+                                for k in i.get("replace", []):
+                                    res = res.replace(k[0], k[1])
                         if not i.get("result_on",False):
                             len_ = len(i.get("result",[]))
                             ran = random.randint(0,len_-1)
-                            res = i.get("result",[])[ran]
+                            if i.get("result",[])[ran]=='result':res = ctx['raw_message'][len(keyword):]
+                            else:res = i.get("result",[])[ran]
                         await self.api.send_group_msg(group_id=ctx["group_id"], message=res)
                         return
