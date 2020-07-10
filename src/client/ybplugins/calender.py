@@ -317,7 +317,39 @@ class Event:
         events_str = "\n".join(events)
         if events_str is None:
             return
-        msg = "今日活动：\n{}".format(events_str)
+        msg = self.region[self.setting.get("calender_region", "default")]+"今日活动：\n{}".format(events_str)
+        sends = []
+        for group in sub_groups:
+            sends.append({
+                "message_type": "group",
+                "group_id": group,
+                "message": msg
+            })
+        for userid in sub_users:
+            sends.append({
+                "message_type": "private",
+                "user_id": userid,
+                "message": msg
+            })
+        return sends
+
+    async def send_tomorrow_async(self):
+        print("正在刷新日程表")
+        try:
+            await self.load_timeline_async()
+        except Exception as e:
+            print("刷新日程表失败，失败原因："+str(e))
+        if not self.setting['calender_on']:
+            return
+        sub_groups = self.setting.get("notify_groups", [])
+        sub_users = self.setting.get("notify_privates", [])
+        if not (sub_groups or sub_users):
+            return
+        _, events = self.get_day_events(3)
+        events_str = "\n".join(events)
+        if events_str is None:
+            return
+        msg = self.region[self.setting.get("calender_region", "default")]+"明日活动：\n{}".format(events_str)
         sends = []
         for group in sub_groups:
             sends.append({
@@ -338,9 +370,13 @@ class Event:
         hour, minute = time.split(":")
         trigger = CronTrigger(hour=hour, minute=minute)
         job = (trigger, self.send_daily_async)
+        time = self.setting.get("calender_time_tomorrow", "08:00")
+        hour1, minute1 = time.split(":")
+        trigger1 = CronTrigger(hour=hour1, minute=minute1)
+        job1 = (trigger1, self.send_tomorrow_async)
         init_trigger = DateTrigger(
             datetime.datetime.now() +
             datetime.timedelta(seconds=5)
         )  # 启动5秒后初始化
         init_job = (init_trigger, self.load_timeline_async)
-        return (job, init_job)
+        return (job,job1, init_job)
