@@ -49,6 +49,10 @@ class Event:
         self.timezone = datetime.timezone(datetime.timedelta(hours=0))
 
         self.timeline = None
+        self.timeline_jp = None
+        self.timeline_tw = None
+        self.timeline_cn = None
+        self.region={"jp":"日服","tw":"台服","cn":"国服","default":""}
 
     def load_timeline(self, rg):
         raise RuntimeError("no more sync calling")
@@ -56,24 +60,24 @@ class Event:
     async def load_timeline_async(self, rg=None):
         if rg is None:
             rg = self.setting.get("calender_region", "default")
-        if rg == "jp":
-            timeline = await self.load_timeline_jp_async()
-            if timeline is None:
+            timeline_jp = await self.load_timeline_jp_async()
+            if timeline_jp is None:
                 return
-            self.timeline = timeline
+            self.timeline_jp = timeline_jp
             print("刷新日服日程表成功")
-        elif rg == "tw":
-            timeline = await self.load_timeline_tw_async()
-            if timeline is None:
+            timeline_tw = await self.load_timeline_tw_async()
+            if timeline_tw is None:
                 return
-            self.timeline = timeline
+            self.timeline_tw = timeline_tw
             print("刷新台服日程表成功")
-        elif rg == "cn":
-            timeline = await self.load_timeline_cn_async()
-            if timeline is None:
+            timeline_cn = await self.load_timeline_cn_async()
+            if timeline_cn is None:
                 return
-            self.timeline = timeline
+            self.timeline_cn = timeline_cn
             print("刷新国服日程表成功")
+        if rg == "jp":self.timeline=self.timeline_jp
+        elif rg == "tw":self.timeline=self.timeline_tw
+        elif rg == "cn":self.timeline=self.timeline_cn
         else:
             self.timeline = None
             if rg != "default":
@@ -182,10 +186,10 @@ class Event:
         return timeline
 
     def get_day_events(self, match_num) -> tuple:
-        if match_num == 2:
+        if match_num == 2 or match_num == 12 or match_num == 22 or match_num == 32:
             daystr = "今天"
             date = Arrow.now(tzinfo=self.timezone)
-        elif match_num == 3:
+        elif match_num == 3 or match_num == 13 or match_num == 23 or match_num == 33:
             daystr = "明天"
             date = Arrow.now(tzinfo=self.timezone) + datetime.timedelta(days=1)
         elif match_num & 0xf00000 == 0x100000:
@@ -197,14 +201,37 @@ class Event:
                 date = Arrow(2000+year, month, day)
             except ValueError as v:
                 raise InputError("日期错误：{}".format(v))
-        events = self.timeline.at(date)
+        if match_num-30>0:
+            daystr = "日服"+daystr
+            events = self.timeline_jp.at(date)
+        elif match_num-20>0:
+            daystr = "台服"+daystr
+            events = self.timeline_tw.at(date)
+        elif match_num-10>0:
+            daystr = "国服"+daystr
+            events = self.timeline_cn.at(date)
+        else:
+            daystr = self.region[self.setting.get("calender_region", "default")] + daystr
+            events = self.timeline.at(date)
         return (daystr, events)
 
-    def get_week_events(self) -> str:
+    def get_week_events(self,match_num) -> str:
         reply = "一周日程："
+        preffix = ""
         date = Arrow.now(tzinfo=self.timezone)
-        for i in range(7):
-            events = self.timeline.at(date)
+        for (k,i) in enumerate(range(7)):
+            if match_num-10==4:
+                if k==0:preffix += "国服"
+                events = self.timeline_cn.at(date)
+            elif match_num-20==4:
+                if k==0:preffix += "台服"
+                events = self.timeline_tw.at(date)
+            elif match_num-30==4:
+                if k==0:preffix += "日服"
+                events = self.timeline_jp.at(date)
+            else:
+                if k==0:preffix += self.region[self.setting.get("calender_region", "default")]
+                events = self.timeline.at(date)
             events_str = "\n⨠".join(events)
             if events_str == "":
                 events_str = "没有记录"
@@ -213,18 +240,28 @@ class Event:
             date += datetime.timedelta(days=1)
         reply += "\n\n更多日程：{}".format(
             _calender_url.get(self.setting["calender_region"]))
-        return reply
+        return preffix+reply
 
     @staticmethod
     def match(cmd: str) -> int:
-        if not cmd.startswith("日程"):
+        if cmd.find("日程")==-1:
             return 0
+        i=0
+        if cmd.startswith("国服"):
+            i=10
+            cmd=cmd[len("国服"):]
+        if cmd.startswith("台服"):
+            i=20
+            cmd=cmd[len("台服"):]
+        if cmd.startswith("日服"):
+            i=30
+            cmd=cmd[len("日服"):]
         if cmd == "日程" or cmd == "日程今日" or cmd == "日程今天":
-            return 2
+            return 2+i
         if cmd == "日程明日" or cmd == "日程明天":
-            return 3
+            return 3+i
         if cmd == "日程表" or cmd == "日程一周" or cmd == "日程本周":
-            return 4
+            return 4+i
         match = re.match(r"日程 ?(\d{1,2})月(\d{1,2})[日号]", cmd)
         if match:
             month = int(match.group(1))
@@ -250,8 +287,8 @@ class Event:
         if match_num == 1:
             return {"reply": "", "block": True}
         # self.check_and_update()
-        if match_num == 4:
-            reply = self.get_week_events()
+        if match_num == 4 or match_num == 14 or match_num == 24 or match_num == 34:
+            reply = self.get_week_events(match_num)
             return {"reply": reply, "block": True}
         try:
             daystr, events = self.get_day_events(match_num)

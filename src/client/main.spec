@@ -23,7 +23,7 @@ a = Analysis(
         (f"{sitepackages_location('opencc')}/opencc/config", "opencc/config"),
         (f"{sitepackages_location('opencc')}/opencc/dictionary", "opencc/dictionary"),
     ],
-    hiddenimports=[],
+    hiddenimports=['pkg_resources.py2_warn'],
     hookspath=[],
     runtime_hooks=[],
     excludes=[],
