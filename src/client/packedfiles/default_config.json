@@ -31,6 +31,7 @@
     "calender_region": "jp",
     "calender_on": true,
     "calender_time": "08:00",
+    "calender_time_tomorrow": "00:00",
     "notify_groups": [],
     "notify_privates": [],
     "preffix_on": true,
@@ -96,7 +97,7 @@
             "msg":"小仓唯提醒您：今晚深渊结算哦~",
             "img_on":true,
             "imgs":["1.jpg","2.jpeg","3.jpeg","4.jpg","5.jpeg","6.jpg","7.jpg"],
-            "groups":[902987930]
+            "groups":[902987930,552501610]
         }
     ],
     "boss":{

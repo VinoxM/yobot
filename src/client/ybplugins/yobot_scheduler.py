@@ -34,8 +34,8 @@ class Scheduler_Custom:
                     img_path = ""
                     if title is None:img_path=self.setting.get("img_path","")+img
                     else:img_path=self.setting.get("img_path","")+title+"\\"+img
-                    msg += "[CQ:image,file=file:///"+img_path+"]"
-                await self.api.send_group_msg(group_id=i, message=msg)
+                    msg_img = "[CQ:image,file=file:///"+img_path+"]"
+                await self.api.send_group_msg(group_id=i, message=msg+msg_img)
 
         trigger = self.setting.get("trigger",[])
         self.triggers = {}

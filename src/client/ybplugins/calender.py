@@ -370,7 +370,7 @@ class Event:
         hour, minute = time.split(":")
         trigger = CronTrigger(hour=hour, minute=minute)
         job = (trigger, self.send_daily_async)
-        time = self.setting.get("calender_time_tomorrow", "08:00")
+        time = self.setting.get("calender_time_tomorrow", "20:30")
         hour1, minute1 = time.split(":")
         trigger1 = CronTrigger(hour=hour1, minute=minute1)
         job1 = (trigger1, self.send_tomorrow_async)
