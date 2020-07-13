@@ -40,8 +40,10 @@ class Message_Extra:
                 extras = self.extras_
             for i in extras:
                 if i.get("keyword_on",False):
-                    keyword = i.get("keyword",[])
-                    if msg.startswith(keyword):
+                    keyword = i.get("keyword",False)
+                    if not keyword:flag=(msg==i.get("full_keyword",""))
+                    else:flag=msg.startswith(keyword)
+                    if flag:
                         res = msg[len(keyword):]
                         if i.get("filter_on",False):
                             filter_ = i.get("filter",[])

@@ -31,7 +31,6 @@ class Scheduler_Custom:
                 if tri.get("img_on",False):
                     imgs = tri.get("imgs",[])
                     img = imgs[random.randint(0,len(imgs)-1)]
-                    img_path = ""
                     if title is None:img_path=self.setting.get("img_path","")+img
                     else:img_path=self.setting.get("img_path","")+title+"\\"+img
                     msg_img = "[CQ:image,file=file:///"+img_path+"]"

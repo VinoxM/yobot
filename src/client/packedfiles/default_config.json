@@ -65,7 +65,7 @@
             "on":true,
             "preffix":false,
             "keyword_on":true,
-            "keyword":"我好了",
+            "full_keyword":"我好了",
             "filter_on":false,
             "filter":[],
             "replace_on":false,
