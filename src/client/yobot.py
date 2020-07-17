@@ -231,8 +231,8 @@ class Yobot:
         return reduce(lambda x, y: x+y, jobs)
 
     def _valiPreffix(self,msg):
-        if self.glo_setting.get("preffix_on",False):
-            pres = self.glo_setting.get("preffix_string",None)
+        if self.glo_setting.get("prefix_on",False):
+            pres = self.glo_setting.get("prefix_string",None)
             if not pres is None:
                 for i in pres:
                     if msg.startswith(i):return i

@@ -177,7 +177,7 @@ class Login:
         return raw_pwd
 
     def _get_prefix(self):
-        return self.setting['preffix_string'] if self.setting['preffix_on'] else ''
+        return self.setting['prefix_string'] if self.setting['prefix_on'] else ''
 
     def _check_pwd(self, user: User, pwd: str) -> bool:
         """
@@ -304,7 +304,7 @@ class Login:
             urljoin(self.setting['public_basepath'], 'login/'),
             methods=['GET', 'POST'])
         async def yobot_login():
-            prefix = self.setting['preffix_string'] if self.setting['preffix_on'] else ''
+            prefix = self.setting['prefix_string'] if self.setting['prefix_on'] else ''
             if request.method == "POST":
                 form = await request.form
 

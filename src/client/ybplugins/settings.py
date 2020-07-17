@@ -28,7 +28,7 @@ class Setting:
             if 'yobot_user' not in session:
                 return redirect(url_for('yobot_login', callback=request.path))
             user=User.get_by_id(session['yobot_user'])
-            if user.authority_group >= 10:
+            if user.authority_group > 10:
                 return await render_template(
                     'unauthorized.html',
                     limit='主人',
@@ -73,15 +73,18 @@ class Setting:
                         message='Invalid csrf_token',
                     )
                 new_setting = req.get('setting')
+                print(new_setting)
                 if new_setting is None:
                     return jsonify(
                         code=30,
                         message='Invalid payload',
                     )
                 self.setting.update(new_setting)
+                print(self.setting)
                 save_setting = self.setting.copy()
                 del save_setting['dirname']
                 del save_setting['verinfo']
+                print(save_setting)
                 config_path = os.path.join(
                     self.setting['dirname'], 'yobot_config.json')
                 with open(config_path, 'w', encoding='utf-8') as f:

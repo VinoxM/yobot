@@ -7,248 +7,637 @@
   <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.19.2/axios.min.js"></script>
   <script src="https://cdn.bootcdn.net/ajax/libs/element-ui/2.13.0/index.js"></script>
   <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/element-ui/2.13.0/theme-chalk/index.css">
+  <!-- CDNJS :: Sortable (https://cdnjs.com/) -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
   <style>
-    .el-input {
-      width: 80%;
+    .button-new-tag {
+      display: inline-block;
+      height: 32px;
+      line-height: 30px;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+    .input-new-tag {
+      width: 90px;
+      vertical-align: bottom;
+    }
+    .drag-handle{
+      -ms-transform:rotate(90deg);
+      -webkit-transform:rotate(90deg);
+      transform:rotate(90deg);
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+      text-align: center;
+      cursor: move;
     }
   </style>
 </head>
 
 <body>
-  <h1>yobot设置</h1>
   <div id="app">
-    <el-button type="primary" icon="el-icon-back" @click="location='{{ url_for('yobot_user') }}'" circle></el-button>
-    <el-form label-position="left" label-width="160px">
-      <el-form-item label="此站点的公开地址">
-        <el-input v-model="setting.public_address" placeholder="http://"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="info" @click="setting.public_address = window.location.origin+'/'">填入当前地址</el-button>
-        <el-button type="info" @click="domainApply = true">获取 yobot 域名</el-button>
-      </el-form-item>
-      <el-dialog title="申请yobot域名" :visible.sync="domainApply">
-        <el-form>
-          <el-form-item label="域名" label-width="120">
-            <el-input v-model="applyName" placeholder="字母、数字" maxlength="16" show-word-limit>
-              <el-select v-model="domain" slot="append" placeholder="选择后缀" style="width: 150px">
-                <el-option label=".yobot.club" value=".yobot.club"></el-option>
-                <el-option label=".xcw.best" value=".xcw.best"></el-option>
-              </el-select>
-            </el-input>
-          </el-form-item>
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="domainApply = false">取消</el-button>
-          <el-button type="primary" @click="sendApply('{{ url_for('yobot_api_getdomain') }}')" :loading="loading">
-            申请</el-button>
-        </div>
-      </el-dialog>
-      <el-form-item label="此站点的URL前缀">
-        <el-input v-model="setting.public_basepath" placeholder="/yobot/"></el-input>
-      </el-form-item>
-      <el-form-item label="主页展示备案号">
-        <el-checkbox v-model="setting.show_icp"></el-checkbox>
-      </el-form-item>
-      <el-form-item label="icp备案号" :hidden="!setting.show_icp">
-        <el-input v-model="setting.icp_info" placeholder="icp备案号，例：京ICP备00000000号-1"></el-input>
-      </el-form-item>
-      <el-form-item label="公安备案号" :hidden="!setting.show_icp">
-        <el-input v-model="setting.gongan_info" placeholder="公安备案号，例：京公网安备00000000000000号"></el-input>
-      </el-form-item>
-      <el-form-item label="使用指令前缀">
-        <el-checkbox v-model="setting.preffix_on"></el-checkbox>
-      </el-form-item>
-      <el-form-item label="前缀" :hidden="!setting.preffix_on">
-        <el-input v-for="(v,i) in setting['preffix_string']" v-model="setting.preffix_string[i]" placeholder="#"></el-input>
-      </el-form-item>
-      <el-form-item :hidden="!setting.preffix_on">
-        <el-button size="mini" icon="el-icon-circle-plus-outline" @click="setting['preffix_string'].push(null)">添加
-        </el-button>
-        <el-button size="mini" icon="el-icon-remove-outline" @click="setting['preffix_string'].pop()">删除 </el-button>
-      </el-form-item>
-      <el-form-item label="接受繁中输入">
-        <el-checkbox v-model="setting.zht_in"></el-checkbox>
-      </el-form-item>
-      <el-form-item label="输出转化为繁中">
-        <el-checkbox v-model="setting.zht_out"></el-checkbox>
-      </el-form-item>
-      <el-form-item label="转化为繁中风格" :hidden="!setting.zht_out">
-        <el-select v-model="setting.zht_out_style" placeholder="转化风格">
-          <el-option label="普通" value="s2t"></el-option>
-          <el-option label="台湾" value="s2tw"></el-option>
-          <el-option label="香港" value="s2hk"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="机器人主人">
-        <el-input v-for="(sadmin,i) in setting['super-admin']" v-model.number="setting['super-admin'][i]"
-          placeholder="QQ号"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button size="mini" icon="el-icon-circle-plus-outline" @click="setting['super-admin'].push(null)">添加
-        </el-button>
-        <el-button size="mini" icon="el-icon-remove-outline" @click="setting['super-admin'].pop()">删除 </el-button>
-      </el-form-item>
-      <el-form-item label="机器人黑名单（QQ号）">
-        <el-input v-for="(black,i) in setting['black-list']" v-model.number="setting['black-list'][i]"
-          placeholder="QQ号"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button size="mini" icon="el-icon-circle-plus-outline" @click="setting['black-list'].push(null)">添加
-        </el-button>
-        <el-button size="mini" icon="el-icon-remove-outline" @click="setting['black-list'].pop()">删除</el-button>
-      </el-form-item>
-      <el-form-item label="群消息过滤">
-        <el-radio-group v-model="setting.white_list_mode">
-          <el-switch v-model="setting.white_list_mode" active-text="白名单模式" inactive-text="黑名单模式"></el-switch>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="机器人黑名单（QQ群号）" :hidden="setting.white_list_mode">
-        <el-input v-for="(black,i) in setting['black-list-group']" v-model.number="setting['black-list-group'][i]"
-          placeholder="QQ群号"></el-input>
-      </el-form-item>
-      <el-form-item :hidden="setting.white_list_mode">
-        <el-button size="mini" icon="el-icon-circle-plus-outline" @click="setting['black-list-group'].push(null)">添加
-        </el-button>
-        <el-button size="mini" icon="el-icon-remove-outline" @click="setting['black-list-group'].pop()">删除</el-button>
-      </el-form-item>
-      <el-form-item label="机器人白名单（QQ群号）" :hidden="!setting.white_list_mode">
-        <el-input v-for="(white,i) in setting['white-list-group']" v-model.number="setting['white-list-group'][i]"
-          placeholder="QQ群号"></el-input>
-      </el-form-item>
-      <el-form-item :hidden="!setting.white_list_mode">
-        <el-button size="mini" icon="el-icon-circle-plus-outline" @click="setting['white-list-group'].push(null)">添加
-        </el-button>
-        <el-button size="mini" icon="el-icon-remove-outline" @click="setting['white-list-group'].pop()">删除</el-button>
-      </el-form-item>
-      <el-form-item label="更新和重启指令需要的权限">
-        <el-radio v-model.number="setting['setting-restrict']" :label="0">仅主人</el-radio>
-        <el-radio v-model.number="setting['setting-restrict']" :label="1">群主以上</el-radio>
-        <el-radio v-model.number="setting['setting-restrict']" :label="2">管理员以上</el-radio>
-        <el-radio v-model.number="setting['setting-restrict']" :label="3">所有人</el-radio>
-      </el-form-item>
-      <el-form-item label="允许进行批量私聊">
-        <el-checkbox v-model="setting.allow_bulk_private"></el-checkbox>
-      </el-form-item>
-      <el-form-item label="自动更新">
-        <el-checkbox v-model="setting.auto_update"></el-checkbox>
-      </el-form-item>
-      <el-form-item :hidden="!setting.auto_update">
-        <el-input v-model="setting['update-time']" placeholder="03:30"></el-input>
-      </el-form-item>
-      <el-form-item label="公会战记录">
-        <el-radio v-model="setting.clan_battle_mode" label="chat" @change="comfirm_change_clan_mode">使用旧版（仅聊天）
-        </el-radio>
-        <el-radio v-model="setting.clan_battle_mode" label="web" @change="comfirm_change_clan_mode">使用新版（聊天+网站）
-        </el-radio>
-        <el-radio v-model="setting.clan_battle_mode" label="none">关闭</el-radio>
-      </el-form-item>
-      <el-form-item label="模拟抽卡">
-        <el-checkbox v-model="setting.gacha_on">允许群聊抽卡</el-checkbox>
-        <el-checkbox v-model="setting.gacha_private_on">允许私聊抽卡</el-checkbox>
-      </el-form-item>
-      <el-form-item label="竞技场查询">
-        <el-select v-model="setting.jjc_search">
-          <el-option label="关闭" value="off"></el-option>
-          <el-option label="nomae.net" value="nomae.net"></el-option>
-          <el-option label="pcrdfans.com" value="pcrdfans.com"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="pcrdfans.com apikey" :hidden="setting.jjc_search!='pcrdfans.com'">
-        <el-input v-model="setting.jjc_auth_key" placeholder="如果您没有apikey，请更换其他查询方式">
-        </el-input>
-      </el-form-item>
-      <el-form-item label="新闻推送">
-        <el-checkbox v-model="setting.news_jp_official">日服官网</el-checkbox>
-        <el-checkbox v-model="setting.news_jp_twitter">日服推特</el-checkbox>
-        <el-checkbox v-model="setting.news_tw_official">台服官网</el-checkbox>
-        <el-checkbox v-model="setting.news_cn_official">国服官网</el-checkbox>
-        <el-checkbox v-model="setting.news_cn_bilibili">国服Bilibili动态</el-checkbox>
-      </el-form-item>
-      <el-form-item label="自动选择检测时间">
-        <el-checkbox v-model="setting.news_interval_auto"></el-checkbox>
-      </el-form-item>
-      <el-form-item label="检测间隔（分钟）" :hidden="setting.news_interval_auto">
-        <el-slider v-model.number="setting.news_interval_minutes" :min="10" :max="60" show-input>
-        </el-slider>
-      </el-form-item>
-      <el-form-item label="新闻通知到群">
-        <el-input v-for="(g,i) in setting.notify_groups" v-model.number="setting.notify_groups[i]" placeholder="群号">
-        </el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button size="mini" icon="el-icon-circle-plus-outline" @click="setting.notify_groups.push(null)">添加
-        </el-button>
-        <el-button size="mini" icon="el-icon-remove-outline" @click="setting.notify_groups.pop()">删除 </el-button>
-      </el-form-item>
-      <el-form-item label="新闻通知到人">
-        <el-input v-for="(g,i) in setting.notify_privates" v-model.number="setting.notify_privates[i]"
-          placeholder="QQ号"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button size="mini" icon="el-icon-circle-plus-outline" @click="setting.notify_privates.push(null)">添加
-        </el-button>
-        <el-button size="mini" icon="el-icon-remove-outline" @click="setting.notify_privates.pop()">删除 </el-button>
-      </el-form-item>
-      <el-form-item label="日程表区域">
-        <el-select v-model="setting.calender_region" placeholder="日程表区域">
-          <el-option label="日服日程表" value="jp"></el-option>
-          <el-option label="台服日程表" value="tw"></el-option>
-          <el-option label="国服日程表" value="cn"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="每日推送日程">
-        <el-checkbox v-model="setting.calender_on"></el-checkbox>
-        <el-input :disabled="!setting.calender_on" v-model="setting.calender_time" placeholder="08:00">
-        </el-input>
-      </el-form-item>
-      <el-divider content-position="left">复读功能设置</el-divider>
-      <el-form-item label="复读功能">
-        <el-checkbox v-model="setting.repeat_on" :label="setting.repeat_on?'启用':'禁用'"></el-checkbox>
-        <span :hidden="!setting.repeat_on" style="margin-left:20px">
-          <span style="margin-right:5px">开始复读消息次数:</span>
-          <el-checkbox v-model="setting.repeat_random" style="width:80px" :label="setting.repeat_random?'随机值':'固定值'"></el-checkbox>
-          <span :hidden="setting.repeat_random">
-            <el-input v-model="setting.repeat_count" placeholder="重复消息达到多少次开始复读" style="width:120px"></el-input>
+    <el-card shadow="hover">
+      <div slot="header" class="clearfix" style="position: relative">
+        <el-page-header @back="location='{{ url_for('yobot_user') }}'" title="返回" content="Yobot设置">
+        </el-page-header>
+        <el-button style="position: absolute;top:0px;right:0px" size="small" type="success" @click="update">保存</el-button>
+      </div>
+      <el-tabs v-model="tabActive">
+        <el-tab-pane label="机器人设置" name="1">
+          <el-form label-position="left" label-width="160px">
+            <el-form-item label="使用指令前缀">
+              <el-checkbox v-model="setting.prefix_on" :label="setting.prefix_on?'启用':'禁用'" style="margin-right: 10px"></el-checkbox>
+              <span v-if="setting.prefix_on">
+                <el-tag style="margin-right:10px" v-for="(item,i) in setting.prefix_string" :key="i" closable @close="closeTag('prefix_string',i)"><span v-text="item"></span></el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="inputVisible_1"
+                  v-model="inputValue_1"
+                  ref="saveTagInput_1"
+                  size="small"
+                  @keyup.enter.native="inputConfirm('prefix_string',1)"
+                  @blur="inputConfirm('prefix_string',1)"
+                >
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(1)">+ New Prefix</el-button>
+              </span>
+            </el-form-item>
+            <el-form-item label="简繁设置">
+              <el-checkbox v-model="setting.zht_in" label="接受繁中输入"></el-checkbox>
+              <el-checkbox v-model="setting.zht_out" :label="!setting.zht_out?'输出转化为繁中':'输出繁中风格'"></el-checkbox>
+              <el-radio-group v-model="setting.zht_out_style" size="small" v-show="setting.zht_out" style="margin-left:5px">
+                <el-radio-button label="s2t" >普通</el-radio-button>
+                <el-radio-button label="s2tw" >台湾</el-radio-button>
+                <el-radio-button label="s2hk" >香港</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="机器人主人">
+              <span>
+                <el-tag style="margin-right:10px" v-for="(item,i) in setting['super-admin']" :key="i" closable @close="closeTag('super-admin',i)"><span v-text="item"></span></el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="inputVisible_2"
+                  v-model="inputValue_2"
+                  ref="saveTagInput_2"
+                  size="small"
+                  @keyup.enter.native="inputConfirm('super-admin',2)"
+                  @blur="inputConfirm('super-admin',2)"
+                >
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(2)">+ New Master</el-button>
+              </span>
+            </el-form-item>
+            <el-form-item label="黑名单(QQ号)">
+              <span>
+                <el-tag style="margin-right:10px" v-for="(item,i) in setting['black-list']" :key="i" closable @close="closeTag('black-list',i)"><span v-text="item"></span></el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="inputVisible_3"
+                  v-model="inputValue_3"
+                  ref="saveTagInput_3"
+                  size="small"
+                  @keyup.enter.native="inputConfirm('black-list',3)"
+                  @blur="inputConfirm('black-list',3)"
+                >
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(3)">+ New Black</el-button>
+              </span>
+            </el-form-item>
+            <el-form-item label="群消息过滤">
+              <span style="margin-right: 10px">
+                <el-switch v-model="setting.white_list_mode" active-text="白名单模式" inactive-text="黑名单模式"></el-switch>
+              </span>
+              <span v-if="setting.white_list_mode">
+                <el-tag style="margin-right:10px" v-for="(item,i) in setting['white-list-group']" :key="i" closable @close="closeTag('white-list-group',i)"><span v-text="item"></span></el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="inputVisible_5"
+                  v-model="inputValue_5"
+                  ref="saveTagInput_5"
+                  size="small"
+                  @keyup.enter.native="inputConfirm('white-list-group',5)"
+                  @blur="inputConfirm('white-list-group',5)"
+                >
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(5)">+ New White</el-button>
+              </span>
+              <span v-else>
+                <el-tag style="margin-right:10px" v-for="(item,i) in setting['black-list-group']" :key="i" closable @close="closeTag('black-list-group',i)"><span v-text="item"></span></el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="inputVisible_4"
+                  v-model="inputValue_4"
+                  ref="saveTagInput_4"
+                  size="small"
+                  @keyup.enter.native="inputConfirm('black-list-group',4)"
+                  @blur="inputConfirm('black-list-group',4)"
+                >
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(4)">+ New Black</el-button>
+              </span>
+            </el-form-item>
+            <el-form-item label="更新/重启权限">
+              <el-radio-group v-model.number="setting['setting-restrict']" size="small">
+                <el-radio-button :label="0">仅主人</el-radio-button>
+                <el-radio-button :label="1">群主以上</el-radio-button>
+                <el-radio-button :label="2">管理员以上</el-radio-button>
+                <el-radio-button :label="3">所有人</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="允许进行批量私聊">
+              <el-checkbox v-model="setting.allow_bulk_private"></el-checkbox>
+            </el-form-item>
+            <el-form-item label="自动更新">
+              <el-checkbox v-model="setting.auto_update" :label="setting.auto_update?'自动更新时间':'禁用'"></el-checkbox>
+              <el-time-select size="small"
+                v-show="setting.auto_update"
+                v-model="setting['update-time']"
+                :picker-options="{
+                  start: '00:00',
+                  step: '00:15',
+                  end: '23:45'
+                }"
+                style="width: 120px;margin-left: 10px"
+                placeholder="选择时间">
+              </el-time-select>
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+
+        <el-tab-pane label="PCR相关设置" name="2">
+          <el-form label-position="left" label-width="160px">
+            <el-form-item>
+              <span slot="label">
+                <span>模拟抽卡</span>
+                <el-tooltip
+                  placement="top-start"
+                  content="点击前往卡池设置">
+                  <a href="{{ url_for('yobot_pool_setting') }}">(Pools)</a>
+                </el-tooltip >
+              </span>
+              <el-checkbox v-model="setting.gacha_on">允许群聊抽卡</el-checkbox>
+              <el-checkbox v-model="setting.gacha_private_on">允许私聊抽卡</el-checkbox>
+            </el-form-item>
+            <el-form-item label="竞技场查询">
+              <el-radio-group v-model="setting.jjc_search" size="small">
+                <el-radio-button label="off">关闭</el-radio-button>
+                <el-radio-button label="nomae.net">nomae.net</el-radio-button>
+                <el-radio-button label="pcrdfans.com">pcrdfans.com</el-radio-button>
+              </el-radio-group>
+              <el-input
+                      style="width: 620px"
+                      v-show="setting.jjc_search=='pcrdfans.com'"
+                      v-model="setting.jjc_auth_key"
+                      placeholder="如果您没有apikey，请更换其他查询方式">
+                <template slot="prepend">pcrdfans.com apikey:</template>
+              </el-input>
+            </el-form-item>
+            <el-form-item label="新闻推送">
+              <el-checkbox v-model="setting.news_jp_official">日服官网</el-checkbox>
+              <el-checkbox v-model="setting.news_jp_twitter">日服推特</el-checkbox>
+              <el-checkbox v-model="setting.news_tw_official">台服官网</el-checkbox>
+              <el-checkbox v-model="setting.news_cn_official">国服官网</el-checkbox>
+              <el-checkbox v-model="setting.news_cn_bilibili">国服Bilibili动态</el-checkbox>
+            </el-form-item>
+            <el-form-item label="新闻检测间隔(分钟)">
+              <el-checkbox v-model="setting.news_interval_auto" :label="setting.news_interval_auto?'自动选择检测间隔':'自定义检测间隔'"></el-checkbox>
+              <el-slider
+                      style="width:420px"
+                      v-show="!setting.news_interval_auto"
+                      v-model.number="setting.news_interval_minutes"
+                      :min="10" :max="60" show-input>
+              </el-slider>
+            </el-form-item>
+            <el-form-item label="新闻推送到群">
+              <span v-if="setting.prefix_on">
+                <el-tag style="margin-right:10px"
+                        v-for="(item,i) in setting.notify_groups" :key="i" closable
+                        @close="closeTag('notify_groups',i)"><span v-text="item"></span></el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="inputVisible_6"
+                  v-model="inputValue_6"
+                  ref="saveTagInput_6"
+                  size="small"
+                  @keyup.enter.native="inputConfirm('notify_groups',6)"
+                  @blur="inputConfirm('notify_groups',6)"
+                >
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(6)">+ New Group</el-button>
+              </span>
+            </el-form-item>
+            <el-form-item label="新闻推送到人">
+              <span v-if="setting.prefix_on">
+                <el-tag style="margin-right:10px"
+                        v-for="(item,i) in setting.notify_groups" :key="i" closable
+                        @close="closeTag('notify_privates',i)"><span v-text="item"></span></el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="inputVisible_7"
+                  v-model="inputValue_7"
+                  ref="saveTagInput_7"
+                  size="small"
+                  @keyup.enter.native="inputConfirm('notify_privates',7)"
+                  @blur="inputConfirm('notify_privates',7)"
+                >
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(7)">+ New Private</el-button>
+              </span>
+            </el-form-item>
+            <el-form-item label="日程表区域">
+              <el-radio-group v-model="setting.calender_region" size="small">
+                <el-radio-button label="jp">日服日程表</el-radio-button>
+                <el-radio-button label="tw">台服日程表</el-radio-button>
+                <el-radio-button label="cn">国服日程表</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="每日推送日程">
+              <el-checkbox v-model="setting.calender_on" :label="setting.calender_on?'推送时间':'禁用推送'"></el-checkbox>
+              <el-time-select size="small"
+                v-show="setting.calender_on"
+                v-model="setting['calender_time']"
+                :picker-options="{
+                  start: '00:00',
+                  step: '00:15',
+                  end: '23:45'
+                }"
+                style="width: 120px;margin-left: 10px"
+                placeholder="选择时间">
+              </el-time-select>
+            </el-form-item>
+            <el-form-item label="公会战记录">
+              <el-popover
+                placement="top-start"
+                title="警告"
+                width="200"
+                trigger="hover"
+                content="修改模式后，公会战数据会重置。请不要在公会战期间修改！">
+                <el-radio-group  v-model="setting.clan_battle_mode" size="small" slot="reference">
+                  <el-radio-button label="chat">仅聊天</el-radio-button>
+                  <el-radio-button label="web">聊天+网站</el-radio-button>
+                  <el-radio-button label="none">关闭</el-radio-button>
+                </el-radio-group>
+              </el-popover>
+            </el-form-item>
+          </el-form>
+          <el-collapse v-show="setting.clan_battle_mode!='none'" v-model="activeNames" @change="bossSetting = !bossSetting">
+            <el-collapse-item title="boss设置（点击展开）" name="1">
+              <div :hidden="!bossSetting">
+                <div v-for="area_health,area in setting.boss">
+                  <h4>[[ {jp:"日服",tw:"台服",cn:"国服",eff:"得分系数"}[area] ]]</h4>
+                  <table>
+                    <tr>
+                      <th></th>
+                      <th v-for="k in 5">[[k]]号boss</th>
+                    </tr>
+                    <tr v-for="level,k in area_health">
+                      <td>[[k+1]]阶段</td>
+                      <td v-for="health,b in level"><input v-model.number="area_health[k][b]" placeholder="boss血量"
+                          type="number" v-bind="{step: (area=='eff')?0.1:1000000}" />
+                      </td>
+                    </tr>
+                  </table><button @click="switch_levels(area)">切换阶段数</button>
+                </div>
+                <div class="comment">备注：<br>1阶段：1~3周目<br>2阶段：4~10周目<br>3阶段：11~34周目<br>4阶段：35以上</div>
+              </div>
+            </el-collapse-item>
+          </el-collapse>
+        </el-tab-pane>
+
+        <el-tab-pane label="聊天设置" name="3">
+          <el-form label-position="left" label-width="160px">
+            <el-divider content-position="left">复读功能</el-divider>
+            <el-form-item label="复读">
+              <el-checkbox v-model="setting.repeat_on" :label="setting.repeat_on?'启用':'禁用'"></el-checkbox>
+              <span :hidden="!setting.repeat_on" style="margin-left:20px">
+                <span style="margin-right:5px">开始复读消息次数:</span>
+                <el-checkbox v-model="setting.repeat_random" style="width:80px" :label="setting.repeat_random?'随机值':'固定值'"></el-checkbox>
+                <span :hidden="setting.repeat_random">
+                  <el-input-number v-model.number="setting.repeat_count" controls-position="right" style="width:80px" min="2" max="5" size="small"></el-input-number>
+                </span>
+                <span v-if="setting.repeat_random">
+                  <el-input-number v-model="setting.repeat_range[0]" controls-position="right" style="width:80px" :min="1" :max="setting.repeat_range?setting.repeat_range[1]:6" size="small"></el-input-number>
+                  <span>到</span>
+                  <el-input-number v-model="setting.repeat_range[1]" ref="maxNum" controls-position="right" style="width:80px" :min="setting.repeat_range?setting.repeat_range[0]:2" :max="6" size="small"></el-input-number>
+                  <span>之间(包含)</span>
+                </span>
+              </span>
+            </el-form-item>
+          </el-form>
+          <el-divider content-position="left">其他功能 <el-button class="el-icon-plus" size="mini" circle type="primary" @click="extraAdd"></el-button></el-divider>
+          <el-collapse style="margin-bottom: 20px" v-model="activeName" accordion>
+            <draggable :list="setting.extra" :options="{handle:'.drag-handle'}">
+            <el-collapse-item v-for="(val,k) in setting.extra" :name="k">
+              <div slot="title" style="position: relative;width: 100%">
+                <i class="el-icon-more-outline drag-handle"></i>
+                <span>名称：</span>
+                <el-input size="small" v-model="val.title" style="display: inline-block;width: 120px"></el-input>
+                <div style="position: absolute;top: 0px;right: 20px">
+                  <el-checkbox v-model="val.on" :label="val.on?'启用':'禁用'"></el-checkbox>
+                  <el-button class="el-icon-delete" size="mini" circle type="danger" style="margin-left: 10px" @click.stop="extraDel(k)"></el-button>
+                </div>
+              </div>
+              <el-form label-position="left" label-width="120px">
+                <el-form-item label="关键词">
+                  <el-checkbox v-model="val.full_keyword" :label="val.full_keyword?'全匹配：':'头匹配：'"></el-checkbox>
+                  <el-popover
+                    placement="top-start"
+                    title="说明"
+                    width="200"
+                    trigger="focus">
+                      <slot>
+                        <span>
+                          若与其他关键词开头相似，请将优先级高的排在前。
+                        </span>
+                      </slot>
+                    <el-input slot="reference" size="small" v-model="val.keyword" placeholder="#" style="width: 180px;display: inline-block"></el-input>
+                  </el-popover>
+                </el-form-item>
+                <el-form-item label="过滤字眼">
+                  <el-popover
+                  placement="top-start"
+                  title="说明"
+                  width="200"
+                  trigger="hover">
+                    <slot>
+                      <span>
+                        启用后会匹配过滤字眼，
+                        <span style="text-decoration: underline">若存在</span>机器人将会截去收到消息的<span style="color: red;text-decoration: underline">头匹配</span>字眼，然后回复，
+                        <span style="text-decoration: underline">若不存在或禁用</span>将会回复消息候选中的消息。
+                      </span>
+                    </slot>
+                    <el-checkbox slot="reference" v-model="val.filter_on" :label="val.filter_on?'启用':'禁用'"></el-checkbox>
+                  </el-popover>
+                  <span v-if="val.filter_on" style="margin-left: 10px">
+                    <draggable style="display:inline-block;"
+                      :list="val.filter_">
+                      <el-tag style="margin-right:10px"
+                              v-for="(item,i) in val.filter_" :key="i" closable
+                              @close="closeTag2('filter_',k,i)"><span v-text="item"></span></el-tag>
+                    </draggable>
+                    <el-input
+                      class="input-new-tag"
+                      v-if="inputVisible_filter[k]"
+                      v-model="inputValue_filter[k]"
+                      ref="saveTagInput_filter"
+                      size="small"
+                      @keyup.enter.native="inputConfirm2('filter',k)"
+                      @blur="inputConfirm2('filter',k)"
+                    >
+                    </el-input>
+                    <el-button v-else class="button-new-tag" size="small" @click="showInput2('filter',k)">+ New Filter</el-button>
+                  </span>
+                </el-form-item>
+                <el-form-item label="关键词替换">
+                  <el-checkbox v-model="val.replace_on" :label="val.replace_on?'启用':'禁用'"></el-checkbox>
+                  <span v-if="val.replace_on" style="margin-left: 10px">
+                    <draggable style="display:inline-block;"
+                      :list="val.replace_">
+                      <el-tag style="margin-right:10px"
+                              v-for="(item,i) in val.replace_" :key="i" closable
+                              @close="closeTag2('replace_',k,i)"><span v-text="item.join(',')"></span></el-tag>
+                    </draggable>
+                    <el-popover
+                        v-if="inputVisible_replace[k]"
+                      placement="top-start"
+                      title="提示"
+                      width="200"
+                      trigger="focus">
+                      <slot>
+                        <span>
+                          请输入两个字符，用<span style="text-decoration: underline;color: red">英文逗号</span>隔开。例如：
+                          输入"<span style="color: lightskyblue">123,abc</span>"，将会把"123"替换为"abc"。
+                        </span>
+                      </slot>
+                      <el-input slot="reference"
+                        class="input-new-tag"
+                        v-model="inputValue_replace[k]"
+                        ref="saveTagInput_replace"
+                        size="small"
+                        @keyup.enter.native="inputConfirm2('replace',k)"
+                        @blur="inputConfirm2('replace',k)"
+                      >
+                      </el-input>
+                    </el-popover>
+                    <el-button v-if="!inputVisible_replace[k]" class="button-new-tag" size="small" @click="showInput2('replace',k)">+ New Replace</el-button>
+                  </span>
+                </el-form-item>
+                <el-form-item label="消息回复候选">
+                  <el-popover v-if="!val.filter_on"
+                  placement="top-start"
+                  title="说明"
+                  width="200"
+                  trigger="hover">
+                    <slot>
+                      <span>
+                        启用后随机选择一个候选回复，禁用则直接回复。
+                      </span>
+                    </slot>
+                    <el-checkbox slot="reference" v-model="val.result_on" :label="val.result_on?'启用':'禁用'"></el-checkbox>
+                  </el-popover>
+                  <span v-else style="display: inline-block;width: 52px"></span>
+                  <span v-if="val.filter_on||(val.result_on&&!val.filter_on)" style="margin-left: 10px;">
+                    <draggable style="display:inline-block;"
+                      :list="val.result_">
+                    <el-tag style="margin-right:10px"
+                            v-for="(item,i) in val.result_" :key="i" closable
+                            @close="closeTag2('result_',k,i)"><span v-text="item"></span></el-tag>
+                    </draggable>
+                    <el-popover
+                        v-if="inputVisible_result[k]"
+                      placement="top-start"
+                      title="提示"
+                      width="200"
+                      trigger="focus">
+                      <slot>
+                        <span>
+                          输入"result"将会直接回复消息，输入"record"将会回复语音消息。
+                        </span>
+                      </slot>
+                      <el-input slot="reference"
+                        class="input-new-tag"
+                        v-model="inputValue_result[k]"
+                        ref="saveTagInput_result"
+                        size="small"
+                        @keyup.enter.native="inputConfirm2('result',k)"
+                        @blur="inputConfirm2('result',k)"
+                      >
+                      </el-input>
+                    </el-popover>
+                    <el-button v-if="!inputVisible_result[k]" class="button-new-tag" size="small" @click="showInput2('result',k)">+ New Result</el-button>
+                  </span>
+                </el-form-item>
+                <el-form-item label="语音文件夹路径">
+                  <el-input size="small" v-model="val.record_folder" placeholder="输入文件夹路径" style="width: 280px"></el-input>
+                </el-form-item>
+              </el-form>
+            </el-collapse-item>
+            </draggable>
+          </el-collapse>
+        </el-tab-pane>
+
+        <el-tab-pane label="其他设置" name="4">
+
+        </el-tab-pane>
+
+        <el-tab-pane label="站点设置" name="10">
+          <el-form label-position="left" label-width="160px">
+            <el-form-item label="此站点的公开地址">
+              <el-input v-model="setting.public_address" placeholder="http://"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="info" @click="setting.public_address = window.location.origin+'/'">填入当前地址</el-button>
+              <el-button type="info" @click="domainApply = true">获取 yobot 域名</el-button>
+            </el-form-item>
+            <el-dialog title="申请yobot域名" :visible.sync="domainApply">
+              <el-form>
+                <el-form-item label="域名" label-width="120">
+                  <el-input v-model="applyName" placeholder="字母、数字" maxlength="16" show-word-limit>
+                    <el-select v-model="domain" slot="append" placeholder="选择后缀" style="width: 150px">
+                      <el-option label=".yobot.club" value=".yobot.club"></el-option>
+                      <el-option label=".xcw.best" value=".xcw.best"></el-option>
+                    </el-select>
+                  </el-input>
+                </el-form-item>
+              </el-form>
+              <div slot="footer" class="dialog-footer">
+                <el-button @click="domainApply = false">取消</el-button>
+                <el-button type="primary" @click="sendApply('{{ url_for('yobot_api_getdomain') }}')" :loading="loading">
+                  申请</el-button>
+              </div>
+            </el-dialog>
+            <el-form-item label="此站点的URL前缀">
+              <el-input v-model="setting.public_basepath" placeholder="/yobot/"></el-input>
+            </el-form-item>
+            <el-form-item label="主页展示备案号">
+              <el-checkbox v-model="setting.show_icp"></el-checkbox>
+            </el-form-item>
+            <el-form-item label="icp备案号" :hidden="!setting.show_icp">
+              <el-input v-model="setting.icp_info" placeholder="icp备案号，例：京ICP备00000000号-1"></el-input>
+            </el-form-item>
+            <el-form-item label="公安备案号" :hidden="!setting.show_icp">
+              <el-input v-model="setting.gongan_info" placeholder="公安备案号，例：京公网安备00000000000000号"></el-input>
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+      </el-tabs>
+
+<!--      <el-form label-position="left" label-width="160px">
+        <el-form-item label="公会战记录">
+          <el-radio v-model="setting.clan_battle_mode" label="chat" @change="comfirm_change_clan_mode">使用旧版（仅聊天）
+          </el-radio>
+          <el-radio v-model="setting.clan_battle_mode" label="web" @change="comfirm_change_clan_mode">使用新版（聊天+网站）
+          </el-radio>
+          <el-radio v-model="setting.clan_battle_mode" label="none">关闭</el-radio>
+        </el-form-item>
+        <el-form-item label="模拟抽卡">
+          <el-checkbox v-model="setting.gacha_on">允许群聊抽卡</el-checkbox>
+          <el-checkbox v-model="setting.gacha_private_on">允许私聊抽卡</el-checkbox>
+        </el-form-item>
+        <el-form-item label="竞技场查询">
+          <el-select v-model="setting.jjc_search">
+            <el-option label="关闭" value="off"></el-option>
+            <el-option label="nomae.net" value="nomae.net"></el-option>
+            <el-option label="pcrdfans.com" value="pcrdfans.com"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="pcrdfans.com apikey" :hidden="setting.jjc_search!='pcrdfans.com'">
+          <el-input v-model="setting.jjc_auth_key" placeholder="如果您没有apikey，请更换其他查询方式">
+          </el-input>
+        </el-form-item>
+        <el-form-item label="新闻推送">
+          <el-checkbox v-model="setting.news_jp_official">日服官网</el-checkbox>
+          <el-checkbox v-model="setting.news_jp_twitter">日服推特</el-checkbox>
+          <el-checkbox v-model="setting.news_tw_official">台服官网</el-checkbox>
+          <el-checkbox v-model="setting.news_cn_official">国服官网</el-checkbox>
+          <el-checkbox v-model="setting.news_cn_bilibili">国服Bilibili动态</el-checkbox>
+        </el-form-item>
+        <el-form-item label="自动选择检测时间">
+          <el-checkbox v-model="setting.news_interval_auto"></el-checkbox>
+        </el-form-item>
+        <el-form-item label="检测间隔（分钟）" :hidden="setting.news_interval_auto">
+          <el-slider v-model.number="setting.news_interval_minutes" :min="10" :max="60" show-input>
+          </el-slider>
+        </el-form-item>
+        <el-form-item label="新闻通知到群">
+          <el-input v-for="(g,i) in setting.notify_groups" v-model.number="setting.notify_groups[i]" placeholder="群号">
+          </el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button size="mini" icon="el-icon-circle-plus-outline" @click="setting.notify_groups.push(null)">添加
+          </el-button>
+          <el-button size="mini" icon="el-icon-remove-outline" @click="setting.notify_groups.pop()">删除 </el-button>
+        </el-form-item>
+        <el-form-item label="新闻通知到人">
+          <el-input v-for="(g,i) in setting.notify_privates" v-model.number="setting.notify_privates[i]"
+            placeholder="QQ号"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button size="mini" icon="el-icon-circle-plus-outline" @click="setting.notify_privates.push(null)">添加
+          </el-button>
+          <el-button size="mini" icon="el-icon-remove-outline" @click="setting.notify_privates.pop()">删除 </el-button>
+        </el-form-item>
+        <el-form-item label="日程表区域">
+          <el-select v-model="setting.calender_region" placeholder="日程表区域">
+            <el-option label="日服日程表" value="jp"></el-option>
+            <el-option label="台服日程表" value="tw"></el-option>
+            <el-option label="国服日程表" value="cn"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="每日推送日程">
+          <el-checkbox v-model="setting.calender_on"></el-checkbox>
+          <el-input :disabled="!setting.calender_on" v-model="setting.calender_time" placeholder="08:00">
+          </el-input>
+        </el-form-item>
+        <el-divider content-position="left">复读功能设置</el-divider>
+        <el-form-item label="复读功能">
+          <el-checkbox v-model="setting.repeat_on" :label="setting.repeat_on?'启用':'禁用'"></el-checkbox>
+          <span :hidden="!setting.repeat_on" style="margin-left:20px">
+            <span style="margin-right:5px">开始复读消息次数:</span>
+            <el-checkbox v-model="setting.repeat_random" style="width:80px" :label="setting.repeat_random?'随机值':'固定值'"></el-checkbox>
+            <span :hidden="setting.repeat_random">
+              <el-input v-model="setting.repeat_count" placeholder="重复消息达到多少次开始复读" style="width:120px"></el-input>
+            </span>
+            <span :hidden="!setting.repeat_random">
+              <el-input v-model="setting['repeat_range'][0]" style="width:120px"></el-input>
+              <span>到</span>
+              <el-input v-model="setting['repeat_range'][1]" style="width:120px"></el-input>
+              <span>之间</span>
+            </span>
           </span>
-          <span :hidden="!setting.repeat_random">
-            <el-input v-model="setting['repeat_range'][0]" style="width:120px"></el-input>
-            <span>到</span>
-            <el-input v-model="setting['repeat_range'][1]" style="width:120px"></el-input>
-            <span>之间</span>
-          </span>
-        </span>
-      </el-form-item>
-    </el-form>
-    <p>
-      <el-collapse v-model="activeNames" @change="bossSetting = !bossSetting">
-        <el-collapse-item title="boss设置（点击展开）" name="1">
-          <div :hidden="!bossSetting">
-            <div v-for="area_health,area in setting.boss">
-              <h4>[[ {jp:"日服",tw:"台服",cn:"国服",eff:"得分系数"}[area] ]]</h4>
-              <table>
-                <tr>
-                  <th></th>
-                  <th v-for="k in 5">[[k]]号boss</th>
-                </tr>
-                <tr v-for="level,k in area_health">
-                  <td>[[k+1]]阶段</td>
-                  <td v-for="health,b in level"><input v-model.number="area_health[k][b]" placeholder="boss血量"
-                      type="number" v-bind="{step: (area=='eff')?0.1:1000000}" />
-                  </td>
-                </tr>
-              </table><button @click="switch_levels(area)">切换阶段数</button>
+        </el-form-item>
+      </el-form>
+      <p>
+        <el-collapse v-model="activeNames" @change="bossSetting = !bossSetting">
+          <el-collapse-item title="boss设置（点击展开）" name="1">
+            <div :hidden="!bossSetting">
+              <div v-for="area_health,area in setting.boss">
+                <h4>[[ {jp:"日服",tw:"台服",cn:"国服",eff:"得分系数"}[area] ]]</h4>
+                <table>
+                  <tr>
+                    <th></th>
+                    <th v-for="k in 5">[[k]]号boss</th>
+                  </tr>
+                  <tr v-for="level,k in area_health">
+                    <td>[[k+1]]阶段</td>
+                    <td v-for="health,b in level"><input v-model.number="area_health[k][b]" placeholder="boss血量"
+                        type="number" v-bind="{step: (area=='eff')?0.1:1000000}" />
+                    </td>
+                  </tr>
+                </table><button @click="switch_levels(area)">切换阶段数</button>
+              </div>
+              <div class="comment">备注：<br>1阶段：1~3周目<br>2阶段：4~10周目<br>3阶段：11~34周目<br>4阶段：35以上</div>
             </div>
-            <div class="comment">备注：<br>1阶段：1~3周目<br>2阶段：4~10周目<br>3阶段：11~34周目<br>4阶段：35以上</div>
-          </div>
-        </el-collapse-item>
-      </el-collapse>
-    </p>
-    <p>
-      <a href="{{ url_for('yobot_pool_setting') }}">前往卡池设置</a>
-    </p>
-    <p>
-      <el-button type="success" @click="update">确定</el-button>
-    </p>
+          </el-collapse-item>
+        </el-collapse>
+      </p>
+      <p>
+        <a href="{{ url_for('yobot_pool_setting') }}">前往卡池设置</a>
+      </p>
+      <p>
+        <el-button type="success" @click="update">确定</el-button>
+      </p> -->
+    </el-card>
   </div>
 </body>
 <script>
@@ -256,5 +645,6 @@
   var csrf_token = "{{ session['csrf_token'] }}";
 </script>
 <script src="{{ url_for('yobot_static', filename='admin/setting.js') }}"></script>
+<script src="{{ url_for('yobot_static', filename='vuedraggable.umd.min.js') }}"></script>
 
 </html>

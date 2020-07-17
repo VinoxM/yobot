@@ -1,24 +1,55 @@
 var vm = new Vue({
     el: '#app',
     data: {
+        list:[123,1234,1235],
         setting: {},
+        activeName:"0",
         activeNames: [],
         bossSetting: false,
         domain: '',
         domainApply: false,
         applyName: '',
         loading: false,
+        tabActive:"1",
+        inputVisible_1:false,
+        inputValue_1:"",
+        inputVisible_2:false,
+        inputValue_2:"",
+        inputVisible_3:false,
+        inputValue_3:"",
+        inputVisible_4:false,
+        inputValue_4:"",
+        inputVisible_5:false,
+        inputValue_5:"",
+        inputVisible_6:false,
+        inputValue_6:"",
+        inputVisible_7:false,
+        inputValue_7:"",
+        inputVisible_filter:[],
+        inputValue_filter:[],
+        inputVisible_replace:[],
+        inputValue_replace:[],
+        inputVisible_result:[],
+        inputValue_result:[]
     },
     mounted() {
         var thisvue = this;
         axios.get(api_path).then(function (res) {
             if (res.data.code == 0) {
                 thisvue.setting = res.data.settings;
+                for (let i = 0; i < thisvue.setting['extra'].length; i++) {
+                    thisvue.inputVisible_filter.push(false)
+                    thisvue.inputValue_filter.push("")
+                    thisvue.inputVisible_replace.push(false)
+                    thisvue.inputValue_replace.push("")
+                    thisvue.inputVisible_result.push(false)
+                    thisvue.inputValue_result.push("")
+                }
             } else {
-                alert(res.data.message);
+                vm.$message.warning(res.data.message);
             }
         }).catch(function (error) {
-            alert(error);
+            vm.$message.error(error);
         });
     },
     methods: {
@@ -32,23 +63,23 @@ var vm = new Vue({
                 },
             ).then(function (res) {
                 if (res.data.code == 0) {
-                    alert('设置成功，重启机器人后生效');
+                    vm.$message.success('设置成功，重启机器人后生效');
                 } else {
-                    alert('设置失败：' + res.data.message);
+                    vm.$message.warning('设置失败：' + res.data.message);
                 }
             }).catch(function (error) {
-                alert(error);
+                vm.$message.error(error);
             });
         },
         sendApply: function (api) {
             if (this.domain === '') {
-                alert('请选择后缀');
+                vm.$message.warning('请选择后缀');
                 return;
             }
             if (/^[0-9a-z]{1,16}$/.test(this.applyName)) {
                 ;
             } else {
-                alert('只能包含字母、数字');
+                vm.$message.warning('只能包含字母、数字');
                 return;
             }
             var thisvue = this;
@@ -58,18 +89,18 @@ var vm = new Vue({
             ).then(function (res) {
                 thisvue.domainApply = false;
                 if (res.data.code == 0) {
-                    alert('申请成功，请等待1分钟左右解析生效');
+                    vm.$message.success('申请成功，请等待1分钟左右解析生效');
                     thisvue.setting.public_address = thisvue.setting.public_address.replace(/\/\/([^:\/]+)/, '//' + thisvue.applyName + thisvue.domain);
                     thisvue.update(null);
                 } else if (res.data.code == 1) {
-                    alert('申请失败，此域已被占用');
+                    vm.$message.warning('申请失败，此域已被占用');
                 } else {
-                    alert('申请失败，' + res.data.message);
+                    vm.$message.warning('申请失败，' + res.data.message);
                 }
                 thisvue.loading = false;
             }).catch(function (error) {
                 thisvue.loading = false;
-                alert(error);
+                vm.$message.error(error);
             });
         },
         switch_levels: function (area) {
@@ -85,6 +116,99 @@ var vm = new Vue({
                 type: 'warning',
             });
         },
+        closeTag:function(key,index){
+            this.setting[key].splice(index,1)
+        },
+        inputConfirm:function(key,index){
+            let inputValue = this['inputValue_'+index]
+            if(inputValue!=''){
+                this.setting[key].push(inputValue)
+            }
+            this['inputVisible_'+index]=false
+            this['inputValue_'+index]=""
+        },
+        showInput:function(key,e){
+            this['inputVisible_'+key]=true
+            this.$nextTick(_ => {
+              this.$refs['saveTagInput_'+key].$refs.input.focus();
+            });
+        },
+        closeTag2:function(key,index,index1){
+            this.setting.extra[index][key].splice(index1,1)
+        },
+        inputConfirm2:function(key,index,index1){
+            let inputValue = this['inputValue_'+key][index]
+            if(inputValue!=''){
+                switch (key) {
+                    case "replace":
+                        if ( /^[^,]+[,]{1}[^,]+$/.test(inputValue)){
+                            this.setting.extra[index][key+"_"].push(inputValue.split(','))
+                        }
+                        break;
+                    case "result":
+                        let f = true
+                        switch (inputValue) {
+                            case 'result':
+                                if (this.setting.extra[index][key + "_"].indexOf('result') == -1) {
+                                    f=false
+                                }
+                                break;
+                            case 'record':
+                                if (this.setting.extra[index][key + "_"].indexOf('record') == -1){
+                                    f=false
+                                }
+                                break;
+                        }
+                        if (f){
+                            break;
+                        }
+                    default:
+                        this.setting.extra[index][key+"_"].push(inputValue)
+                        break;
+                }
+            }
+            this['inputVisible_'+key].splice(index,1,false)
+            this['inputValue_'+key].splice(index,1,"")
+        },
+        showInput2:function(key,index){
+            this['inputVisible_'+key].splice(index,1,true)
+            this.$nextTick(_ => {
+              this.$refs['saveTagInput_'+key][0].$refs.input.focus();
+            });
+        },
+        extraAdd:function () {
+            this.setting.extra.push(
+                {
+                    title:"",
+                    on:true,
+                    prefix:true,
+                    full_keyword: true,
+                    keyword:"",
+                    filter_on:false,
+                    filter_:[],
+                    replace_on:false,
+                    replace_:[],
+                    result_on:true,
+                    result_:[],
+                    record_folder: ""
+                }
+            )
+            this.inputVisible_filter.push(false)
+            this.inputValue_filter.push("")
+            this.inputVisible_replace.push(false)
+            this.inputValue_replace.push("")
+            this.inputVisible_result.push(false)
+            this.inputValue_result.push("")
+        },
+        extraDel:function(k){
+            this.setting.extra.splice(k,1)
+            this.inputVisible_filter.splice(k,1)
+            this.inputValue_filter.splice(k,1)
+            this.inputVisible_replace.splice(k,1)
+            this.inputValue_replace.splice(k,1)
+            this.inputVisible_result.splice(k,1)
+            this.inputValue_result.splice(k,1)
+        }
     },
     delimiters: ['[[', ']]'],
 })

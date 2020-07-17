@@ -39,50 +39,54 @@ class Message_Extra:
             else:
                 extras = self.extras_
             for i in extras:
-                if i.get("keyword_on",False):
-                    keyword = i.get("keyword","")
-                    if not keyword:flag=(msg==i.get("full_keyword",""))
-                    else:flag=msg.startswith(keyword)
-                    if flag:
-                        res = msg[len(keyword):]
-                        if i.get("filter_on",False):
-                            filter_ = i.get("filter",[])
-                            res_f = True
-                            for j in filter_:
-                                if res.find(j)!=-1:
-                                    res_f = False
-                                    if i.get("replace_on",False):
-                                        for k in i.get("replace",[]):
-                                            res = res.replace(k[0],k[1])
-                                    break
-                            if res_f:
-                                len_ = len(i.get("result", []))
-                                ran = random.randint(0, len_ - 1)
-                                res = i.get("result", [])[ran]
-                                await self.api.send_group_msg(group_id=ctx["group_id"], message=res)
-                                return
-                        else:
-                            if i.get("replace_on", False):
-                                for k in i.get("replace", []):
-                                    res = res.replace(k[0], k[1])
-                        if not i.get("result_on",False):
-                            len1_ = len(i.get("result",[]))
-                            ran = random.randint(0,len1_-1)
-                            if i.get("result",[])[ran]=='result':res = ctx['raw_message'][len(keyword):]
-                            elif i.get("result",[])[ran]=='record':
-                                re_path = self.setting.get("record_path","")
-                                re_folder = i.get("record_folder", False)
-                                if re_folder:
-                                    re_list = os.listdir(re_path + re_folder)
-                                    re_len_ = len(re_list)
-                                    re_ran = random.randint(0,re_len_-1)
-                                    r_name = re_folder + re_list[re_ran]
-                                else:
-                                    r_len_ = len(i.get("record",[]))
-                                    r_ran = random.randint(0,r_len_-1)
-                                    r_name = i.get("record",[])[r_ran]
-                                new_path = re_path + r_name
-                                res = "[CQ:record,file=file:///" + new_path + "]"
-                            else:res = i.get("result",[])[ran]
+                keyword = i.get("keyword","")
+                if i.get("full_keyword",False):
+                    flag = (msg == keyword)
+                else:
+                    flag = msg.startswith(keyword)
+                if flag:
+                    res = msg[len(keyword):]
+                    if i.get("filter_on", False):
+                        filter_ = i.get("filter_", [])
+                        res_f = True
+                        for j in filter_:
+                            if res.find(j)!=-1:
+                                res_f = False
+                                if i.get("replace_on", False):
+                                    for k in i.get("replace_", []):
+                                        res = res.replace(k[0], k[1])
+                                break
+                        if res_f:
+                            len_ = len(i.get("result_", []))
+                            ran = random.randint(0, len_ - 1)
+                            res = i.get("result_", [])[ran]
                         await self.api.send_group_msg(group_id=ctx["group_id"], message=res)
                         return
+                    else:
+                        if i.get("replace_on", False):
+                            for k in i.get("replace_", []):
+                                res = res.replace(k[0], k[1])
+                    if i.get("result_on", False):
+                        len1_ = len(i.get("result_",[]))
+                        ran = random.randint(0, len1_-1)
+                        res_ = i.get("result_", [])[ran]
+                        if res_ == 'result':
+                            res = ctx['raw_message'][len(keyword):]
+                        elif res_ == 'record':
+                            re_path = self.setting.get("record_path", "")
+                            re_folder = i.get("record_folder", False)
+                            if re_folder:
+                                re_list = os.listdir(re_path + re_folder)
+                                re_len_ = len(re_list)
+                                re_ran = random.randint(0, re_len_-1)
+                                r_name = re_folder + re_list[re_ran]
+                            else:
+                                r_len_ = len(i.get("record_folder", []))
+                                r_ran = random.randint(0, r_len_-1)
+                                r_name = i.get("record_folder", [])[r_ran]
+                            new_path = re_path + r_name
+                            res = "[CQ:record,file=file:///" + new_path + "]"
+                        else:
+                            res = res_
+                    await self.api.send_group_msg(group_id=ctx["group_id"], message=res)
+                    return
