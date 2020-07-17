@@ -142,7 +142,7 @@ class Updater:
             return pullcheck
         for url in self.ver["check_url"]:
             try:
-                async with aiohttp.request('GET', url=url, proxy="127.0.0.1:2801") as response:
+                async with aiohttp.request('GET', url=url) as response:
                     if response.status == 200:
                         res = await response.text()
                         server_available = True
