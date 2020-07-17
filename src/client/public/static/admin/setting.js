@@ -149,17 +149,17 @@ var vm = new Vue({
                         let f = true
                         switch (inputValue) {
                             case 'result':
-                                if (this.setting.extra[index][key + "_"].indexOf('result') == -1) {
+                                if (this.setting.extra[index][key + "_"].indexOf('result') != -1) {
                                     f=false
                                 }
                                 break;
                             case 'record':
-                                if (this.setting.extra[index][key + "_"].indexOf('record') == -1){
+                                if (this.setting.extra[index][key + "_"].indexOf('record') != -1){
                                     f=false
                                 }
                                 break;
                         }
-                        if (f){
+                        if (!f){
                             break;
                         }
                     default:
