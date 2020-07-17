@@ -53,6 +53,7 @@ class Updater:
         for url in self.ver["check_url"]:
             try:
                 async with aiohttp.request('GET', url=url) as response:
+                    print(response)
                     if response.status == 200:
                         res = await response.text()
                         server_available = True
