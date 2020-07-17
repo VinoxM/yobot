@@ -341,7 +341,7 @@ def get_version(base_version: str, base_commit:  int) -> dict:
             text = r.read()
         if text != "":
             return {
-                "run-as": "python",
+                "run-as": "exe",
                 "commited": False,
                 "ver_name": "yobot{}源码版\n存在未提交的修改".format(base_version)
             }
@@ -364,7 +364,7 @@ def get_version(base_version: str, base_commit:  int) -> dict:
             # vername += "\nhash: {}".format(hash_)
             vername += "\n哈希名: " + rand_vername(seed=hash_, length=2)
         return {
-            "run-as": "python",
+            "run-as": "exe",
             "commited": True,
             "extra_commit": extra_commit,
             "ver_name": vername,
