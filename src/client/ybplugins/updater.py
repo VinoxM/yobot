@@ -334,7 +334,7 @@ def get_version(base_version: str, base_commit:  int) -> dict:
             "ver_name": "yobot{}便携版".format(base_version),
             "ver_id": 3300 + base_commit,
             "check_url": [
-                "http://raw.githubusercontent.com/VinoxM/yobot/master/docs/v3/ver.json",
+                "https://gitee.com/mAou864/yobot/raw/master/docs/v3/ver.json",
             ]
         }
     try:
@@ -371,7 +371,7 @@ def get_version(base_version: str, base_commit:  int) -> dict:
             "ver_name": vername,
             "ver_id": 3300 + base_commit,
             "check_url": [
-                "http://raw.githubusercontent.com/VinoxM/yobot/master/docs/v3/ver.json",
+                "https://gitee.com/mAou864/yobot/raw/master/docs/v3/ver.json",
             ],
         }
     except Exception as e:
