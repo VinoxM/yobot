@@ -370,8 +370,7 @@ def get_version(base_version: str, base_commit:  int) -> dict:
             "ver_name": vername,
             "ver_id": 3300 + base_commit,
             "check_url": [
-                "https://gitee.com/yobot/yobot/raw/master/docs/v3/ver.json",
-                "https://yuudi.github.io/yobot/v3/ver.json",
+                "https://github.com/VinoxM/yobot/blob/master/docs/v3/ver.json",
             ],
         }
     except Exception as e:
