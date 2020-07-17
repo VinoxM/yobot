@@ -252,9 +252,11 @@ class Updater:
             force = True
         if platform.system() == "Windows":
             if self.evn == "exe":
+                print('开始自动下载更新')
                 await self.send_reply(msg, '开始自动下载更新')
                 reply = await self.windows_update_async(force, ver)
             elif self.evn == "py" or self.evn == "python":
+                print('开始自动拉取git更新')
                 await self.send_reply(msg, '开始自动拉取git更新')
                 reply = await self.windows_update_git_async(force, ver)
         else:
