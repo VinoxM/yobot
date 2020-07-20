@@ -31,7 +31,7 @@ class Message:
 
     def execute(self, match_num: int, msg: dict) -> dict:
         if match_num == 99:
-            reply = self.version
+            reply = str(self.version)
         elif match_num == 98:
             reply = self.help_page
         elif match_num == 97:
