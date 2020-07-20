@@ -75,7 +75,7 @@ class Message_Repeat:
                 # 上条信息判断不为空
                 if not last_msg is None:
                     # 判断是否为过滤信息、是否与上条信息相同、复读信息是否重复
-                    if ctx['raw_message']==ctx['message'] and last_msg==ctx['message'] and last_repeat!=ctx['message']:
+                    if (ctx['raw_message']==ctx['message'] or ctx['raw_message'].find("[CQ:image,")!=-1) and last_msg==ctx['message'] and last_repeat!=ctx['message']:
                         # 重复信息数加一
                         self.equal_count[group_id]+=1
                         # 是随机复读值
