@@ -44,6 +44,7 @@
     "gongan_info": "",
     "repeat_on":true,
     "repeat_count":2,
+    "repeat_img":true,
     "repeat_random":true,
     "repeat_range":[2,4],
     "extra":[

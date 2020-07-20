@@ -309,6 +309,7 @@
             <el-divider content-position="left">复读功能</el-divider>
             <el-form-item label="复读">
               <el-checkbox v-model="setting.repeat_on" :label="setting.repeat_on?'启用':'禁用'"></el-checkbox>
+              <el-checkbox v-if="setting.repeat_on" v-model="setting.repeat_img" :label="setting.repeat_img?'启用图片复读':'禁用图片复读'"></el-checkbox>
               <span :hidden="!setting.repeat_on" style="margin-left:20px">
                 <span style="margin-right:5px">开始复读消息次数:</span>
                 <el-checkbox v-model="setting.repeat_random" style="width:80px" :label="setting.repeat_random?'随机值':'固定值'"></el-checkbox>

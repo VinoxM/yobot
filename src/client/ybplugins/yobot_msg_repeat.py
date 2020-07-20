@@ -75,36 +75,37 @@ class Message_Repeat:
                 # 上条信息判断不为空
                 if not last_msg is None:
                     # 判断是否为过滤信息、是否与上条信息相同、复读信息是否重复
-                    if (ctx['raw_message']==ctx['message'] or ctx['raw_message'].find("[CQ:image,")!=-1) and last_msg==ctx['message'] and last_repeat!=ctx['message']:
-                        # 重复信息数加一
-                        self.equal_count[group_id]+=1
-                        # 是随机复读值
-                        if self.repeat_random:
-                            # 达到复读值
-                            if repeat_random_count==self.equal_count[group_id]:
-                                # 开始复读
-                                await self.api.send_group_msg(group_id=ctx['group_id'],message=ctx['message'])
-                                # 重置数据
-                                self.equal_count[group_id]=1
-                                self.last_repeat[group_id]=ctx['message']
-                                # 重新随机随机数
-                                self.repeat_random_count[group_id]=random.randint(self.repeat_range[0],self.repeat_range[1])
-                                print("群",ctx['group_id'],"重复次数随机值为",self.repeat_random_count[group_id])
-                        # 不是随机复读值
+                    if last_msg == ctx['message'] and last_repeat != ctx['message']:
+                        if ctx['raw_message'] == ctx['message'] or (self.setting.get("repeat_img", False) and ctx['raw_message'].find("[CQ:image,") != -1):
+                            # 重复信息数加一
+                            self.equal_count[group_id] += 1
+                            # 是随机复读值
+                            if self.repeat_random:
+                                # 达到复读值
+                                if repeat_random_count==self.equal_count[group_id]:
+                                    # 开始复读
+                                    await self.api.send_group_msg(group_id=ctx['group_id'],message=ctx['message'])
+                                    # 重置数据
+                                    self.equal_count[group_id]=1
+                                    self.last_repeat[group_id]=ctx['message']
+                                    # 重新随机随机数
+                                    self.repeat_random_count[group_id]=random.randint(self.repeat_range[0],self.repeat_range[1])
+                                    print("群",ctx['group_id'],"重复次数随机值为",self.repeat_random_count[group_id])
+                            # 不是随机复读值
+                            else:
+                                # 达到复读值
+                                if self.repeat_count==self.equal_count[group_id]:
+                                    # 开始复读
+                                    await self.api.send_group_msg(group_id=ctx['group_id'],message=ctx['message'])
+                                    # 重置数据
+                                    self.equal_count[group_id]=1
+                                    self.last_repeat[group_id]=ctx['message']
+                        # 当前信息不符合复读要求
                         else:
-                            # 达到复读值    
-                            if self.repeat_count==self.equal_count[group_id]:
-                                # 开始复读
-                                await self.api.send_group_msg(group_id=ctx['group_id'],message=ctx['message'])
-                                # 重置数据
-                                self.equal_count[group_id]=1
-                                self.last_repeat[group_id]=ctx['message']
-                    # 当前信息不符合复读要求
-                    else:
-                        # 记录上一条数据
-                        self.last_msg[group_id]=ctx['message']
-                        # 重置数据
-                        self.equal_count[group_id]=1
+                            # 记录上一条数据
+                            self.last_msg[group_id]=ctx['message']
+                            # 重置数据
+                            self.equal_count[group_id]=1
                 # 上条信息为空
                 else:
                     # 存储当前信息为上条信息

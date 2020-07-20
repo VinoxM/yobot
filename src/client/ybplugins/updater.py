@@ -66,7 +66,8 @@ class Updater:
         if not (force or verinfo["version"] > self.ver["ver_id"]):
             return "已经是最新版本"
         try:
-            async with aiohttp.request('GET', url=verinfo["url"]) as response:
+            url = verinfo["url"]+verinfo["version"]+".zip"
+            async with aiohttp.request('GET', url=url) as response:
                 if response.status != 200:
                     return verinfo["url"] + " code: " + str(response.status)
                 content = await response.read()
