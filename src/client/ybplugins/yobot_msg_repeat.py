@@ -101,11 +101,11 @@ class Message_Repeat:
                                     self.equal_count[group_id]=1
                                     self.last_repeat[group_id]=ctx['message']
                         # 当前信息不符合复读要求
-                        else:
-                            # 记录上一条数据
-                            self.last_msg[group_id]=ctx['message']
-                            # 重置数据
-                            self.equal_count[group_id]=1
+                    else:
+                        # 重置数据
+                        self.equal_count[group_id]=1
+                    # 记录上一条数据
+                    self.last_msg[group_id]=ctx['message']
                 # 上条信息为空
                 else:
                     # 存储当前信息为上条信息
