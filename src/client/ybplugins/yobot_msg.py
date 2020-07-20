@@ -7,7 +7,8 @@ class Message:
     Request = False
 
     def __init__(self, glo_setting: dict, *args, **kwargs):
-        self.version = glo_setting["verinfo"]["ver_id"]+glo_setting["verinfo"].get("extra_commit", 0)
+        self.version = glo_setting["verinfo"]["ver_name"]
+        self.ver_id = glo_setting["verinfo"]["ver_id"]+glo_setting["verinfo"].get("extra_commit", 0)
         self.setting = glo_setting
         if glo_setting["clan_battle_mode"] != "chat":
             self.help_page = urljoin(
@@ -22,6 +23,8 @@ class Message:
     def match(cmd: str) -> int:
         if cmd == "ver" or cmd == "V" or cmd == "version":
             return 99
+        elif cmd == "verid" :
+            return 96
         elif cmd == "帮助" or cmd == "help":
             return 98
         elif cmd == "手册":
@@ -31,7 +34,9 @@ class Message:
 
     def execute(self, match_num: int, msg: dict) -> dict:
         if match_num == 99:
-            reply = str(self.version)
+            reply = self.version
+        elif match_num == 96:
+            reply = str(self.ver_id)
         elif match_num == 98:
             reply = self.help_page
         elif match_num == 97:
