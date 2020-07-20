@@ -66,10 +66,10 @@ class Updater:
         if not (force or verinfo["version"] > self.ver["ver_id"]):
             return "已经是最新版本"
         try:
-            download_url = verinfo["url"]+str(verinfo["version"])+".zip"
+            download_url = verinfo["url"]
             async with aiohttp.request('GET', url=download_url) as response:
                 if response.status != 200:
-                    return verinfo["url"] + " code: " + str(response.status)
+                    return download_url + " code: " + str(response.status)
                 content = await response.read()
         except:
             return "下载失败：{}".format(download_url)
