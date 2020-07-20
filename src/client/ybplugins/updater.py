@@ -73,7 +73,7 @@ class Updater:
                 content = await response.read()
         except:
             return "下载失败：{}".format(download_url)
-        fname = os.path.basename(verinfo["url"])
+        fname = os.path.basename(download_url)
         with open(os.path.join(self.path, "temp", fname), "wb") as f:
             f.write(content)
         verstr = str(verinfo["version"])
