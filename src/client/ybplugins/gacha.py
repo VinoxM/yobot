@@ -87,8 +87,7 @@ class Gacha:
                     self.nickname_dict[col] = (row[0], row[1])
         print("角色昵称加载完成……")
 
-    def result(self) -> dict:
-        fix = self._pool["setting"]["default_pool"]
+    def result(self, fix: str) -> dict:
         prop = 0.
         result_list = []
         up_inx = 0
@@ -256,7 +255,7 @@ class Gacha:
                 reply += "{}抽到第{}发十连时已经达到今日抽卡上限，抽卡结果:".format(nickname, i)
                 flag_fully_30_times = False
                 break
-            single_result = self.result()
+            single_result = self.result(fix)
             if up_inx == 0 and int(single_result["up_inx"]) != 0:
                 up_inx = int(single_result["up_inx"])+(i-1)*10
             star1_count += int(single_result["star1_count"])
@@ -480,7 +479,7 @@ class Gacha:
                 nickname=msg["sender"]["card"])
         elif func_num >= 10:
             if func_num == 10:
-                fix = self._pool["setting"]["default_pool"]
+                fix = self._pool["settings"]["default_pool"]
             elif func_num == 11:
                 fix = "cn"
             elif func_num == 12:
