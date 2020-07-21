@@ -296,7 +296,7 @@ class Gacha:
                 reply += "\n本次没有抽到ssr。".format(nickname)
             return reply
         if flag_fully_30_times:
-            reply += "[CQ:at, qq={}]\n素敵な仲間が増えますよ！".format(qqid, nickname)
+            reply += "[CQ:at, qq={}]<--{}-->\n素敵な仲間が増えますよ！".format(self.fix[fix], qqid, nickname)
         db_conn.commit()
         db_conn.close()
         reply += await self.handle_result(result)
@@ -314,7 +314,6 @@ class Gacha:
             if len_ in range(r["range"][0], r["range"][1]+1):
                 reply += "\n{}".format(random.choice(r["reply"]))
                 break
-        reply += "\n当前卡池：{}".format(self.fix[fix])
         # print("s1:{},s2:{},s3:{},up:{},upinx:{}".format(star1_count, star2_count, star3_count, up_count,up_inx))
         return reply
 
