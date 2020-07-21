@@ -261,7 +261,7 @@ class Gacha:
         db_conn.close()
         reply += await self.handle_result(result)
         reply += "第{}抽出UP角色，第{}抽出虹".format(up_inx,ssr_inx)
-        return
+        return reply
 
     async def handle_result(self,result: List):
         local_files = []
