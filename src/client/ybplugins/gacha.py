@@ -299,6 +299,8 @@ class Gacha:
             for x in range(1,img_col+1):
                 from_img = Image.open(local_files[img_row*(y-1)+x-1]).resize((img_size,img_size),Image.ANTIALIAS)
                 to_img.paste(from_img, ((x-1)*img_size,(y-1)*img_size))
+                if y == img_row+1 and len(local_files) == (img_row-1)*img_col+x:
+                    break
         to_img.save(img_save_path)
         reply+="[CQ:record,file=file:///" + img_save_path + "]"
 
