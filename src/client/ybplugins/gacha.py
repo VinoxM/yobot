@@ -225,7 +225,7 @@ class Gacha:
                 flag_fully_30_times = False
                 break
             single_result = self.result()
-            if up_inx == 0:
+            if up_inx == 0 and int(single_result["up_inx"]) != 0:
                 up_inx = int(single_result["up_inx"])+i*10
             times += 1
             day_times += 1
