@@ -352,7 +352,7 @@ class Gacha:
             gacha_star = Image.open(os.path.join(self.resource_path, "gacha", "unit", "star.png")).resize((16, 16), Image.ANTIALIAS).convert('RGBA')
             gacha_img = Image.open(localfile).convert('RGBA')
             for i in range(1, r[1]+1):
-                gacha_img.paste(gacha_star, (4+14*i, 112))
+                gacha_img.paste(gacha_star, (4+14*i, 112), mask=gacha_star.split()[3])
             gacha_img.save(gacha_file)
             local_files.append(gacha_file)
         img_col = 5
