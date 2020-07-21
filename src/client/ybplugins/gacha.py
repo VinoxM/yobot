@@ -346,9 +346,9 @@ class Gacha:
                 with open(localfile, 'wb') as f:
                     f.write(res)
             local_files.append(localfile)
-        img_col = 4
+        img_col = 5
         img_row = math.ceil(len(local_files)/img_col)
-        img_size = 64
+        img_size = 128
         img_save_path = os.path.join(self.resource_path, "gacha", str(int(time.time()*1000))+".png")
         if not os.path.exists(os.path.dirname(img_save_path)):
             os.makedirs(os.path.dirname(img_save_path))
