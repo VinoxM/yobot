@@ -494,7 +494,7 @@ class Gacha:
                 fix = "tw"
             elif func_num == 4:
                 fix = "jp"
-            reply = self.gacha(
+            reply = await self.gacha(
                 qqid=msg["sender"]["user_id"],
                 nickname=msg["sender"]["card"],fix=fix)
         elif func_num >= 10:
