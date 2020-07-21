@@ -289,7 +289,7 @@ class Gacha:
                     os.makedirs(os.path.dirname(localfile))
                 with open(localfile, 'wb') as f:
                     f.write(res)
-                local_files.append(localfile)
+            local_files.append(localfile)
         img_col = 5
         img_row = math.ceil(len(local_files)/img_col)
         img_size = 48
