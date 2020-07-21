@@ -304,7 +304,7 @@ class Gacha:
         else:
             reply += "，没有抽到UP角色"
         for r in self._pool["replys"].values():
-            if len(result) in r["range"]:
+            if len(result) in range(r["range"][0], r["range"][1]+1):
                 reply += "\n{}".format(random.choice(r["reply"]))
         return reply
 
