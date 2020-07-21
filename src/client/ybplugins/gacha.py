@@ -257,7 +257,7 @@ class Gacha:
             return reply
         if flag_fully_30_times:
             reply += "{}本次下井结果：".format(nickname)
-        img_reply = self.handle_result(result)
+        img_reply = await self.handle_result(result)
         reply += img_reply
         db_conn.commit()
         db_conn.close()
