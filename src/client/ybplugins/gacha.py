@@ -261,7 +261,9 @@ class Gacha:
         db_conn.commit()
         db_conn.close()
         reply += await self.handle_result(result)
-        reply += "第{}抽出虹，第{}抽出UP角色".format(ssr_inx, up_inx)
+        reply += "第{}抽出虹".format(ssr_inx)
+        if up_inx !=0:
+            reply += "，第{}抽出UP角色".format(up_inx)
         if len(result) <= 3:
             reply += "\n非洲酋长非您莫属，要不再氪一单？"
         elif 3 < len(result) <= 10:
