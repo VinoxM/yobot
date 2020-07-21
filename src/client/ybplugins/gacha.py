@@ -292,7 +292,7 @@ class Gacha:
         img_col = 5
         img_row = math.ceil(len(local_files)/img_col)
         img_size = 64
-        img_save_path = os.path.join(self.resource_path, "gacha", str(int(time.time()*1000))+".jpg")
+        img_save_path = os.path.join(self.resource_path, "gacha", str(int(time.time()*1000))+".png")
         if not os.path.exists(os.path.dirname(img_save_path)):
             os.makedirs(os.path.dirname(img_save_path))
         to_img = Image.new('RGBA', (img_col*img_size, img_row*img_size))
