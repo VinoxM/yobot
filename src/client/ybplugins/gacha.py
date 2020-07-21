@@ -276,13 +276,13 @@ class Gacha:
                     if self.check_ssr(char, fix):
                         if ssr_inx == 0:
                             ssr_inx = inx + 1 + (i-1)*10
-                        result.append(str(char).replace("★", ""))
+                        result.append([str(char).replace("★", ""), str(char).count("★")])
                 else:
                     info[char] = 1
                     if self.check_ssr(char, fix):
                         if ssr_inx == 0:
                             ssr_inx = inx + 1 + (i-1)*10
-                        result.append(str(char).replace("★", ""))
+                        result.append([str(char).replace("★", ""), str(char).count("★")])
         sql_info = pickle.dumps(info)
         if mem_exists:
             db.execute("UPDATE Colle SET colle=?, times=?, last_day=?, day_times=? WHERE qqid=?",
