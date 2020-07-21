@@ -47,9 +47,10 @@ class Gacha:
                 except json.JSONDecodeError:
                     raise CodingError("卡池文件解析错误，请检查卡池文件语法")
 
-    def result(self) -> List[str]:
+    def result(self) -> dict:
         prop = 0.
         result_list = []
+        up_inx = 0
         for p in self._pool["pool"].values():
             prop += p["prop"]
         for i in range(self._pool["settings"]["combo"] - 1):
@@ -59,6 +60,8 @@ class Gacha:
                 if resu < 0:
                     result_list.append(p.get("prefix", "") +
                                        random.choice(p["pool"]))
+                    if p.get("name", "") == "Pick Up" and up_inx == 0:
+                        up_inx = i
                     break
         prop = 0.
         for p in self._pool["pool"].values():
@@ -69,10 +72,12 @@ class Gacha:
             if resu < 0:
                 result_list.append(p.get("prefix", "") +
                                    random.choice(p["pool"]))
+                if p.get("name", "") == "Pick Up" and up_inx == 0:
+                    up_inx = self._pool["settings"]["combo"]
                 break
         if self._pool["settings"]["shuffle"]:
             random.shuffle(result_list)
-        return result_list
+        return {"list":result_list,"up_inx":up_inx}
 
     def gacha(self, qqid: int, nickname: str) -> str:
         # self.check_ver()  # no more updating
@@ -110,7 +115,7 @@ class Gacha:
         day_times += 1
         reply = ""
         reply += "{}第{}抽：".format(nickname, times)
-        for char in result:
+        for char in result["list"]:
             if char in info:
                 info[char] += 1
                 reply += "\n{}({})".format(char, info[char])
@@ -169,28 +174,36 @@ class Gacha:
         if today != last_day:
             last_day = today
             day_times = 0
-        if day_limit != 0 and day_times+20 > day_limit:
+        if day_limit != 0 and day_times+29 > day_limit:
             return "{}今天剩余抽卡次数不足30次，不能抽一井".format(nickname, day_times)
         reply = ""
-        result = ""
+        result = []
         flag_fully_30_times = True
+        ssr_inx = 0
+        up_inx = 0
         for i in range(1, 31):
             if day_limit != 0 and day_times >= day_limit:
                 reply += "{}抽到第{}发十连时已经达到今日抽卡上限，抽卡结果:".format(nickname, i)
                 flag_fully_30_times = False
                 break
             single_result = self.result()
+            if up_inx == 0:
+                up_inx = single_result["up_inx"]
             times += 1
             day_times += 1
-            for char in single_result:
+            for inx, char in enumerate(single_result["list"]):
                 if char in info:
                     info[char] += 1
                     if self.check_ssr(char):
-                        result += "\n{}({})".format(char, info[char])
+                        if ssr_inx == 0:
+                            ssr_inx = inx
+                        result.append(str(char).replace("★", ""))
                 else:
                     info[char] = 1
                     if self.check_ssr(char):
-                        result += "\n{}(new)".format(char)
+                        if ssr_inx == 0:
+                            ssr_inx = inx
+                        result.append(str(char).replace("★", ""))
         sql_info = pickle.dumps(info)
         if mem_exists:
             db.execute("UPDATE Colle SET colle=?, times=?, last_day=?, day_times=? WHERE qqid=?",
@@ -198,7 +211,7 @@ class Gacha:
         else:
             db.execute("INSERT INTO Colle (qqid,colle,times,last_day,day_times) VALUES(?,?,?,?,?)",
                        (qqid, sql_info, times, last_day, day_times))
-        if not result:
+        if len(result) == 0:
             if flag_fully_30_times:
                 reply += "\n{}太非了，本次下井没有抽到ssr。".format(nickname)
             else:
@@ -210,6 +223,9 @@ class Gacha:
         db_conn.commit()
         db_conn.close()
         return reply
+
+    def handle_result(self,result) -> str:
+        return
 
     async def show_colleV2_async(self, qqid, nickname, cmd: Union[None, str] = None) -> str:
         if not os.path.exists(os.path.join(self.setting["dirname"], "collections.db")):
