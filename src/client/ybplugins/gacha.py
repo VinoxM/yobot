@@ -88,6 +88,7 @@ class Gacha:
         print("角色昵称加载完成……")
 
     def result(self) -> dict:
+        fix = self._pool["setting"]["default_pool"]
         prop = 0.
         result_list = []
         up_inx = 0
@@ -95,11 +96,11 @@ class Gacha:
         star2_count = 0
         star3_count = 0
         up_count = 0
-        for p in self._pool["pool"].values():
+        for p in self._pool["pool_"+fix]["pools"].values():
             prop += p["prop"]
         for i in range(self._pool["settings"]["combo"] - 1):
             resu = random.random() * prop
-            for p in self._pool["pool"].values():
+            for p in self._pool["pool_"+fix]["pools"].values():
                 resu -= p["prop"]
                 if resu < 0:
                     char = random.choice(p["pool"])
@@ -117,10 +118,10 @@ class Gacha:
                         star3_count += 1
                     break
         prop = 0.
-        for p in self._pool["pool"].values():
+        for p in self._pool["pool_"+fix]["pools"].values():
             prop += p["prop_last"]
         resu = random.random() * prop
-        for p in self._pool["pool"].values():
+        for p in self._pool["pool_"+fix]["pools"].values():
             resu -= p["prop_last"]
             if resu < 0:
                 result_list.append(p.get("prefix", "") +
@@ -199,18 +200,18 @@ class Gacha:
         return reply
 
     @lru_cache(maxsize=256)
-    def check_ssr(self, char):
+    def check_ssr(self, char, fix: str):
         prop = 0.
-        for p in self._pool["pool"].values():
+        for p in self._pool["pool_"+fix]["pools"].values():
             prop += p["prop"]
         prop = prop*0.05
-        for p in self._pool["pool"].values():
+        for p in self._pool["pool_"+fix]["pools"].values():
             chars = [p.get("prefix", "")+x for x in p["pool"]]
             if char in chars and p["prop"] < prop:
                 return True
         return False
 
-    async def thirtytimes(self, qqid: int, nickname: str) -> str:
+    async def thirtytimes(self, qqid: int, nickname: str, fix: str = "jp") -> str:
         # self.check_ver()  # no more updating
         db_exists = os.path.exists(os.path.join(
             self.setting["dirname"], "collections.db"))
@@ -267,13 +268,13 @@ class Gacha:
             for inx, char in enumerate(single_result["list"]):
                 if char in info:
                     info[char] += 1
-                    if self.check_ssr(char):
+                    if self.check_ssr(char, fix):
                         if ssr_inx == 0:
                             ssr_inx = inx + 1 + (i-1)*10
                         result.append(str(char).replace("★", ""))
                 else:
                     info[char] = 1
-                    if self.check_ssr(char):
+                    if self.check_ssr(char, fix):
                         if ssr_inx == 0:
                             ssr_inx = inx + 1 + (i-1)*10
                         result.append(str(char).replace("★", ""))
@@ -450,7 +451,13 @@ class Gacha:
         elif cmd == "在线十连" or cmd == "在线抽卡":
             return 5
         elif cmd == "抽一井" or cmd == "来一井":
-            return 6
+            return 10
+        elif cmd == "国服抽一井" or cmd == "国服来一井":
+            return 11
+        elif cmd == "台服抽一井" or cmd == "台服来一井":
+            return 12
+        elif cmd == "日服抽一井" or cmd == "日服来一井":
+            return 13
         else:
             return 0
 
@@ -471,10 +478,18 @@ class Gacha:
             reply = self.gacha(
                 qqid=msg["sender"]["user_id"],
                 nickname=msg["sender"]["card"])
-        elif func_num == 6:
+        elif func_num >= 10:
+            if func_num == 10:
+                fix = self._pool["setting"]["default_pool"]
+            elif func_num == 11:
+                fix = "cn"
+            elif func_num == 12:
+                fix = "tw"
+            elif func_num == 13:
+                fix = "jp"
             reply = await self.thirtytimes(
                 qqid=msg["sender"]["user_id"],
-                nickname=msg["sender"]["card"])
+                nickname=msg["sender"]["card"],fix=fix)
         elif func_num == 4:
             async def show_colle():
                 df_reply = await self.show_colleV2_async(
