@@ -311,6 +311,8 @@ class Gacha:
         if up_inx != 0:
             reply += "\n第{}抽首出UP角色".format(up_inx)
             len_ = len(result)
+        if up_count >=4:
+            len_ = -2
         for r in self._pool["replys"].values():
             if len_ in range(r["range"][0], r["range"][1]+1):
                 reply += "\n{}".format(random.choice(r["reply"]))
