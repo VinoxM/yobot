@@ -149,7 +149,7 @@ class Gacha:
             "up_count": up_count
         }
 
-    def gacha(self, qqid: int, nickname: str ,fix: str) -> str:
+    async def gacha(self, qqid: int, nickname: str ,fix: str) -> str:
         # self.check_ver()  # no more updating
         db_exists = os.path.exists(os.path.join(
             self.setting["dirname"], "collections.db"))
