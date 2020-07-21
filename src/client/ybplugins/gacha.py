@@ -275,7 +275,7 @@ class Gacha:
                     while True:
                         async with aiohttp.request(
                                 "GET",
-                                url=f'https://redive.estertion.win/{filename}'
+                                url=f'https://redive.estertion.win/icon/unit/{filename}'
                         ) as response:
                             res = await response.read()
                             if response.status != 200:
