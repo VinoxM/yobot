@@ -26,7 +26,6 @@ class Gacha:
     Request = True
     URL = "http://api.yobot.xyz/3.1.4/pool.json"
     Nicknames_csv = "https://gitee.com/yobot/pcr-nickname/raw/master/nicknames.csv"
-    Nicknames_repo = "https://gitee.com/yobot/pcr-nickname/blob/master/nicknames.csv"
 
     def __init__(self, glo_setting: dict, bot_api, *args, **kwargs):
         self.setting = glo_setting
