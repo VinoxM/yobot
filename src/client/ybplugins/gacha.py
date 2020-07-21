@@ -460,8 +460,9 @@ class Gacha:
                     self._pool = online_ver
                     with open(self.pool_file_path, "w", encoding="utf-8") as pf:
                         pf.write(res.text)
+                    with open(self.pool_file_path, "r", encoding="utf-8") as f:
                         try:
-                            self._pool = json.load(pf)
+                            self._pool = json.load(f)
                         except json.JSONDecodeError:
                             raise CodingError("卡池文件解析错误，请检查卡池文件语法")
                     print("卡池已自动更新，目前卡池：{}" .append(online_ver["info"]["ver"]))
