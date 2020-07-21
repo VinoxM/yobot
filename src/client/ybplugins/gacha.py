@@ -90,6 +90,10 @@ class Gacha:
         prop = 0.
         result_list = []
         up_inx = 0
+        star1_count = 0
+        star2_count = 0
+        star3_count = 0
+        up_count = 0
         for p in self._pool["pool"].values():
             prop += p["prop"]
         for i in range(self._pool["settings"]["combo"] - 1):
@@ -97,10 +101,18 @@ class Gacha:
             for p in self._pool["pool"].values():
                 resu -= p["prop"]
                 if resu < 0:
-                    result_list.append(p.get("prefix", "") +
-                                       random.choice(p["pool"]))
+                    char = random.choice(p["pool"])
+                    result_list.append(p.get("prefix", "") + char)
                     if p.get("name", "") == "Pick Up" and up_inx == 0:
                         up_inx = i+1
+                        if char in p.get("free_stone", []):
+                            up_count += 1
+                    if p.get("prefix", "") == "★":
+                        star1_count += 1
+                    elif p.get("prefix", "") == "★★":
+                        star2_count += 1
+                    elif p.get("prefix", "") == "★★★":
+                        star3_count += 1
                     break
         prop = 0.
         for p in self._pool["pool"].values():
@@ -113,10 +125,21 @@ class Gacha:
                                    random.choice(p["pool"]))
                 if p.get("name", "") == "Pick Up" and up_inx == 0:
                     up_inx = self._pool["settings"]["combo"]
+                if p.get("prefix", "") == "★★":
+                    star2_count += 1
+                elif p.get("prefix", "") == "★★★":
+                    star3_count += 1
                 break
         if self._pool["settings"]["shuffle"]:
             random.shuffle(result_list)
-        return {"list":result_list,"up_inx":up_inx}
+        return {
+            "list": result_list,
+            "up_inx": up_inx,
+            "star1_count": star1_count,
+            "star2_count": star2_count,
+            "star3_count": star3_count,
+            "up_count": up_count
+        }
 
     def gacha(self, qqid: int, nickname: str) -> str:
         # self.check_ver()  # no more updating
@@ -220,6 +243,10 @@ class Gacha:
         flag_fully_30_times = True
         ssr_inx = 0
         up_inx = 0
+        star1_count = 0
+        star2_count = 0
+        star3_count = 0
+        up_count = 0
         for i in range(1, 31):
             if day_limit != 0 and day_times >= day_limit:
                 reply += "{}抽到第{}发十连时已经达到今日抽卡上限，抽卡结果:".format(nickname, i)
@@ -228,6 +255,10 @@ class Gacha:
             single_result = self.result()
             if up_inx == 0 and int(single_result["up_inx"]) != 0:
                 up_inx = int(single_result["up_inx"])+(i-1)*10
+            star1_count += int(single_result["star1_count"])
+            star2_count += int(single_result["star2_count"])
+            star3_count += int(single_result["star3_count"])
+            up_count += int(single_result["up_count"])
             times += 1
             day_times += 1
             for inx, char in enumerate(single_result["list"]):
@@ -257,21 +288,23 @@ class Gacha:
                 reply += "\n本次没有抽到ssr。".format(nickname)
             return reply
         if flag_fully_30_times:
-            reply += "{}本次下井结果：".format(nickname)
+            reply += "[CQ:at, qq={}]\n素敵な仲間が増えますよ！".format(qqid, nickname)
         db_conn.commit()
         db_conn.close()
         reply += await self.handle_result(result)
-        reply += "第{}抽出虹".format(ssr_inx)
-        if up_inx !=0:
+        reply += "\n★★★x{},★★x{},★x{}".format(star3_count,star2_count,star1_count)
+        reply_free = ""
+        if up_count != 0:
+            reply_free = "记忆碎片x{}与".format(up_count*100)
+        reply += "\n共获得{}女神秘石x{}".format(reply_free, star1_count+star2_count*10+star3_count*50)
+        reply += "\n第{}抽出虹".format(ssr_inx)
+        if up_inx != 0:
             reply += "，第{}抽出UP角色".format(up_inx)
         else:
             reply += "，没有抽到UP角色"
-        if len(result) <= 3:
-            reply += "\n非洲酋长非您莫属，要不再氪一单？"
-        elif 3 < len(result) <= 10:
-            reply += "\n亚洲水平，再接再厉！"
-        elif len(result) > 10:
-            reply += "\n您是托吧，请把KMR的QQ号分享给群友好吗？"
+        for r in self._pool["replys"].values():
+            if len(result) in r["range"]:
+                reply += "\n{}".format(random.choice(r["reply"]))
         return reply
 
     async def handle_result(self,result: List):
