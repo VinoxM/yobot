@@ -115,7 +115,7 @@ class Gacha:
                 break
         if self._pool["settings"]["shuffle"]:
             random.shuffle(result_list)
-        return {"list":result_list,"up_inx":up_inx}
+        return {"list":result_list,"up_inx":up_inx+1}
 
     def gacha(self, qqid: int, nickname: str) -> str:
         # self.check_ver()  # no more updating
