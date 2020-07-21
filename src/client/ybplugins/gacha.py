@@ -347,7 +347,7 @@ class Gacha:
                     f.write(res)
             gacha_file = os.path.join(self.resource_path, "gacha", "unit", str(r[1]), filename)
             gacha_star = Image.open(os.path.join(self.resource_path, "gacha", "unit", "star.png")).resize((16, 16),Image.ANTIALIAS)
-            gacha_img = Image.new('RGB', (128, 128) ,filename[:-4]+".jpg")
+            gacha_img = Image.new('RGB', (128, 128))
             gacha_img.paste(Image.open(localfile), (0,0))
             for i in range(1, r[1]+1):
                 gacha_img.paste(gacha_star, (4+14*i,-16))
