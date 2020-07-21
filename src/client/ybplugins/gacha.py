@@ -299,13 +299,14 @@ class Gacha:
             reply_free = "记忆碎片x{}与".format(up_count*100)
         reply += "\n共获得{}女神秘石x{}！".format(reply_free, star1_count+star2_count*10+star3_count*50)
         reply += "\n第{}抽首出虹".format(ssr_inx)
+        len_ = -1
         if up_inx != 0:
-            reply += "，第{}抽首出UP角色".format(up_inx)
-        else:
-            reply += "，没有抽到UP角色"
+            reply += "\n第{}抽首出UP角色".format(up_inx)
+            len_ = len(result)
         for r in self._pool["replys"].values():
-            if len(result) in range(r["range"][0], r["range"][1]+1):
+            if len_ in range(r["range"][0], r["range"][1]+1):
                 reply += "\n{}".format(random.choice(r["reply"]))
+                break
         return reply
 
     async def handle_result(self,result: List):
