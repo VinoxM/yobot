@@ -133,7 +133,7 @@ class Gacha:
                 break
         if self._pool["settings"]["shuffle"]:
             random.shuffle(result_list)
-        print("单个:list:{}".format(result_list))
+        print("list:{}\tup:{}".format(result_list,up_inx))
         return {
             "list": result_list,
             "up_inx": up_inx,
@@ -308,7 +308,7 @@ class Gacha:
             if len_ in range(r["range"][0], r["range"][1]+1):
                 reply += "\n{}".format(random.choice(r["reply"]))
                 break
-        print("汇总:s1:{},s2:{},s3:{},up:{}".format(star1_count, star2_count, star3_count, up_count))
+        print("s1:{},s2:{},s3:{},up:{},upinx:{}".format(star1_count, star2_count, star3_count, up_count,up_inx))
         return reply
 
     async def handle_result(self,result: List):
