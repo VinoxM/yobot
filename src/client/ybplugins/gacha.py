@@ -109,21 +109,17 @@ class Gacha:
                 if resu < 0:
                     char = random.choice(p["pool"])
                     result_list.append(p.get("prefix", "") + char)
-                    if char=="娜娜卡（夏日）":
-                        print("p:{}".format(p["name"]))
                     if p.get("name", "") == "Pick Up":
                         if up_inx == 0:
                             up_inx = i+1
                         if char in p.get("free_stone", []):
                             up_count += 1
-                            print("up_c:{},char:{}".format(up_count,char))
                     if p.get("prefix", "") == "★":
                         star1_count += 1
                     elif p.get("prefix", "") == "★★":
                         star2_count += 1
                     elif p.get("prefix", "") == "★★★":
                         star3_count += 1
-                        print("s3:{},char:{}".format(star3_count, char))
                     break
         prop = 0.
         for p in self._pool["pool_"+fix]["pools"].values():
@@ -374,7 +370,7 @@ class Gacha:
         to_img = Image.new('RGBA', (img_col*img_size+img_split_x*(img_col-1), img_row*img_size+img_split_y*(img_row-1)))
         for y in range(1, img_row+1):
             for x in range(1, img_col+1):
-                from_img = Image.open(local_files[img_row*(y-1)+x-1]).resize((img_size, img_size),Image.ANTIALIAS)
+                from_img = Image.open(local_files[img_col*(y-1)+x-1]).resize((img_size, img_size),Image.ANTIALIAS)
                 to_img.paste(from_img, ((x-1)*(img_size+img_split_x), (y-1)*(img_size+img_split_y)))
                 if y == img_row and len(local_files) == (img_row-1)*img_col+x:
                     break
