@@ -414,14 +414,15 @@ class Gacha:
                 and not self.setting.get("gacha_private_on", True))):
             reply = None
         elif func_num == 1:
-            await self.gacha(
+            relay = self.gacha(
                 qqid=msg["sender"]["user_id"],
                 nickname=msg["sender"]["card"])
             return
         elif func_num == 6:
-            reply = self.thirtytimes(
+            await self.thirtytimes(
                 qqid=msg["sender"]["user_id"],
                 nickname=msg["sender"]["card"])
+            return
         elif func_num == 4:
             async def show_colle():
                 df_reply = await self.show_colleV2_async(
