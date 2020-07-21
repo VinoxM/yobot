@@ -123,6 +123,7 @@ class Gacha:
                         star2_count += 1
                     elif p.get("prefix", "") == "★★★":
                         star3_count += 1
+                        print("s3:{},char:{}".format(star3_count, char))
                     break
         prop = 0.
         for p in self._pool["pool_"+fix]["pools"].values():
