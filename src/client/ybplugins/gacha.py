@@ -292,7 +292,7 @@ class Gacha:
             local_files.append(localfile)
         img_col = 5
         img_row = math.ceil(len(local_files)/img_col)
-        img_size = 48
+        img_size = 64
         img_save_path = os.path.join(self.resource_path, "gacha", str(int(time.time()*1000))+".jpg")
         to_img = Image.new('RGB', (img_col*img_size, img_row*img_size))
         for y in range(1, img_row):
