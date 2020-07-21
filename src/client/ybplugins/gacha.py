@@ -296,7 +296,7 @@ class Gacha:
                 reply += "\n本次没有抽到ssr。".format(nickname)
             return reply
         if flag_fully_30_times:
-            reply += "[CQ:at, qq={}]<--{}-->\n素敵な仲間が増えますよ！".format(qqid, self.fix[fix], nickname)
+            reply += "[CQ:at, qq={}]-> {}\n素敵な仲間が増えますよ！".format(qqid, self.fix[fix], nickname)
         db_conn.commit()
         db_conn.close()
         reply += await self.handle_result(result)
