@@ -183,7 +183,7 @@ class Gacha:
                 return True
         return False
 
-    def thirtytimes(self, qqid: int, nickname: str) -> str:
+    async def thirtytimes(self, qqid: int, nickname: str) -> str:
         # self.check_ver()  # no more updating
         db_exists = os.path.exists(os.path.join(
             self.setting["dirname"], "collections.db"))
@@ -257,7 +257,7 @@ class Gacha:
             return reply
         if flag_fully_30_times:
             reply += "{}本次下井结果：".format(nickname)
-        img_reply = await self.handle_result(result)
+        img_reply = self.handle_result(result)
         reply += img_reply
         db_conn.commit()
         db_conn.close()
