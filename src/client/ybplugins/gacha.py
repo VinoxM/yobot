@@ -297,12 +297,12 @@ class Gacha:
         to_img = Image.new('RGB', (img_col*img_size, img_row*img_size))
         for y in range(1, img_row):
             for x in range(1, img_col):
-                from_img = Image.open(local_files[img_row*(y-1)+x-1]).resize((img_size,img_size),Image.ANTIALIAS)
+                from_img = Image.open(local_files[img_row*(y-1)+x-1]).resize((img_size, img_size),Image.ANTIALIAS)
                 to_img.paste(from_img, ((x-1)*img_size,(y-1)*img_size))
                 if y == img_row and len(local_files) == (img_row-1)*img_col+x:
                     break
         to_img.save(img_save_path)
-        reply+="[CQ:record,file=file:///" + img_save_path + "]"
+        reply += "[CQ:record,file=file:///" + img_save_path + "]"
 
     async def show_colleV2_async(self, qqid, nickname, cmd: Union[None, str] = None) -> str:
         if not os.path.exists(os.path.join(self.setting["dirname"], "collections.db")):
@@ -416,15 +416,13 @@ class Gacha:
                 and not self.setting.get("gacha_private_on", True))):
             reply = None
         elif func_num == 1:
-            relay = self.gacha(
+            reply = self.gacha(
                 qqid=msg["sender"]["user_id"],
                 nickname=msg["sender"]["card"])
-            return
         elif func_num == 6:
-            await self.thirtytimes(
+            reply = await self.thirtytimes(
                 qqid=msg["sender"]["user_id"],
                 nickname=msg["sender"]["card"])
-            return
         elif func_num == 4:
             async def show_colle():
                 df_reply = await self.show_colleV2_async(
