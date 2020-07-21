@@ -236,7 +236,7 @@ class Consult:
         elif match_num == 5:
             reply = "请接5个昵称，空格分隔"
         else:
-            if not self.nickname_dict is None:
+            if self.nickname_dict is None:
                 self._init_nickNames()
             try:
                 anlz = self.user_input(msg["raw_message"][5:])
