@@ -295,7 +295,7 @@ class Gacha:
         img_save_path = os.path.join(self.resource_path, "gacha", str(int(time.time()*1000))+".jpg")
         if not os.path.exists(os.path.dirname(img_save_path)):
             os.makedirs(os.path.dirname(img_save_path))
-        to_img = Image.new('RGB', (img_col*img_size, img_row*img_size),None)
+        to_img = Image.new('RGBA', (img_col*img_size, img_row*img_size))
         for y in range(1, img_row+1):
             for x in range(1, img_col+1):
                 from_img = Image.open(local_files[img_row*(y-1)+x-1]).resize((img_size, img_size),Image.ANTIALIAS)
