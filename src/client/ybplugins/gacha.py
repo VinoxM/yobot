@@ -234,13 +234,13 @@ class Gacha:
                     info[char] += 1
                     if self.check_ssr(char):
                         if ssr_inx == 0:
-                            ssr_inx = inx
+                            ssr_inx = inx + i*10
                         result.append(str(char).replace("★", ""))
                 else:
                     info[char] = 1
                     if self.check_ssr(char):
                         if ssr_inx == 0:
-                            ssr_inx = inx
+                            ssr_inx = inx + i*10
                         result.append(str(char).replace("★", ""))
         sql_info = pickle.dumps(info)
         if mem_exists:
