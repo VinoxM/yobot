@@ -191,7 +191,7 @@ class Gacha:
                 info[char] += 1
             else:
                 info[char] = 1
-            result.append(str(char).replace("★", ""))
+            result.append(str(char).replace("★", ""), str(char).count("★"))
         sql_info = pickle.dumps(info)
         if mem_exists:
             db.execute("UPDATE Colle SET colle=?, times=?, last_day=?, day_times=? WHERE qqid=?",
@@ -321,9 +321,9 @@ class Gacha:
     async def handle_result(self,result: List):
         local_files = []
         for r in result:
-            char_id = self.nickname_dict[str(r)][0]
+            char_id = self.nickname_dict[str(r[0])][0]
             filename = str(char_id)+"31.jpg"
-            localfile = os.path.join(self.resource_path, "icon", "unit", filename)
+            localfile = os.path.join(self.resource_path, "icon", "unit", r[1], filename)
             if not os.path.exists(localfile):
                 if filename.endswith('.jpg'):
                     filename = filename[:-4] + '.webp@w400'
@@ -345,7 +345,16 @@ class Gacha:
                     os.makedirs(os.path.dirname(localfile))
                 with open(localfile, 'wb') as f:
                     f.write(res)
-            local_files.append(localfile)
+            gacha_file = os.path.join(self.resource_path, "gacha", "unit", r[1], filename)
+            gacha_star = Image.open(os.path.join(self.resource_path, "gacha", "unit", "star.png")).resize((16, 16),Image.ANTIALIAS)
+            gacha_img = Image.new('RGB', (128, 128) ,filename[:-4]+".jpg")
+            gacha_img.paste(Image.open(localfile), (0,0))
+            for i in range(1, r[1]+1):
+                gacha_img.paste(gacha_star, (4+14*i,-16))
+            if not os.path.exists(gacha_file):
+                os.makedirs(os.path.dirname(gacha_file))
+            gacha_img.save(gacha_file)
+            local_files.append(gacha_file)
         img_col = 5
         img_row = math.ceil(len(local_files)/img_col)
         img_size = 96
