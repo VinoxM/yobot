@@ -349,11 +349,11 @@ class Gacha:
             if not os.path.exists(gacha_path):
                 os.makedirs(gacha_path)
             gacha_file = os.path.join(gacha_path, filename[:-4]+".png")
-            star_size = 24
+            star_size = 32
             gacha_star = Image.open(os.path.join(self.resource_path, "gacha", "unit", "star.png")).resize((star_size, star_size), Image.ANTIALIAS).convert('RGBA')
             gacha_img = Image.open(localfile).convert('RGBA')
             for i in range(1, r[1]+1):
-                gacha_img.paste(gacha_star, (int(4+star_size*i*0.5), 128-star_size), mask=gacha_star.split()[3])
+                gacha_img.paste(gacha_star, (int(star_size*i*0.7), 128-star_size), mask=gacha_star.split()[3])
             gacha_img.save(gacha_file)
             local_files.append(gacha_file)
         img_col = 5
