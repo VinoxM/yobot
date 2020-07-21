@@ -314,7 +314,7 @@ class Gacha:
             if len_ in range(r["range"][0], r["range"][1]+1):
                 reply += "\n{}".format(random.choice(r["reply"]))
                 break
-        reply += "\n当前卡池：{}".format(self.fix["fix"])
+        reply += "\n当前卡池：{}".format(self.fix[fix])
         # print("s1:{},s2:{},s3:{},up:{},upinx:{}".format(star1_count, star2_count, star3_count, up_count,up_inx))
         return reply
 
