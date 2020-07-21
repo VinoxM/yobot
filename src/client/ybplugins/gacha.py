@@ -226,7 +226,7 @@ class Gacha:
                 break
             single_result = self.result()
             if up_inx == 0:
-                up_inx = single_result["up_inx"]
+                up_inx = int(single_result["up_inx"])+i*10
             times += 1
             day_times += 1
             for inx, char in enumerate(single_result["list"]):
@@ -259,9 +259,11 @@ class Gacha:
             reply += "{}本次下井结果：".format(nickname)
         db_conn.commit()
         db_conn.close()
-        return await self.handle_result(result, reply)
+        reply += await self.handle_result(result)
+        reply += "第{}抽出UP角色，第{}抽出虹".format(up_inx,ssr_inx)
+        return
 
-    async def handle_result(self,result: List, reply: str):
+    async def handle_result(self,result: List):
         local_files = []
         for r in result:
             char_id = self.nickname_dict[str(r)][0]
@@ -303,8 +305,7 @@ class Gacha:
                 if y == img_row and len(local_files) == (img_row-1)*img_col+x:
                     break
         to_img.save(img_save_path)
-        reply += "[CQ:image,file=file:///" + img_save_path + "]"
-        return reply
+        return "[CQ:image,file=file:///" + img_save_path + "]"
 
     async def show_colleV2_async(self, qqid, nickname, cmd: Union[None, str] = None) -> str:
         if not os.path.exists(os.path.join(self.setting["dirname"], "collections.db")):
