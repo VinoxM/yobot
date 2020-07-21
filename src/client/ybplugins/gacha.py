@@ -326,16 +326,16 @@ class Gacha:
             localfile = os.path.join(self.resource_path, "icon", "unit", str(r[1]), filename)
             if not os.path.exists(localfile):
                 if filename.endswith('.jpg'):
-                    filename = filename[:-4] + '.webp@w400'
+                    filename_ = filename[:-4] + '.webp@w400'
                 try:
                     while True:
                         async with aiohttp.request(
                                 "GET",
-                                url=f'https://redive.estertion.win/icon/unit/{filename}'
+                                url=f'https://redive.estertion.win/icon/unit/{filename_}'
                         ) as response:
                             res = await response.read()
                             if response.status != 200:
-                                filename = '000000.webp@w400'
+                                filename_ = '000000.webp@w400'
                                 localfile = os.path.join(self.resource_path, "icon", "unit", "000000.jpg")
                             else:
                                 break
