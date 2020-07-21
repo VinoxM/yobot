@@ -149,7 +149,7 @@ class Gacha:
             "up_count": up_count
         }
 
-    def gacha(self, qqid: int, nickname: str) -> str:
+    def gacha(self, qqid: int, nickname: str ,fix: str) -> str:
         # self.check_ver()  # no more updating
         db_exists = os.path.exists(os.path.join(
             self.setting["dirname"], "collections.db"))
@@ -180,18 +180,18 @@ class Gacha:
             day_times = 0
         if day_limit != 0 and day_times >= day_limit:
             return "{}今天已经抽了{}次了，明天再来吧".format(nickname, day_times)
-        result = self.result()
+        result_single = self.result(fix)
+        result = []
         times += 1
         day_times += 1
         reply = ""
-        reply += "{}第{}抽：".format(nickname, times)
-        for char in result["list"]:
+        reply += "[CQ:at, qq={}]-> {}\n第{}抽：".format(qqid, self.fix[fix], times)
+        for char in result_single["list"]:
             if char in info:
                 info[char] += 1
-                reply += "\n{}({})".format(char, info[char])
             else:
                 info[char] = 1
-                reply += "\n{}(new)".format(char)
+            result.append(str(char).replace("★", ""))
         sql_info = pickle.dumps(info)
         if mem_exists:
             db.execute("UPDATE Colle SET colle=?, times=?, last_day=?, day_times=? WHERE qqid=?",
@@ -199,6 +199,7 @@ class Gacha:
         else:
             db.execute("INSERT INTO Colle (qqid,colle,times,last_day,day_times) VALUES(?,?,?,?,?)",
                        (qqid, sql_info, times, last_day, day_times))
+        reply += await self.handle_result(result)
         db_conn.commit()
         db_conn.close()
         return reply
@@ -215,7 +216,7 @@ class Gacha:
                 return True
         return False
 
-    async def thirtytimes(self, qqid: int, nickname: str, fix: str = "jp") -> str:
+    async def thirtytimes(self, qqid: int, nickname: str, fix: str) -> str:
         # self.check_ver()  # no more updating
         db_exists = os.path.exists(os.path.join(
             self.setting["dirname"], "collections.db"))
@@ -450,10 +451,16 @@ class Gacha:
     def match(cmd: str) -> int:
         if cmd == "十连" or cmd == "十连抽":
             return 1
-        elif cmd.startswith("仓库"):
+        if cmd == "国服十连" or cmd == "国服十连抽":
+            return 2
+        if cmd == "台服十连" or cmd == "台服十连抽":
+            return 3
+        if cmd == "日服十连" or cmd == "日服十连抽":
             return 4
-        elif cmd == "在线十连" or cmd == "在线抽卡":
+        elif cmd.startswith("仓库"):
             return 5
+        elif cmd == "在线十连" or cmd == "在线抽卡":
+            return 6
         elif cmd == "抽一井" or cmd == "来一井":
             return 10
         elif cmd == "国服抽一井" or cmd == "国服来一井":
@@ -466,7 +473,7 @@ class Gacha:
             return 0
 
     async def execute_async(self, func_num: int, msg: dict):
-        if func_num == 5:
+        if func_num == 6:
             return urljoin(
                 self.setting["public_address"],
                 '{}gacha/'.format(self.setting['public_basepath'])
@@ -478,10 +485,18 @@ class Gacha:
                 msg["message_type"] == "private"
                 and not self.setting.get("gacha_private_on", True))):
             reply = None
-        elif func_num == 1:
+        elif func_num <= 4:
+            if func_num == 1:
+                fix = self._pool["settings"]["default_pool"]
+            elif func_num == 2:
+                fix = "cn"
+            elif func_num == 3:
+                fix = "tw"
+            elif func_num == 4:
+                fix = "jp"
             reply = self.gacha(
                 qqid=msg["sender"]["user_id"],
-                nickname=msg["sender"]["card"])
+                nickname=msg["sender"]["card"],fix=fix)
         elif func_num >= 10:
             if func_num == 10:
                 fix = self._pool["settings"]["default_pool"]
@@ -494,7 +509,7 @@ class Gacha:
             reply = await self.thirtytimes(
                 qqid=msg["sender"]["user_id"],
                 nickname=msg["sender"]["card"],fix=fix)
-        elif func_num == 4:
+        elif func_num == 5:
             async def show_colle():
                 df_reply = await self.show_colleV2_async(
                     qqid=msg["sender"]["user_id"],
