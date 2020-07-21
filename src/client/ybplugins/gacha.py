@@ -454,7 +454,7 @@ class Gacha:
                 return
             if res.status_code == 200:
                 online_ver = json.loads(res.text)
-                if self._pool["info"]["ver"] != online_ver["info"]["ver"]:
+                if self._pool["info"].get("ver", 20991231) == 20991231 or self._pool["info"]["ver"] != online_ver["info"]["ver"]:
                     # online_ver["settings"] = self._pool["settings"]
                     self._pool = online_ver
                     with open(self.pool_file_path, "w", encoding="utf-8") as pf:
