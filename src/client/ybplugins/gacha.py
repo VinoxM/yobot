@@ -294,6 +294,8 @@ class Gacha:
         img_row = math.ceil(len(local_files)/img_col)
         img_size = 64
         img_save_path = os.path.join(self.resource_path, "gacha", str(int(time.time()*1000))+".jpg")
+        if not os.path.exists(os.path.dirname(img_save_path)):
+            os.makedirs(os.path.dirname(img_save_path))
         to_img = Image.new('RGB', (img_col*img_size, img_row*img_size))
         for y in range(1, img_row+1):
             for x in range(1, img_col+1):
@@ -302,7 +304,7 @@ class Gacha:
                 if y == img_row and len(local_files) == (img_row-1)*img_col+x:
                     break
         to_img.save(img_save_path)
-        reply += "[CQ:record,file=file:///" + img_save_path + "]"
+        reply += "[CQ:record,file=file:///" + img_save_path.replace("\\","\\\\") + "]"
 
     async def show_colleV2_async(self, qqid, nickname, cmd: Union[None, str] = None) -> str:
         if not os.path.exists(os.path.join(self.setting["dirname"], "collections.db")):
