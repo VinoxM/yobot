@@ -32,8 +32,7 @@ class Consult:
     Passive = True
     Active = False
     Request = False
-    Nicknames_csv = "https://gitee.com/yobot/pcr-nickname/raw/master/nicknames.csv"
-    Nicknames_repo = "https://gitee.com/yobot/pcr-nickname/blob/master/nicknames.csv"
+    Nicknames_csv = "https://github.com/VinoxM/yobot/raw/master/docs/pcr-nickname/nickname3.csv"
 
     def __init__(self, glo_setting: dict, *args, **kwargs):
         self.setting = glo_setting
@@ -81,7 +80,7 @@ class Consult:
             if item is None:
                 if is_retry:
                     msg = "没有找到【{}】，目前昵称表：{}".format(
-                        index, self.Nicknames_repo)
+                        index, self.Nicknames_csv)
                     asyncio.ensure_future(self.update_nicknames())
                     raise ValueError(msg)
                 else:
