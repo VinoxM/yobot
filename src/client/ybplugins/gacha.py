@@ -64,7 +64,6 @@ class Gacha:
                     row = line.split(",")
                     for col in row:
                         self.nickname_dict[col] = (row[0], row[1])
-        print("角色昵称加载完成……")
 
     async def update_nicknames(self):
         print("正在更新角色昵称……")
@@ -85,6 +84,7 @@ class Gacha:
                 row = line.split(",")
                 for col in row:
                     self.nickname_dict[col] = (row[0], row[1])
+        print("角色昵称加载完成……")
 
     def result(self) -> dict:
         prop = 0.
