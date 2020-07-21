@@ -1,16 +1,19 @@
 import asyncio
 import json
+import math
 import os
 import pickle
 import random
 import re
 import sqlite3
 import time
+import aiohttp
 from functools import lru_cache
-from typing import List, Union
+from typing import List, Union, Dict, Tuple
 from urllib.parse import urljoin
 
 import requests
+from PIL import Image
 from quart import Quart
 
 from .templating import render_template
@@ -22,12 +25,16 @@ class Gacha:
     Active = False
     Request = True
     URL = "http://api.yobot.xyz/3.1.4/pool.json"
+    Nicknames_csv = "https://gitee.com/yobot/pcr-nickname/raw/master/nicknames.csv"
+    Nicknames_repo = "https://gitee.com/yobot/pcr-nickname/blob/master/nicknames.csv"
 
     def __init__(self, glo_setting: dict, bot_api, *args, **kwargs):
         self.setting = glo_setting
         self.bot_api = bot_api
         self.pool_file_path = os.path.join(
             self.setting["dirname"], "pool3.json")
+        self.resource_path = os.path.join(
+            glo_setting['dirname'], 'output', 'resource')
         self.pool_checktime = 0
         if not os.path.exists(self.pool_file_path):
             try:
@@ -46,6 +53,37 @@ class Gacha:
                     self._pool = json.load(f)
                 except json.JSONDecodeError:
                     raise CodingError("卡池文件解析错误，请检查卡池文件语法")
+        self.nickname_dict: Dict[str, Tuple[str, str]] = {}
+        nickfile = os.path.join(glo_setting["dirname"], "nickname3.csv")
+        if not os.path.exists(nickfile):
+            asyncio.ensure_future(self.update_nicknames(),
+                                  loop=asyncio.get_event_loop())
+        else:
+            with open(nickfile, encoding="utf-8-sig") as f:
+                csv = f.read()
+                for line in csv.split("\n")[1:]:
+                    row = line.split(",")
+                    for col in row:
+                        self.nickname_dict[col] = (row[0], row[1])
+
+    async def update_nicknames(self):
+        nickfile = os.path.join(self.setting["dirname"], "nickname3.csv")
+        try:
+            async with aiohttp.request('GET', self.Nicknames_csv) as resp:
+                if resp.status != 200:
+                    raise ServerError(
+                        "bad server response. code: " + str(resp.status))
+                restxt = await resp.text()
+                with open(nickfile, "w", encoding="utf-8-sig") as f:
+                    f.write(restxt)
+        except aiohttp.ClientError as e:
+            raise RuntimeError('错误' + str(e))
+        with open(nickfile, encoding="utf-8-sig") as f:
+            csv = f.read()
+            for line in csv.split("\n")[1:]:
+                row = line.split(",")
+                for col in row:
+                    self.nickname_dict[col] = (row[0], row[1])
 
     def result(self) -> dict:
         prop = 0.
@@ -219,13 +257,51 @@ class Gacha:
             return reply
         if flag_fully_30_times:
             reply += "{}本次下井结果：".format(nickname)
-        reply += result
+        img_reply = self.handle_result(result)
+        reply += img_reply
         db_conn.commit()
         db_conn.close()
         return reply
 
-    def handle_result(self,result) -> str:
-        return
+    def handle_result(self,result:List) -> str:
+        local_files = []
+        for r in result:
+            char_id = self.nickname_dict[str(r)][0]
+            filename = str(char_id)+".jpg"
+            localfile = os.path.join(self.resource_path, "icon", "unit", filename)
+            if not os.path.exists(localfile):
+                if filename.endswith('.jpg'):
+                    filename = filename[:-4] + '.webp@w400'
+                try:
+                    while True:
+                        async with aiohttp.request(
+                                "GET",
+                                url=f'https://redive.estertion.win/{filename}'
+                        ) as response:
+                            res = await response.read()
+                            if response.status != 200:
+                                filename = '000000.webp@w400'
+                                localfile = os.path.join(self.resource_path, "icon", "unit", "000000.jpg")
+                            else:
+                                break;
+                except aiohttp.ClientError as e:
+                    print(e)
+                if not os.path.exists(os.path.dirname(localfile)):
+                    os.makedirs(os.path.dirname(localfile))
+                with open(localfile, 'wb') as f:
+                    f.write(res)
+                local_files.append(localfile)
+        img_col = 5
+        img_row = math.ceil(len(local_files)/img_col)
+        img_size = 48
+        img_save_path = os.path.join(self.resource_path, "gacha", str(int(time.time()*1000))+".jpg")
+        to_img = Image.new('RGB', (img_col*img_size, img_row*img_size))
+        for y in range(1,img_row+1):
+            for x in range(1,img_col+1):
+                from_img = Image.open(local_files[img_row*(y-1)+x-1]).resize((img_size,img_size),Image.ANTIALIAS)
+                to_img.paste(from_img, ((x-1)*img_size,(y-1)*img_size))
+        to_img.save(img_save_path)
+        return "[CQ:record,file=file:///" + img_save_path + "]"
 
     async def show_colleV2_async(self, qqid, nickname, cmd: Union[None, str] = None) -> str:
         if not os.path.exists(os.path.join(self.setting["dirname"], "collections.db")):
