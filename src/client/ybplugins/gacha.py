@@ -460,7 +460,11 @@ class Gacha:
                     self._pool = online_ver
                     with open(self.pool_file_path, "w", encoding="utf-8") as pf:
                         pf.write(res.text)
-                    print("卡池已自动更新，目前卡池：" + self._pool["info"]["ver"])
+                        try:
+                            self._pool = json.load(pf)
+                        except json.JSONDecodeError:
+                            raise CodingError("卡池文件解析错误，请检查卡池文件语法")
+                    print("卡池已自动更新，目前卡池：{}" .append(online_ver["info"]["ver"]))
                 self.pool_checktime = now + 3600
 
     @staticmethod
