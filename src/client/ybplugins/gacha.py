@@ -114,6 +114,7 @@ class Gacha:
                             up_inx = i+1
                         if char in p.get("free_stone", []):
                             up_count += 1
+                            print("up_c:{},char:{}".format(up_count,char))
                     if p.get("prefix", "") == "★":
                         star1_count += 1
                     elif p.get("prefix", "") == "★★":
