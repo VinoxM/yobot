@@ -323,7 +323,7 @@ class Gacha:
         for r in result:
             char_id = self.nickname_dict[str(r[0])][0]
             filename = str(char_id)+"31.jpg"
-            localfile = os.path.join(self.resource_path, "icon", "unit", r[1], filename)
+            localfile = os.path.join(self.resource_path, "icon", "unit", str(r[1]), filename)
             if not os.path.exists(localfile):
                 if filename.endswith('.jpg'):
                     filename = filename[:-4] + '.webp@w400'
@@ -345,7 +345,7 @@ class Gacha:
                     os.makedirs(os.path.dirname(localfile))
                 with open(localfile, 'wb') as f:
                     f.write(res)
-            gacha_file = os.path.join(self.resource_path, "gacha", "unit", r[1], filename)
+            gacha_file = os.path.join(self.resource_path, "gacha", "unit", str(r[1]), filename)
             gacha_star = Image.open(os.path.join(self.resource_path, "gacha", "unit", "star.png")).resize((16, 16),Image.ANTIALIAS)
             gacha_img = Image.new('RGB', (128, 128) ,filename[:-4]+".jpg")
             gacha_img.paste(Image.open(localfile), (0,0))
