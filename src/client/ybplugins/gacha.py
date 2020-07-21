@@ -400,7 +400,7 @@ class Gacha:
         else:
             return 0
 
-    async def execute(self, func_num: int, msg: dict):
+    async def execute_async(self, func_num: int, msg: dict):
         if func_num == 5:
             return urljoin(
                 self.setting["public_address"],
