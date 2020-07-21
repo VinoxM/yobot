@@ -36,6 +36,7 @@ class Consult:
 
     def __init__(self, glo_setting: dict, *args, **kwargs):
         self.setting = glo_setting
+        self.nickname_dict = None
 
     def _init_nickNames(self):
         self.nickname_dict: Dict[str, Tuple[str, str]] = {}
@@ -235,7 +236,7 @@ class Consult:
         elif match_num == 5:
             reply = "请接5个昵称，空格分隔"
         else:
-            if not self.nickname_dict:
+            if not self.nickname_dict is None:
                 self._init_nickNames()
             try:
                 anlz = self.user_input(msg["raw_message"][5:])
