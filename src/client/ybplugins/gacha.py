@@ -183,7 +183,7 @@ class Gacha:
                 return True
         return False
 
-    def thirtytimes(self, qqid: int, nickname: str) -> str:
+    async def thirtytimes(self, qqid: int, nickname: str) -> str:
         # self.check_ver()  # no more updating
         db_exists = os.path.exists(os.path.join(
             self.setting["dirname"], "collections.db"))
@@ -400,7 +400,7 @@ class Gacha:
         else:
             return 0
 
-    def execute(self, func_num: int, msg: dict):
+    async def execute(self, func_num: int, msg: dict):
         if func_num == 5:
             return urljoin(
                 self.setting["public_address"],
@@ -414,9 +414,10 @@ class Gacha:
                 and not self.setting.get("gacha_private_on", True))):
             reply = None
         elif func_num == 1:
-            reply = self.gacha(
+            await self.gacha(
                 qqid=msg["sender"]["user_id"],
                 nickname=msg["sender"]["card"])
+            return
         elif func_num == 6:
             reply = self.thirtytimes(
                 qqid=msg["sender"]["user_id"],
