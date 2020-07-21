@@ -282,7 +282,7 @@ class Gacha:
                                 filename = '000000.webp@w400'
                                 localfile = os.path.join(self.resource_path, "icon", "unit", "000000.jpg")
                             else:
-                                break;
+                                break
                 except aiohttp.ClientError as e:
                     print(e)
                 if not os.path.exists(os.path.dirname(localfile)):
