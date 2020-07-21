@@ -264,6 +264,8 @@ class Gacha:
         reply += "第{}抽出虹".format(ssr_inx)
         if up_inx !=0:
             reply += "，第{}抽出UP角色".format(up_inx)
+        else:
+            reply += "，没有抽到UP角色"
         if len(result) <= 3:
             reply += "\n非洲酋长非您莫属，要不再氪一单？"
         elif 3 < len(result) <= 10:
