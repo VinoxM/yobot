@@ -303,7 +303,7 @@ class Gacha:
                 if y == img_row and len(local_files) == (img_row-1)*img_col+x:
                     break
         to_img.save(img_save_path)
-        reply += "[CQ:record,file=file:///" + img_save_path.replace("\\", "\\\\") + "]"
+        reply += "[CQ:record,file=file:///" + img_save_path + "]"
         return reply
 
     async def show_colleV2_async(self, qqid, nickname, cmd: Union[None, str] = None) -> str:
