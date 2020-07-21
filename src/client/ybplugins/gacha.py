@@ -183,7 +183,7 @@ class Gacha:
                 return True
         return False
 
-    async def thirtytimes(self, qqid: int, nickname: str) -> str:
+    def thirtytimes(self, qqid: int, nickname: str) -> str:
         # self.check_ver()  # no more updating
         db_exists = os.path.exists(os.path.join(
             self.setting["dirname"], "collections.db"))
@@ -257,13 +257,12 @@ class Gacha:
             return reply
         if flag_fully_30_times:
             reply += "{}本次下井结果：".format(nickname)
-        img_reply = self.handle_result(result)
-        reply += img_reply
         db_conn.commit()
         db_conn.close()
+        await self.handle_result(result, reply)
         return reply
 
-    async def handle_result(self,result:List) -> str:
+    async def handle_result(self,result: List, reply: str):
         local_files = []
         for r in result:
             char_id = self.nickname_dict[str(r)][0]
@@ -301,7 +300,7 @@ class Gacha:
                 from_img = Image.open(local_files[img_row*(y-1)+x-1]).resize((img_size,img_size),Image.ANTIALIAS)
                 to_img.paste(from_img, ((x-1)*img_size,(y-1)*img_size))
         to_img.save(img_save_path)
-        return "[CQ:record,file=file:///" + img_save_path + "]"
+        reply+="[CQ:record,file=file:///" + img_save_path + "]"
 
     async def show_colleV2_async(self, qqid, nickname, cmd: Union[None, str] = None) -> str:
         if not os.path.exists(os.path.join(self.setting["dirname"], "collections.db")):
