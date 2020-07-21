@@ -24,7 +24,7 @@ class Gacha:
     Passive = True
     Active = False
     Request = True
-    URL = "http://api.yobot.xyz/3.1.4/pool.json"
+    URL = "https://github.com/VinoxM/yobot/raw/master/docs/pcr-pools/pool3.json"
     Nicknames_csv = "https://github.com/VinoxM/yobot/raw/master/docs/pcr-nickname/nickname3.csv"
 
     def __init__(self, glo_setting: dict, bot_api, *args, **kwargs):
@@ -150,7 +150,7 @@ class Gacha:
         }
 
     async def gacha(self, qqid: int, nickname: str ,fix: str) -> str:
-        # self.check_ver()  # no more updating
+        self.check_ver()  # no more updating
         db_exists = os.path.exists(os.path.join(
             self.setting["dirname"], "collections.db"))
         db_conn = sqlite3.connect(os.path.join(
@@ -217,7 +217,7 @@ class Gacha:
         return False
 
     async def thirtytimes(self, qqid: int, nickname: str, fix: str) -> str:
-        # self.check_ver()  # no more updating
+        self.check_ver()  # no more updating
         db_exists = os.path.exists(os.path.join(
             self.setting["dirname"], "collections.db"))
         db_conn = sqlite3.connect(os.path.join(
@@ -454,13 +454,13 @@ class Gacha:
                 return
             if res.status_code == 200:
                 online_ver = json.loads(res.text)
-                if self._pool["info"]["name"] != online_ver["info"]["name"]:
-                    online_ver["settings"] = self._pool["settings"]
+                if self._pool["info"]["ver"] != online_ver["info"]["ver"]:
+                    # online_ver["settings"] = self._pool["settings"]
                     self._pool = online_ver
                     with open(self.pool_file_path, "w", encoding="utf-8") as pf:
                         pf.write(res.text)
-                    print("卡池已自动更新，目前卡池：" + self._pool["info"]["name"])
-                self.pool_checktime = now + 80000
+                    print("卡池已自动更新，目前卡池：" + self._pool["info"]["ver"])
+                self.pool_checktime = now + 3600
 
     @staticmethod
     def match(cmd: str) -> int:
@@ -484,6 +484,8 @@ class Gacha:
             return 12
         elif cmd == "日服抽一井" or cmd == "日服来一井":
             return 13
+        elif cmd == "更新卡池":
+            return 7
         else:
             return 0
 
@@ -537,6 +539,11 @@ class Gacha:
                 await self.bot_api.send_msg(**replymsg)
             asyncio.ensure_future(show_colle())
             reply = None
+        elif func_num == 7:
+            reply = "正在更新卡池……"
+            self.check_ver()
+        elif func_num == 8:
+            reply = "当前卡池版本:{}".format(self._pool["info"]["ver"])
         return {
             "reply": reply,
             "block": True
