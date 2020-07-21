@@ -291,9 +291,9 @@ class Gacha:
                        (qqid, sql_info, times, last_day, day_times))
         if len(result) == 0:
             if flag_fully_30_times:
-                reply += "\n{}太非了，本次下井没有抽到ssr。".format(nickname)
+                reply += "[CQ:at, qq={}]-> {}\n太非了，本次下井没有抽到ssr。".format(qqid, self.fix[fix])
             else:
-                reply += "\n本次没有抽到ssr。".format(nickname)
+                reply += "[CQ:at, qq={}]-> {}\n本次没有抽到ssr。".format(qqid, self.fix[fix])
             return reply
         if flag_fully_30_times:
             reply += "[CQ:at, qq={}]-> {}\n素敵な仲間が増えますよ！".format(qqid, self.fix[fix], nickname)
