@@ -54,7 +54,7 @@ class Gacha:
                     raise CodingError("卡池文件解析错误，请检查卡池文件语法")
         self.nickname_dict: Dict[str, Tuple[str, str]] = {}
         nickfile = os.path.join(glo_setting["dirname"], "nickname3.csv")
-        if not os.path.exists(nickfile):
+        if self.setting.get("nickName_autoUpdate",False) or not os.path.exists(nickfile):
             asyncio.ensure_future(self.update_nicknames(),
                                   loop=asyncio.get_event_loop())
         else:
