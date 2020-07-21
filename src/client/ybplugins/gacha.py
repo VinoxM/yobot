@@ -191,7 +191,7 @@ class Gacha:
                 info[char] += 1
             else:
                 info[char] = 1
-            result.append(str(char).replace("★", ""), str(char).count("★"))
+            result.append([str(char).replace("★", ""), str(char).count("★")])
         sql_info = pickle.dumps(info)
         if mem_exists:
             db.execute("UPDATE Colle SET colle=?, times=?, last_day=?, day_times=? WHERE qqid=?",
