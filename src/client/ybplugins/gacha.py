@@ -259,8 +259,7 @@ class Gacha:
             reply += "{}本次下井结果：".format(nickname)
         db_conn.commit()
         db_conn.close()
-        await self.handle_result(result, reply)
-        return reply
+        return await self.handle_result(result, reply)
 
     async def handle_result(self,result: List, reply: str):
         local_files = []
@@ -304,7 +303,8 @@ class Gacha:
                 if y == img_row and len(local_files) == (img_row-1)*img_col+x:
                     break
         to_img.save(img_save_path)
-        reply += "[CQ:record,file=file:///" + img_save_path.replace("\\","\\\\") + "]"
+        reply += "[CQ:record,file=file:///" + img_save_path.replace("\\", "\\\\") + "]"
+        return reply
 
     async def show_colleV2_async(self, qqid, nickname, cmd: Union[None, str] = None) -> str:
         if not os.path.exists(os.path.join(self.setting["dirname"], "collections.db")):
