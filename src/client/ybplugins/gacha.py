@@ -348,7 +348,7 @@ class Gacha:
             gacha_path = os.path.join(self.resource_path, "gacha", "unit", str(r[1]))
             if not os.path.exists(gacha_path):
                 os.makedirs(gacha_path)
-            gacha_file = os.path.join(gacha_path, filename)
+            gacha_file = os.path.join(gacha_path, filename[:-4]+".png")
             gacha_star = Image.open(os.path.join(self.resource_path, "gacha", "unit", "star.png")).resize((16, 16), Image.ANTIALIAS).convert('RGBA')
             gacha_img = Image.open(localfile).convert('RGBA')
             for i in range(1, r[1]+1):
