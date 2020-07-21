@@ -295,11 +295,11 @@ class Gacha:
         img_size = 48
         img_save_path = os.path.join(self.resource_path, "gacha", str(int(time.time()*1000))+".jpg")
         to_img = Image.new('RGB', (img_col*img_size, img_row*img_size))
-        for y in range(1,img_row+1):
-            for x in range(1,img_col+1):
+        for y in range(1, img_row):
+            for x in range(1, img_col):
                 from_img = Image.open(local_files[img_row*(y-1)+x-1]).resize((img_size,img_size),Image.ANTIALIAS)
                 to_img.paste(from_img, ((x-1)*img_size,(y-1)*img_size))
-                if y == img_row+1 and len(local_files) == (img_row-1)*img_col+x:
+                if y == img_row and len(local_files) == (img_row-1)*img_col+x:
                     break
         to_img.save(img_save_path)
         reply+="[CQ:record,file=file:///" + img_save_path + "]"
