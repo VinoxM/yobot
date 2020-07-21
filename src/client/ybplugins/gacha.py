@@ -263,7 +263,7 @@ class Gacha:
         db_conn.close()
         return reply
 
-    def handle_result(self,result:List) -> str:
+    async def handle_result(self,result:List) -> str:
         local_files = []
         for r in result:
             char_id = self.nickname_dict[str(r)][0]
