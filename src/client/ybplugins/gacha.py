@@ -293,14 +293,14 @@ class Gacha:
         db_conn.commit()
         db_conn.close()
         reply += await self.handle_result(result)
-        reply += "\n★★★x{},★★x{},★x{}".format(star3_count,star2_count,star1_count)
+        reply += "\n★★★x{}，★★x{}，★x{}".format(star3_count,star2_count,star1_count)
         reply_free = ""
         if up_count != 0:
             reply_free = "记忆碎片x{}与".format(up_count*100)
-        reply += "\n共获得{}女神秘石x{}".format(reply_free, star1_count+star2_count*10+star3_count*50)
-        reply += "\n第{}抽出虹".format(ssr_inx)
+        reply += "\n共获得{}女神秘石x{}！".format(reply_free, star1_count+star2_count*10+star3_count*50)
+        reply += "\n第{}抽首出虹".format(ssr_inx)
         if up_inx != 0:
-            reply += "，第{}抽出UP角色".format(up_inx)
+            reply += "，第{}抽首出UP角色".format(up_inx)
         else:
             reply += "，没有抽到UP角色"
         for r in self._pool["replys"].values():
