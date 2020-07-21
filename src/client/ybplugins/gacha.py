@@ -109,6 +109,8 @@ class Gacha:
                 if resu < 0:
                     char = random.choice(p["pool"])
                     result_list.append(p.get("prefix", "") + char)
+                    if char=="娜娜卡（夏日）":
+                        print("p:{}".format(p["name"]))
                     if p.get("name", "") == "Pick Up":
                         if up_inx == 0:
                             up_inx = i+1
