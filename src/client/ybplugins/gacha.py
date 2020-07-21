@@ -261,7 +261,13 @@ class Gacha:
         db_conn.commit()
         db_conn.close()
         reply += await self.handle_result(result)
-        reply += "第{}抽出UP角色，第{}抽出虹".format(up_inx,ssr_inx)
+        reply += "第{}抽出虹，第{}抽出UP角色".format(ssr_inx, up_inx)
+        if len(result) <= 3:
+            reply += "\n非洲酋长非您莫属，要不再氪一单？"
+        elif 3 < len(result) <= 10:
+            reply += "\n亚洲水平，再接再厉！"
+        elif len(result) > 10:
+            reply += "\n您是托吧，请把KMR的QQ号分享给群友好吗？"
         return reply
 
     async def handle_result(self,result: List):
