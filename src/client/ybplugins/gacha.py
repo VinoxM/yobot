@@ -226,7 +226,7 @@ class Gacha:
                 break
             single_result = self.result()
             if up_inx == 0 and int(single_result["up_inx"]) != 0:
-                up_inx = int(single_result["up_inx"])+i*10
+                up_inx = int(single_result["up_inx"])+(i-1)*10
             times += 1
             day_times += 1
             for inx, char in enumerate(single_result["list"]):
@@ -234,13 +234,13 @@ class Gacha:
                     info[char] += 1
                     if self.check_ssr(char):
                         if ssr_inx == 0:
-                            ssr_inx = inx + i*10
+                            ssr_inx = inx + (i-1)*10
                         result.append(str(char).replace("★", ""))
                 else:
                     info[char] = 1
                     if self.check_ssr(char):
                         if ssr_inx == 0:
-                            ssr_inx = inx + i*10
+                            ssr_inx = inx + (i-1)*10
                         result.append(str(char).replace("★", ""))
         sql_info = pickle.dumps(info)
         if mem_exists:
