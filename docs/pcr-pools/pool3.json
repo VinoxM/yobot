@@ -323,7 +323,7 @@
     }
   },
   "settings": {
-    "auto_update": false,
+    "auto_update": true,
     "combo": 10,
     "day_limit": 30000,
     "shuffle": false,
