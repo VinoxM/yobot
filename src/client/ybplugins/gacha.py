@@ -103,8 +103,9 @@ class Gacha:
                 if resu < 0:
                     char = random.choice(p["pool"])
                     result_list.append(p.get("prefix", "") + char)
-                    if p.get("name", "") == "Pick Up" and up_inx == 0:
-                        up_inx = i+1
+                    if p.get("name", "") == "Pick Up":
+                        if up_inx == 0:
+                            up_inx = i+1
                         if char in p.get("free_stone", []):
                             up_count += 1
                     if p.get("prefix", "") == "★":
