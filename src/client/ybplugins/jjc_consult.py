@@ -36,31 +36,10 @@ class Consult:
 
     def __init__(self, glo_setting: dict, *args, **kwargs):
         self.setting = glo_setting
-        self.nickname_dict: Dict[str, Tuple[str, str]] = {}
-        nickfile = os.path.join(glo_setting["dirname"], "nickname3.csv")
-        if not os.path.exists(nickfile):
-            asyncio.ensure_future(self.update_nicknames(),
-                                  loop=asyncio.get_event_loop())
-        else:
-            with open(nickfile, encoding="utf-8-sig") as f:
-                csv = f.read()
-                for line in csv.split("\n")[1:]:
-                    row = line.split(",")
-                    for col in row:
-                        self.nickname_dict[col] = (row[0], row[1])
 
-    async def update_nicknames(self):
+    def _init_nickNames(self):
+        self.nickname_dict: Dict[str, Tuple[str, str]] = {}
         nickfile = os.path.join(self.setting["dirname"], "nickname3.csv")
-        try:
-            async with aiohttp.request('GET', self.Nicknames_csv) as resp:
-                if resp.status != 200:
-                    raise ServerError(
-                        "bad server response. code: "+str(resp.status))
-                restxt = await resp.text()
-                with open(nickfile, "w", encoding="utf-8-sig") as f:
-                    f.write(restxt)
-        except aiohttp.ClientError as e:
-            raise RuntimeError('错误'+str(e))
         with open(nickfile, encoding="utf-8-sig") as f:
             csv = f.read()
             for line in csv.split("\n")[1:]:
@@ -256,6 +235,8 @@ class Consult:
         elif match_num == 5:
             reply = "请接5个昵称，空格分隔"
         else:
+            if not self.nickname_dict:
+                self._init_nickNames()
             try:
                 anlz = self.user_input(msg["raw_message"][5:])
             except ValueError as e:
