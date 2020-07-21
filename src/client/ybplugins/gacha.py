@@ -99,7 +99,7 @@ class Gacha:
                     result_list.append(p.get("prefix", "") +
                                        random.choice(p["pool"]))
                     if p.get("name", "") == "Pick Up" and up_inx == 0:
-                        up_inx = i
+                        up_inx = i+1
                     break
         prop = 0.
         for p in self._pool["pool"].values():
@@ -115,7 +115,7 @@ class Gacha:
                 break
         if self._pool["settings"]["shuffle"]:
             random.shuffle(result_list)
-        return {"list":result_list,"up_inx":up_inx+1}
+        return {"list":result_list,"up_inx":up_inx}
 
     def gacha(self, qqid: int, nickname: str) -> str:
         # self.check_ver()  # no more updating
