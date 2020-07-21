@@ -442,6 +442,7 @@ class Gacha:
         return reply
 
     def check_ver(self) -> None:
+        print("正在更新卡池……")
         auto_update = self._pool["settings"]["auto_update"]
         if not auto_update:
             return
