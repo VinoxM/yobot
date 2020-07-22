@@ -489,6 +489,7 @@ class Gacha:
             except requests.exceptions.ConnectionError as c:
                 # raise RuntimeError('错误:' + str(c))
                 print("更新失败：无法连接到服务器！")
+                self.pool_checktime = now + 3600
                 return
             if res.status_code == 200:
                 online_ver = json.loads(res.text)
