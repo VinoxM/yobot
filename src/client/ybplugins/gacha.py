@@ -187,7 +187,7 @@ class Gacha:
                     if up_count.get(p["prefix"]+char, -1) > -1:
                         up_count[p["prefix"]+char] += 1
                     if up_inx == 0:
-                        up_inx = i+1
+                        up_inx = 10
                     if char in p.get("free_stone", []):
                         free_count += 1
                 elif p.get("prefix", "") == "★★":
