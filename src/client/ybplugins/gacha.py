@@ -39,17 +39,20 @@ class Gacha:
             "jp": {
                 "★": [],
                 "★★": [],
-                "★★★": []
+                "★★★": [],
+                "all": 0
             },
             "tw": {
                 "★": [],
                 "★★": [],
-                "★★★": []
+                "★★★": [],
+                "all": 0
             },
             "cn": {
                 "★": [],
                 "★★": [],
-                "★★★": []
+                "★★★": [],
+                "all": 0
             }
         }
         self.fix = {
@@ -94,6 +97,16 @@ class Gacha:
             for v in self._pool["pool_"+k]["pools"].values():
                 if v["name"] == "Pick Up":
                     self.pool_up[k][v["prefix"]] += v["pool"]
+                    self.pool_up[k]["all"] += len(v["pool"])
+            if self.pool_up[k]["all"] > 0:
+                self.pool_up[k]["up"] += "当期UP："
+                if self.pool_up[k]["★★★"] > 0:
+                    self.pool_up[k]["up"] += "★★★：{}，".format(self.pool_up[k]["★★★"].join(","))
+                if self.pool_up[k]["★★"] > 0:
+                    self.pool_up[k]["up"] += "★★：{}，".format(self.pool_up[k]["★★"].join(","))
+                if self.pool_up[k]["★"] > 0:
+                    self.pool_up[k]["up"] += "★：{}，".format(self.pool_up[k]["★"].join(","))
+
 
     async def update_nicknames(self, flag: bool = False) -> str:
         print("正在更新角色昵称……")
@@ -345,7 +358,7 @@ class Gacha:
                 reply += "[CQ:at, qq={}]-> {}\n本次没有抽到ssr。".format(qqid, self.fix[fix])
             return reply
         if flag_fully_30_times:
-            reply += "[CQ:at, qq={}]-> {}\n素敵な仲間が増えますよ！".format(qqid, self.fix[fix], nickname)
+            reply += "[CQ:at, qq={}]-> {}\n{}\n素敵な仲間が増えますよ！".format(qqid, self.fix[fix], self.pool_up[fix]["up"])
         db_conn.commit()
         db_conn.close()
         reply += await self.handle_result(result)
