@@ -109,6 +109,7 @@ class Gacha:
                     self.pool_up[k]["up"] += "★★：{}，".format(",".join(self.pool_up[k]["★★"]))
                 if len(self.pool_up[k]["★"]) > 0:
                     self.pool_up[k]["up"] += "★：{}，".format(",".join(self.pool_up[k]["★"]))
+                self.pool_up[k]["up"] = self.pool_up[k]["up"][:-1]
 
 
     async def update_nicknames(self, flag: bool = False) -> str:
