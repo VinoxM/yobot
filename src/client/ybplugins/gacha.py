@@ -197,7 +197,7 @@ class Gacha:
                 break
         if self._pool["settings"]["shuffle"]:
             random.shuffle(result_list)
-        print("list:{}\tup:{}".format(result_list,up_inx))
+        # print("list:{}\tup:{}".format(result_list,up_inx))
         return {
             "list": result_list,
             "up_inx": up_inx,
@@ -383,11 +383,12 @@ class Gacha:
         if free_count != 0:
             reply_free = "记忆碎片x{}与".format(free_count*100)
         reply += "\n共获得{}女神秘石x{}！".format(reply_free, star1_count+star2_count*10+star3_count*50)
-        reply += "\n第{}抽首出虹".format(ssr_inx)
+        reply += "\n第{}抽首出虹，".format(ssr_inx)
         len_ = star3_count
         if up_inx != 0:
-            reply += "\n第{}抽首出UP角色".format(up_inx)
+            reply += "第{}抽首出UP角色".format(up_inx)
         else:
+            reply += "没有抽到UP角色"
             len_ = -1
         if free_count >= 2:
             len_ = -2
