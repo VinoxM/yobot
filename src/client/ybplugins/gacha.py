@@ -161,7 +161,7 @@ class Gacha:
                     char = random.choice(p["pool"])
                     result_list.append(p.get("prefix", "") + char)
                     if p.get("name", "") == "Pick Up":
-                        if up_count.get(p["prefix"]+char, False):
+                        if up_count.get(p["prefix"]+char, -1) > -1:
                             up_count[p["prefix"]+char] += 1
                         if up_inx == 0:
                             up_inx = i+1
@@ -184,7 +184,7 @@ class Gacha:
                 char = random.choice(p["pool"])
                 result_list.append(p.get("prefix", "") + char)
                 if p.get("name", "") == "Pick Up":
-                    if up_count.get(p["prefix"]+char,False):
+                    if up_count.get(p["prefix"]+char, -1) > -1:
                         up_count[p["prefix"]+char] += 1
                     if up_inx == 0:
                         up_inx = i+1
