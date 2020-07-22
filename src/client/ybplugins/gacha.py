@@ -103,11 +103,11 @@ class Gacha:
                     self.pool_up[k]["all"] += len(v["pool"])
             if self.pool_up[k]["all"] > 0:
                 self.pool_up[k]["up"] += "当期UP："
-                if self.pool_up[k]["★★★"] > 0:
+                if len(self.pool_up[k]["★★★"]) > 0:
                     self.pool_up[k]["up"] += "★★★：{}，".format(self.pool_up[k]["★★★"].join(","))
-                if self.pool_up[k]["★★"] > 0:
+                if len(self.pool_up[k]["★★"]) > 0:
                     self.pool_up[k]["up"] += "★★：{}，".format(self.pool_up[k]["★★"].join(","))
-                if self.pool_up[k]["★"] > 0:
+                if len(self.pool_up[k]["★"]) > 0:
                     self.pool_up[k]["up"] += "★：{}，".format(self.pool_up[k]["★"].join(","))
 
 
