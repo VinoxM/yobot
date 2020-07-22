@@ -161,8 +161,8 @@ class Gacha:
                     char = random.choice(p["pool"])
                     result_list.append(p.get("prefix", "") + char)
                     if p.get("name", "") == "Pick Up":
-                        if up_count.get(char,False):
-                            up_count[char] += 1
+                        if up_count.get(char, False):
+                            up_count[p["prefix"]+char] += 1
                         if up_inx == 0:
                             up_inx = i+1
                         if char in p.get("free_stone", []):
@@ -185,7 +185,7 @@ class Gacha:
                 result_list.append(p.get("prefix", "") + char)
                 if p.get("name", "") == "Pick Up":
                     if up_count.get(char,False):
-                        up_count[char] += 1
+                        up_count[p["prefix"]+char] += 1
                     if up_inx == 0:
                         up_inx = i+1
                     if char in p.get("free_stone", []):
@@ -373,9 +373,9 @@ class Gacha:
         if up_count["all"] > 0:
             reply += "\nPick Up："
             for c in up_count.keys():
-                if c=="all":
+                if c == "all":
                     continue
-                reply += "{}：{}，".format(c,up_count[c])
+                reply += "{}：{}，".format(c, up_count[c])
             reply = reply[:-1]
         reply_free = ""
         if free_count != 0:
