@@ -468,9 +468,9 @@ class Gacha:
                             self._pool = json.load(f)
                         except json.JSONDecodeError:
                             raise CodingError("卡池文件解析错误，请检查卡池文件语法")
-                    reply = "卡池已自动更新，目前卡池：{}".format(str(self._pool["info"]["ver"]))
+                    reply = "卡池已自动更新：{}".format(str(self._pool["info"]["ver"]))
                 else:
-                    reply = "卡池已经是最新"
+                    reply = "卡池已经是最新：{}".format(str(self._pool["info"]["ver"]))
                 print(reply)
                 self.pool_checktime = now + 3600
                 return reply
