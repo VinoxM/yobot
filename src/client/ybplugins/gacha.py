@@ -160,7 +160,7 @@ class Gacha:
         }
 
     async def gacha(self, qqid: int, nickname: str ,fix: str) -> str:
-        # await self.check_ver()  # no more updating
+        await self.check_ver()  # no more updating
         db_exists = os.path.exists(os.path.join(
             self.setting["dirname"], "collections.db"))
         db_conn = sqlite3.connect(os.path.join(
@@ -227,7 +227,7 @@ class Gacha:
         return False
 
     async def thirtytimes(self, qqid: int, nickname: str, fix: str) -> str:
-        # await self.check_ver()  # no more updating
+        await self.check_ver()  # no more updating
         db_exists = os.path.exists(os.path.join(
             self.setting["dirname"], "collections.db"))
         db_conn = sqlite3.connect(os.path.join(
@@ -481,7 +481,9 @@ class Gacha:
             try:
                 res = requests.get(self.URL)
             except requests.exceptions.ConnectionError as c:
-                raise RuntimeError('错误:' + str(c))
+                # raise RuntimeError('错误:' + str(c))
+                print("更新失败：无法连接到服务器！")
+                return
             if res.status_code == 200:
                 online_ver = json.loads(res.text)
                 if self._pool["info"].get("ver", 20991231) == 20991231 or self._pool["info"]["ver"] < online_ver["info"]["ver"]:
