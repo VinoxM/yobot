@@ -36,9 +36,9 @@ class Gacha:
             glo_setting['dirname'], 'output', 'resource')
         self.pool_checktime = 0
         self.fix = {
-            "jp":"日服",
-            "tw":"台服",
-            "cn":"国服"
+            "jp": "日服",
+            "tw": "台服",
+            "cn": "国服"
         }
         if not os.path.exists(self.pool_file_path):
             try:
@@ -150,7 +150,7 @@ class Gacha:
         }
 
     async def gacha(self, qqid: int, nickname: str ,fix: str) -> str:
-        self.check_ver()  # no more updating
+        await self.check_ver()  # no more updating
         db_exists = os.path.exists(os.path.join(
             self.setting["dirname"], "collections.db"))
         db_conn = sqlite3.connect(os.path.join(
@@ -217,7 +217,7 @@ class Gacha:
         return False
 
     async def thirtytimes(self, qqid: int, nickname: str, fix: str) -> str:
-        self.check_ver()  # no more updating
+        await self.check_ver()  # no more updating
         db_exists = os.path.exists(os.path.join(
             self.setting["dirname"], "collections.db"))
         db_conn = sqlite3.connect(os.path.join(
@@ -441,7 +441,7 @@ class Gacha:
             reply += '\n\n如果无法打开，请仔细阅读教程中《链接无法打开》的说明'
         return reply
 
-    def check_ver(self) -> None:
+    async def check_ver(self) -> None:
         print("正在更新卡池……")
         auto_update = self._pool["settings"]["auto_update"]
         if not auto_update:
@@ -455,7 +455,7 @@ class Gacha:
                 return
             if res.status_code == 200:
                 online_ver = json.loads(res.text)
-                if self._pool["info"].get("ver", 20991231) == 20991231 or self._pool["info"]["ver"] != online_ver["info"]["ver"]:
+                if self._pool["info"].get("ver", 20991231) == 20991231 or self._pool["info"]["ver"] < online_ver["info"]["ver"]:
                     # online_ver["settings"] = self._pool["settings"]
                     self._pool = online_ver
                     with open(self.pool_file_path, "w", encoding="utf-8") as pf:
@@ -492,6 +492,10 @@ class Gacha:
             return 13
         elif cmd == "更新卡池":
             return 7
+        elif cmd == "卡池版本":
+            return 8
+        elif cmd == "更新昵称":
+            return 9
         else:
             return 0
 
@@ -547,9 +551,12 @@ class Gacha:
             reply = None
         elif func_num == 7:
             reply = "正在更新卡池……"
-            self.check_ver()
+            await self.check_ver()
         elif func_num == 8:
             reply = "当前卡池版本:{}".format(self._pool["info"]["ver"])
+        elif func_num == 9:
+            reply = "正在更新昵称……"
+            await self.update_nicknames()
         return {
             "reply": reply,
             "block": True
