@@ -83,7 +83,7 @@ class Gacha:
                 with open(nickfile, "w", encoding="utf-8-sig") as f:
                     f.write(restxt)
         except aiohttp.ClientError as e:
-            raise RuntimeError('错误' + str(e))
+            raise RuntimeError('错误:' + str(e))
         with open(nickfile, encoding="utf-8-sig") as f:
             csv = f.read()
             for line in csv.split("\n")[1:]:
@@ -454,9 +454,7 @@ class Gacha:
             try:
                 res = requests.get(self.URL)
             except requests.exceptions.ConnectionError as c:
-                reply = "无法连接到{}，错误信息：{}".format(self.URL, c)
-                print(reply)
-                return reply
+                raise RuntimeError('错误:' + str(c))
             if res.status_code == 200:
                 online_ver = json.loads(res.text)
                 if self._pool["info"].get("ver", 20991231) == 20991231 or self._pool["info"]["ver"] < online_ver["info"]["ver"]:
