@@ -451,6 +451,7 @@ class Gacha:
             return
         now = int(time.time())
         if self.pool_checktime < now:
+            reply = ""
             try:
                 res = requests.get(self.URL)
             except requests.exceptions.ConnectionError as c:
@@ -546,7 +547,7 @@ class Gacha:
                 await self.bot_api.send_group_msg(group_id=msg["group_id"], message="正在更新卡池……")
             if msg["message_type"] == "private":
                 await self.bot_api.send_private_msg(user_id=msg["sender"]["user_id"], message="正在更新卡池……")
-            reply = await self.check_ver()
+            reply = await self.check_ver(flag=True)
         elif func_num == 8:
             reply = "当前卡池版本:{}".format(self._pool["info"]["ver"])
         elif func_num == 9:
@@ -554,7 +555,7 @@ class Gacha:
                 await self.bot_api.send_group_msg(group_id=msg["group_id"], message="正在更新昵称……")
             elif msg["message_type"] == "private":
                 await self.bot_api.send_private_msg(user_id=msg["sender"]["user_id"], message="正在更新昵称……")
-            reply = await self.update_nicknames()
+            reply = await self.update_nicknames(flag=True)
         elif func_num >= 10:
             if func_num == 10:
                 fix = self._pool["settings"]["default_pool"]
