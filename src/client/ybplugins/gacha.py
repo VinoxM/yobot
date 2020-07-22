@@ -530,18 +530,6 @@ class Gacha:
             reply = await self.gacha(
                 qqid=msg["sender"]["user_id"],
                 nickname=msg["sender"]["card"],fix=fix)
-        elif func_num >= 10:
-            if func_num == 10:
-                fix = self._pool["settings"]["default_pool"]
-            elif func_num == 11:
-                fix = "cn"
-            elif func_num == 12:
-                fix = "tw"
-            elif func_num == 13:
-                fix = "jp"
-            reply = await self.thirtytimes(
-                qqid=msg["sender"]["user_id"],
-                nickname=msg["sender"]["card"],fix=fix)
         elif func_num == 5:
             async def show_colle():
                 df_reply = await self.show_colleV2_async(
@@ -569,6 +557,18 @@ class Gacha:
             elif msg["message_type"] == "private":
                 await self.bot_api.send_msg(user_id=msg["sender"]["user_id"], msg="正在更新昵称……")
             reply = await self.update_nicknames()
+        elif func_num >= 10:
+            if func_num == 10:
+                fix = self._pool["settings"]["default_pool"]
+            elif func_num == 11:
+                fix = "cn"
+            elif func_num == 12:
+                fix = "tw"
+            elif func_num == 13:
+                fix = "jp"
+            reply = await self.thirtytimes(
+                qqid=msg["sender"]["user_id"],
+                nickname=msg["sender"]["card"],fix=fix)
         return {
             "reply": reply,
             "block": True
