@@ -105,7 +105,7 @@ class Gacha:
                     self.pool_up[k][v["prefix"]] += v["pool"]
                     self.pool_up[k]["all"] += len(v["pool"])
                     for char in v["pool"]:
-                        self.pool_up[k]["up"] += v["prefix"]+char
+                        self.pool_up[k]["up"].append(v["prefix"]+char)
             if self.pool_up[k]["all"] > 0:
                 self.pool_up[k]["title"] += "~>Pick Up："
                 if len(self.pool_up[k]["★★★"]) > 0:
