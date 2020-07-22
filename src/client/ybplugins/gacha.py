@@ -41,21 +41,24 @@ class Gacha:
                 "★★": [],
                 "★★★": [],
                 "all": 0,
-                "up": ""
+                "up": [],
+                "title": ""
             },
             "tw": {
                 "★": [],
                 "★★": [],
                 "★★★": [],
                 "all": 0,
-                "up": ""
+                "up": [],
+                "title": ""
             },
             "cn": {
                 "★": [],
                 "★★": [],
                 "★★★": [],
                 "all": 0,
-                "up": ""
+                "up": [],
+                "title": ""
             }
         }
         self.fix = {
@@ -101,17 +104,19 @@ class Gacha:
                 if v["name"] == "Pick Up":
                     self.pool_up[k][v["prefix"]] += v["pool"]
                     self.pool_up[k]["all"] += len(v["pool"])
+                    for char in v["pool"]:
+                        self.pool_up[k]["up"] += v["prefix"]+char
             if self.pool_up[k]["all"] > 0:
-                self.pool_up[k]["up"] += "~>Pick Up："
+                self.pool_up[k]["title"] += "~>Pick Up："
                 if len(self.pool_up[k]["★★★"]) > 0:
-                    self.pool_up[k]["up"] += "★★★：{}，".format(",".join(self.pool_up[k]["★★★"]))
+                    self.pool_up[k]["title"] += "★★★：{}，".format(",".join(self.pool_up[k]["★★★"]))
                 if len(self.pool_up[k]["★★"]) > 0:
-                    self.pool_up[k]["up"] += "★★：{}，".format(",".join(self.pool_up[k]["★★"]))
+                    self.pool_up[k]["title"] += "★★：{}，".format(",".join(self.pool_up[k]["★★"]))
                 if len(self.pool_up[k]["★"]) > 0:
-                    self.pool_up[k]["up"] += "★：{}，".format(",".join(self.pool_up[k]["★"]))
-                self.pool_up[k]["up"] = self.pool_up[k]["up"][:-1]
+                    self.pool_up[k]["title"] += "★：{}，".format(",".join(self.pool_up[k]["★"]))
+                self.pool_up[k]["title"] = self.pool_up[k]["up"][:-1]
             else:
-                self.pool_up[k]["up"] += "~>白金蛋池"
+                self.pool_up[k]["title"] += "~>白金蛋池"
 
 
     async def update_nicknames(self, flag: bool = False) -> str:
@@ -138,7 +143,7 @@ class Gacha:
         if flag:
             return reply
 
-    def result(self, fix: str) -> dict:
+    def result(self, fix: str, up_count: dict) -> dict:
         prop = 0.
         result_list = []
         up_inx = 0
@@ -146,11 +151,6 @@ class Gacha:
         star2_count = 0
         star3_count = 0
         free_count = 0
-        up_count = {
-            "★": 0,
-            "★★": 0,
-            "★★★": 0
-        }
         for p in self._pool["pool_"+fix]["pools"].values():
             prop += p["prop"]
         for i in range(self._pool["settings"]["combo"] - 1):
@@ -161,7 +161,7 @@ class Gacha:
                     char = random.choice(p["pool"])
                     result_list.append(p.get("prefix", "") + char)
                     if p.get("name", "") == "Pick Up":
-                        up_count[p.get("prefix")] += 1
+                        up_count[char] += 1
                         if up_inx == 0:
                             up_inx = i+1
                         if char in p.get("free_stone", []):
@@ -314,12 +314,9 @@ class Gacha:
         star2_count = 0
         star3_count = 0
         free_count = 0
-        up_count = {
-            "★": 0,
-            "★★": 0,
-            "★★★": 0,
-            "all": 0
-        }
+        up_count = {"all": 0}
+        for char in self.pool_up[fix]["up"]:
+            up_count[char] = 0
         for i in range(1, 31):
             if day_limit != 0 and day_times >= day_limit:
                 reply += "{}抽到第{}发十连时已经达到今日抽卡上限，抽卡结果:".format(nickname, i)
@@ -332,10 +329,11 @@ class Gacha:
             star2_count += int(single_result["star2_count"])
             star3_count += int(single_result["star3_count"])
             free_count += int(single_result["free_count"])
-            up_count["★"] += int(single_result["up_count"]["★"])
-            up_count["★★"] += int(single_result["up_count"]["★★"])
-            up_count["★★★"] += int(single_result["up_count"]["★★★"])
-            up_count["all"] = up_count["★"]+up_count["★★"]+up_count["★★★"]
+            for c in up_count.keys():
+                if c == "all":
+                    continue
+                up_count[c] += int(single_result["up_count"][c])
+                up_count["all"] += up_count[c]
             times += 1
             day_times += 1
             for inx, char in enumerate(single_result["list"]):
@@ -365,19 +363,17 @@ class Gacha:
                 reply += "[CQ:at, qq={}]-> {}\n本次没有抽到ssr。".format(qqid, self.fix[fix])
             return reply
         if flag_fully_30_times:
-            reply += "[CQ:at, qq={}]-> {}\n{}\n素敵な仲間が増えますよ！".format(qqid, self.fix[fix], self.pool_up[fix]["up"])
+            reply += "[CQ:at, qq={}]-> {}\n{}\n素敵な仲間が増えますよ！".format(qqid, self.fix[fix], self.pool_up[fix]["title"])
         db_conn.commit()
         db_conn.close()
         reply += await self.handle_result(result)
         reply += "\n共计：★★★x{}，★★x{}，★x{}".format(star3_count, star2_count, star1_count)
         if up_count["all"] > 0:
-            reply += "\n其中UP角色："
-            if up_count["★★★"] > 0:
-                reply += "★★★x{}，".format(up_count["★★★"])
-            if up_count["★★"] > 0:
-                reply += "★★x{}，".format(up_count["★★"])
-            if up_count["★"] > 0:
-                reply += "★x{}，".format(up_count["★"])
+            reply += "\nPick Up："
+            for c in up_count.keys():
+                if c=="all":
+                    continue
+                reply += "{}：{}，".format(c,up_count[c])
             reply = reply[:-1]
         reply_free = ""
         if free_count != 0:
