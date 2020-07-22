@@ -24,7 +24,7 @@ class Gacha:
     Passive = True
     Active = False
     Request = True
-    URL = "https://raw.githubusercontent.com/VinoxM/yobot/master/docs/pcr-pools/pool3.json"
+    URL = "https://raw.githubusercontent.com/VinoxM/yobot/master/docs/pcr-pools/pool.json"
     Nicknames_csv = "https://raw.githubusercontent.com/VinoxM/yobot/master/docs/pcr-nickname/nickname3.csv"
 
     def __init__(self, glo_setting: dict, bot_api, *args, **kwargs):
