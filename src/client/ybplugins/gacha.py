@@ -71,7 +71,7 @@ class Gacha:
                         self.nickname_dict[col] = (row[0], row[1])
             print("角色昵称加载完成……")
 
-    async def update_nicknames(self):
+    async def update_nicknames(self, flag: bool = False) -> str:
         print("正在更新角色昵称……")
         nickfile = os.path.join(self.setting["dirname"], "nickname3.csv")
         try:
@@ -90,7 +90,10 @@ class Gacha:
                 row = line.split(",")
                 for col in row:
                     self.nickname_dict[col] = (row[0], row[1])
-        print("角色昵称加载完成……")
+        reply = "角色昵称加载完成……"
+        print(reply)
+        if flag:
+            return reply
 
     def result(self, fix: str) -> dict:
         prop = 0.
@@ -441,18 +444,19 @@ class Gacha:
             reply += '\n\n如果无法打开，请仔细阅读教程中《链接无法打开》的说明'
         return reply
 
-    async def check_ver(self) -> None:
+    async def check_ver(self, flag: bool = False) -> str:
         print("正在更新卡池……")
         auto_update = self._pool["settings"]["auto_update"]
-        if not auto_update:
+        if not flag and not auto_update:
             return
         now = int(time.time())
         if self.pool_checktime < now:
             try:
                 res = requests.get(self.URL)
             except requests.exceptions.ConnectionError as c:
-                print("无法连接到{}，错误信息：{}".format(self.URL, c))
-                return
+                reply = "无法连接到{}，错误信息：{}".format(self.URL, c)
+                print(reply)
+                return reply
             if res.status_code == 200:
                 online_ver = json.loads(res.text)
                 if self._pool["info"].get("ver", 20991231) == 20991231 or self._pool["info"]["ver"] < online_ver["info"]["ver"]:
@@ -465,8 +469,10 @@ class Gacha:
                             self._pool = json.load(f)
                         except json.JSONDecodeError:
                             raise CodingError("卡池文件解析错误，请检查卡池文件语法")
-                    print("卡池已自动更新，目前卡池：{}".format(str(self._pool["info"]["ver"])))
+                    reply = "卡池已自动更新，目前卡池：{}".format(str(self._pool["info"]["ver"]))
+                    print(reply)
                 self.pool_checktime = now + 3600
+                return reply
 
     @staticmethod
     def match(cmd: str) -> int:
@@ -550,13 +556,19 @@ class Gacha:
             asyncio.ensure_future(show_colle())
             reply = None
         elif func_num == 7:
-            reply = "正在更新卡池……"
-            await self.check_ver()
+            if msg["message_type"] == "group":
+                await self.bot_api.send_msg(group_id=msg["group_id"], msg="正在更新卡池……")
+            if msg["message_type"] == "private":
+                await self.bot_api.send_msg(user_id=msg["sender"]["user_id"], msg="正在更新卡池……")
+            reply = await self.check_ver()
         elif func_num == 8:
             reply = "当前卡池版本:{}".format(self._pool["info"]["ver"])
         elif func_num == 9:
-            reply = "正在更新昵称……"
-            await self.update_nicknames()
+            if msg["message_type"] == "group":
+                await self.bot_api.send_msg(group_id=msg["group_id"], msg="正在更新昵称……")
+            elif msg["message_type"] == "private":
+                await self.bot_api.send_msg(user_id=msg["sender"]["user_id"], msg="正在更新昵称……")
+            reply = await self.update_nicknames()
         return {
             "reply": reply,
             "block": True
