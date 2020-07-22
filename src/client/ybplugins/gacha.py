@@ -197,7 +197,7 @@ class Gacha:
                 break
         if self._pool["settings"]["shuffle"]:
             random.shuffle(result_list)
-        # print("list:{}\tup:{}".format(result_list,up_inx))
+        print("list:{}\tup:{}".format(result_list,up_inx))
         return {
             "list": result_list,
             "up_inx": up_inx,
