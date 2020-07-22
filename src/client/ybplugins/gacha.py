@@ -35,32 +35,7 @@ class Gacha:
         self.resource_path = os.path.join(
             glo_setting['dirname'], 'output', 'resource')
         self.pool_checktime = 0
-        self.pool_up = {
-            "jp": {
-                "★": [],
-                "★★": [],
-                "★★★": [],
-                "all": 0,
-                "up": [],
-                "title": ""
-            },
-            "tw": {
-                "★": [],
-                "★★": [],
-                "★★★": [],
-                "all": 0,
-                "up": [],
-                "title": ""
-            },
-            "cn": {
-                "★": [],
-                "★★": [],
-                "★★★": [],
-                "all": 0,
-                "up": [],
-                "title": ""
-            }
-        }
+        self.pool_up = {}
         self.fix = {
             "jp": "日服",
             "tw": "台服",
@@ -99,6 +74,32 @@ class Gacha:
             print("角色昵称加载完成……")
 
     def init_pool_pickUp(self):
+        self.pool_up = {
+            "jp": {
+                "★": [],
+                "★★": [],
+                "★★★": [],
+                "all": 0,
+                "up": [],
+                "title": ""
+            },
+            "tw": {
+                "★": [],
+                "★★": [],
+                "★★★": [],
+                "all": 0,
+                "up": [],
+                "title": ""
+            },
+            "cn": {
+                "★": [],
+                "★★": [],
+                "★★★": [],
+                "all": 0,
+                "up": [],
+                "title": ""
+            }
+        }
         for k in self.pool_up.keys():
             for v in self._pool["pool_"+k]["pools"].values():
                 if v["name"] == "Pick Up":
@@ -107,7 +108,7 @@ class Gacha:
                     for char in v["pool"]:
                         self.pool_up[k]["up"].append(v["prefix"]+char)
             if self.pool_up[k]["all"] > 0:
-                self.pool_up[k]["title"] += ">Pick Up："
+                self.pool_up[k]["title"] = ">Pick Up："
                 if len(self.pool_up[k]["★★★"]) > 0:
                     self.pool_up[k]["title"] += "★★★：{}，".format(",".join(self.pool_up[k]["★★★"]))
                 if len(self.pool_up[k]["★★"]) > 0:
@@ -116,7 +117,7 @@ class Gacha:
                     self.pool_up[k]["title"] += "★：{}，".format(",".join(self.pool_up[k]["★"]))
                 self.pool_up[k]["title"] = self.pool_up[k]["title"][:-1]
             else:
-                self.pool_up[k]["title"] += ">白金蛋池"
+                self.pool_up[k]["title"] = ">白金蛋池"
 
 
     async def update_nicknames(self, flag: bool = False) -> str:
