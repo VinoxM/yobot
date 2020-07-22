@@ -137,11 +137,15 @@ class Gacha:
         for p in self._pool["pool_"+fix]["pools"].values():
             resu -= p["prop_last"]
             if resu < 0:
-                result_list.append(p.get("prefix", "") +
-                                   random.choice(p["pool"]))
-                if p.get("name", "") == "Pick Up" and up_inx == 0:
-                    up_inx = self._pool["settings"]["combo"]
-                if p.get("prefix", "") == "★★":
+                char = random.choice(p["pool"])
+                result_list.append(p.get("prefix", "") + char)
+                if p.get("name", "") == "Pick Up":
+                    up_count[p.get("prefix")] += 1
+                    if up_inx == 0:
+                        up_inx = i+1
+                    if char in p.get("free_stone", []):
+                        free_count += 1
+                elif p.get("prefix", "") == "★★":
                     star2_count += 1
                 elif p.get("prefix", "") == "★★★":
                     star3_count += 1
