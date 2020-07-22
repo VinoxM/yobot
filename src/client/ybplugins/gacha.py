@@ -104,11 +104,11 @@ class Gacha:
             if self.pool_up[k]["all"] > 0:
                 self.pool_up[k]["up"] += "当期UP："
                 if len(self.pool_up[k]["★★★"]) > 0:
-                    self.pool_up[k]["up"] += "★★★：{}，".format(self.pool_up[k]["★★★"].join(","))
+                    self.pool_up[k]["up"] += "★★★：{}，".format(",".join(self.pool_up[k]["★★★"]))
                 if len(self.pool_up[k]["★★"]) > 0:
-                    self.pool_up[k]["up"] += "★★：{}，".format(self.pool_up[k]["★★"].join(","))
+                    self.pool_up[k]["up"] += "★★：{}，".format(",".join(self.pool_up[k]["★★"]))
                 if len(self.pool_up[k]["★"]) > 0:
-                    self.pool_up[k]["up"] += "★：{}，".format(self.pool_up[k]["★"].join(","))
+                    self.pool_up[k]["up"] += "★：{}，".format(",".join(self.pool_up[k]["★"]))
 
 
     async def update_nicknames(self, flag: bool = False) -> str:
