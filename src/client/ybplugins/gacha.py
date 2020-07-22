@@ -488,9 +488,10 @@ class Gacha:
                 res = requests.get(self.URL)
             except requests.exceptions.ConnectionError as c:
                 # raise RuntimeError('错误:' + str(c))
-                print("更新失败：无法连接到服务器！")
+                reply = "更新失败：无法连接到服务器！"
+                print(reply)
                 self.pool_checktime = now + 3600
-                return
+                return reply
             if res.status_code == 200:
                 online_ver = json.loads(res.text)
                 if self._pool["info"].get("ver", 20991231) == 20991231 or self._pool["info"]["ver"] < online_ver["info"]["ver"]:
