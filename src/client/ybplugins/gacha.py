@@ -355,7 +355,7 @@ class Gacha:
         return reply
 
     async def handle_result(self,result: List):
-        print(result)
+        # print(result)
         local_files = []
         for r in result:
             char_id = self.nickname_dict[str(r[0])][0]
