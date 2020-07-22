@@ -35,6 +35,23 @@ class Gacha:
         self.resource_path = os.path.join(
             glo_setting['dirname'], 'output', 'resource')
         self.pool_checktime = 0
+        self.pool_up = {
+            "jp": {
+                "★": [],
+                "★★": [],
+                "★★★": []
+            },
+            "tw": {
+                "★": [],
+                "★★": [],
+                "★★★": []
+            },
+            "cn": {
+                "★": [],
+                "★★": [],
+                "★★★": []
+            }
+        }
         self.fix = {
             "jp": "日服",
             "tw": "台服",
@@ -57,6 +74,7 @@ class Gacha:
                     self._pool = json.load(f)
                 except json.JSONDecodeError:
                     raise CodingError("卡池文件解析错误，请检查卡池文件语法")
+        self.init_pool_pickUp()
         self.nickname_dict: Dict[str, Tuple[str, str]] = {}
         nickfile = os.path.join(glo_setting["dirname"], "nickname3.csv")
         if self.setting.get("nickName_autoUpdate",False) or not os.path.exists(nickfile):
@@ -70,6 +88,12 @@ class Gacha:
                     for col in row:
                         self.nickname_dict[col] = (row[0], row[1])
             print("角色昵称加载完成……")
+
+    def init_pool_pickUp(self):
+        for k in self.pool_up.keys():
+            for v in self._pool["pool_"+k]["pools"].values():
+                if v["name"] == "Pick Up":
+                    self.pool_up[k][v["prefix"]] = v["pool"]
 
     async def update_nicknames(self, flag: bool = False) -> str:
         print("正在更新角色昵称……")
@@ -504,6 +528,7 @@ class Gacha:
                             self._pool = json.load(f)
                         except json.JSONDecodeError:
                             raise CodingError("卡池文件解析错误，请检查卡池文件语法")
+                    self.init_pool_pickUp()
                     reply = "卡池已自动更新：{}".format(str(self._pool["info"]["ver"]))
                 else:
                     reply = "卡池已经是最新：{}".format(str(self._pool["info"]["ver"]))
