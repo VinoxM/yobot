@@ -160,7 +160,7 @@ class Gacha:
         }
 
     async def gacha(self, qqid: int, nickname: str ,fix: str) -> str:
-        await self.check_ver()  # no more updating
+        # await self.check_ver()  # no more updating
         db_exists = os.path.exists(os.path.join(
             self.setting["dirname"], "collections.db"))
         db_conn = sqlite3.connect(os.path.join(
@@ -227,7 +227,7 @@ class Gacha:
         return False
 
     async def thirtytimes(self, qqid: int, nickname: str, fix: str) -> str:
-        await self.check_ver()  # no more updating
+        # await self.check_ver()  # no more updating
         db_exists = os.path.exists(os.path.join(
             self.setting["dirname"], "collections.db"))
         db_conn = sqlite3.connect(os.path.join(
