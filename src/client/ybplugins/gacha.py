@@ -102,7 +102,12 @@ class Gacha:
         star1_count = 0
         star2_count = 0
         star3_count = 0
-        up_count = 0
+        free_count = 0
+        up_count = {
+            "★": 0,
+            "★★": 0,
+            "★★★": 0
+        }
         for p in self._pool["pool_"+fix]["pools"].values():
             prop += p["prop"]
         for i in range(self._pool["settings"]["combo"] - 1):
@@ -113,10 +118,11 @@ class Gacha:
                     char = random.choice(p["pool"])
                     result_list.append(p.get("prefix", "") + char)
                     if p.get("name", "") == "Pick Up":
+                        up_count[p.get("prefix")] += 1
                         if up_inx == 0:
                             up_inx = i+1
                         if char in p.get("free_stone", []):
-                            up_count += 1
+                            free_count += 1
                     if p.get("prefix", "") == "★":
                         star1_count += 1
                     elif p.get("prefix", "") == "★★":
@@ -149,7 +155,8 @@ class Gacha:
             "star1_count": star1_count,
             "star2_count": star2_count,
             "star3_count": star3_count,
-            "up_count": up_count
+            "up_count": up_count,
+            "free_count": free_count
         }
 
     async def gacha(self, qqid: int, nickname: str ,fix: str) -> str:
@@ -258,7 +265,13 @@ class Gacha:
         star1_count = 0
         star2_count = 0
         star3_count = 0
-        up_count = 0
+        free_count = 0
+        up_count = {
+            "★": 0,
+            "★★": 0,
+            "★★★": 0,
+            "all": 0
+        }
         for i in range(1, 31):
             if day_limit != 0 and day_times >= day_limit:
                 reply += "{}抽到第{}发十连时已经达到今日抽卡上限，抽卡结果:".format(nickname, i)
@@ -270,7 +283,11 @@ class Gacha:
             star1_count += int(single_result["star1_count"])
             star2_count += int(single_result["star2_count"])
             star3_count += int(single_result["star3_count"])
-            up_count += int(single_result["up_count"])
+            free_count += int(single_result["free_count"])
+            up_count["★"] += int(single_result["up_count"]["★"])
+            up_count["★★"] += int(single_result["up_count"]["★★"])
+            up_count["★★★"] += int(single_result["up_count"]["★★★"])
+            up_count["all"] = up_count["★"]+up_count["★★"]+up_count["★★★"]
             times += 1
             day_times += 1
             for inx, char in enumerate(single_result["list"]):
@@ -304,17 +321,26 @@ class Gacha:
         db_conn.commit()
         db_conn.close()
         reply += await self.handle_result(result)
-        reply += "\n★★★x{}，★★x{}，★x{}".format(star3_count,star2_count,star1_count)
+        reply += "\n共计：★★★x{}，★★x{}，★x{}".format(star3_count, star2_count, star1_count)
+        if up_count["all"] > 0:
+            reply += "\n其中UP角色："
+            if up_count["★★★"] > 0:
+                reply += "★★★x{}，".format(up_count["★★★"])
+            if up_count["★★"] > 0:
+                reply += "★★x{}，".format(up_count["★★"])
+            if up_count["★"] > 0:
+                reply += "★x{}".format(up_count["★"])
         reply_free = ""
-        if up_count != 0:
+        if free_count != 0:
             reply_free = "记忆碎片x{}与".format(up_count*100)
         reply += "\n共获得{}女神秘石x{}！".format(reply_free, star1_count+star2_count*10+star3_count*50)
         reply += "\n第{}抽首出虹".format(ssr_inx)
-        len_ = -1
+        len_ = star3_count
         if up_inx != 0:
             reply += "\n第{}抽首出UP角色".format(up_inx)
-            len_ = len(result)
-        if up_count >=4:
+        else:
+            len_ = -1
+        if free_count >= 2:
             len_ = -2
         for r in self._pool["replys"].values():
             if len_ in range(r["range"][0], r["range"][1]+1):
