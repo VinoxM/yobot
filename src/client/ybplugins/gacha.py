@@ -102,7 +102,7 @@ class Gacha:
                     self.pool_up[k][v["prefix"]] += v["pool"]
                     self.pool_up[k]["all"] += len(v["pool"])
             if self.pool_up[k]["all"] > 0:
-                self.pool_up[k]["up"] += "当期UP："
+                self.pool_up[k]["up"] += "~>Pick Up："
                 if len(self.pool_up[k]["★★★"]) > 0:
                     self.pool_up[k]["up"] += "★★★：{}，".format(",".join(self.pool_up[k]["★★★"]))
                 if len(self.pool_up[k]["★★"]) > 0:
@@ -110,6 +110,8 @@ class Gacha:
                 if len(self.pool_up[k]["★"]) > 0:
                     self.pool_up[k]["up"] += "★：{}，".format(",".join(self.pool_up[k]["★"]))
                 self.pool_up[k]["up"] = self.pool_up[k]["up"][:-1]
+            else:
+                self.pool_up[k]["up"] += "~>白金蛋池"
 
 
     async def update_nicknames(self, flag: bool = False) -> str:
