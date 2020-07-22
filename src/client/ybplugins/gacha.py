@@ -450,7 +450,7 @@ class Gacha:
         if not flag and not auto_update:
             return
         now = int(time.time())
-        if self.pool_checktime < now:
+        if flag or self.pool_checktime < now:
             reply = ""
             try:
                 res = requests.get(self.URL)
@@ -469,7 +469,9 @@ class Gacha:
                         except json.JSONDecodeError:
                             raise CodingError("卡池文件解析错误，请检查卡池文件语法")
                     reply = "卡池已自动更新，目前卡池：{}".format(str(self._pool["info"]["ver"]))
-                    print(reply)
+                else:
+                    reply = "卡池已经是最新"
+                print(reply)
                 self.pool_checktime = now + 3600
                 return reply
 
