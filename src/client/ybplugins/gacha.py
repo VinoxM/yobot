@@ -93,7 +93,7 @@ class Gacha:
         for k in self.pool_up.keys():
             for v in self._pool["pool_"+k]["pools"].values():
                 if v["name"] == "Pick Up":
-                    self.pool_up[k][v["prefix"]] = v["pool"]
+                    self.pool_up[k][v["prefix"]] += v["pool"]
 
     async def update_nicknames(self, flag: bool = False) -> str:
         print("正在更新角色昵称……")
