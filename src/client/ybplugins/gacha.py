@@ -329,7 +329,8 @@ class Gacha:
             if up_count["★★"] > 0:
                 reply += "★★x{}，".format(up_count["★★"])
             if up_count["★"] > 0:
-                reply += "★x{}".format(up_count["★"])
+                reply += "★x{}，".format(up_count["★"])
+            reply = reply[:-1]
         reply_free = ""
         if free_count != 0:
             reply_free = "记忆碎片x{}与".format(free_count*100)
