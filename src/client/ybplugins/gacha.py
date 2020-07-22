@@ -545,9 +545,9 @@ class Gacha:
             reply = None
         elif func_num == 7:
             if msg["message_type"] == "group":
-                await self.bot_api.send_group_msg(group_id=msg["group_id"], msg="正在更新卡池……")
+                await self.bot_api.send_group_msg(group_id=msg["group_id"], message="正在更新卡池……")
             if msg["message_type"] == "private":
-                await self.bot_api.send_private_msg(user_id=msg["sender"]["user_id"], msg="正在更新卡池……")
+                await self.bot_api.send_private_msg(user_id=msg["sender"]["user_id"], message="正在更新卡池……")
             reply = await self.check_ver()
         elif func_num == 8:
             reply = "当前卡池版本:{}".format(self._pool["info"]["ver"])
