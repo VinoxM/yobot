@@ -107,7 +107,7 @@ class Gacha:
                     for char in v["pool"]:
                         self.pool_up[k]["up"].append(v["prefix"]+char)
             if self.pool_up[k]["all"] > 0:
-                self.pool_up[k]["title"] += "~>Pick Up："
+                self.pool_up[k]["title"] += ">Pick Up："
                 if len(self.pool_up[k]["★★★"]) > 0:
                     self.pool_up[k]["title"] += "★★★：{}，".format(",".join(self.pool_up[k]["★★★"]))
                 if len(self.pool_up[k]["★★"]) > 0:
@@ -116,7 +116,7 @@ class Gacha:
                     self.pool_up[k]["title"] += "★：{}，".format(",".join(self.pool_up[k]["★"]))
                 self.pool_up[k]["title"] = self.pool_up[k]["title"][:-1]
             else:
-                self.pool_up[k]["title"] += "~>白金蛋池"
+                self.pool_up[k]["title"] += ">白金蛋池"
 
 
     async def update_nicknames(self, flag: bool = False) -> str:
@@ -331,11 +331,13 @@ class Gacha:
             star2_count += int(single_result["star2_count"])
             star3_count += int(single_result["star3_count"])
             free_count += int(single_result["free_count"])
+            all_ = 0
             for c in up_count.keys():
                 if c == "all":
                     continue
-                up_count[c] += int(single_result["up_count"][c])
-                up_count["all"] += up_count[c]
+                # up_count[c] += int(single_result["up_count"][c])
+                all_ += up_count[c]
+            up_count["all"] = all_
             times += 1
             day_times += 1
             for inx, char in enumerate(single_result["list"]):
@@ -365,7 +367,7 @@ class Gacha:
                 reply += "[CQ:at, qq={}]-> {}\n本次没有抽到ssr。".format(qqid, self.fix[fix])
             return reply
         if flag_fully_30_times:
-            reply += "[CQ:at, qq={}]-> {}\n{}\n素敵な仲間が増えますよ！".format(qqid, self.fix[fix], self.pool_up[fix]["title"])
+            reply += "[CQ:at, qq={}] > {}\n{}\n素敵な仲間が増えますよ！".format(qqid, self.fix[fix], self.pool_up[fix]["title"])
         db_conn.commit()
         db_conn.close()
         reply += await self.handle_result(result)
