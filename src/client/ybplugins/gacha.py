@@ -332,7 +332,7 @@ class Gacha:
                 reply += "★x{}".format(up_count["★"])
         reply_free = ""
         if free_count != 0:
-            reply_free = "记忆碎片x{}与".format(up_count*100)
+            reply_free = "记忆碎片x{}与".format(free_count*100)
         reply += "\n共获得{}女神秘石x{}！".format(reply_free, star1_count+star2_count*10+star3_count*50)
         reply += "\n第{}抽首出虹".format(ssr_inx)
         len_ = star3_count
