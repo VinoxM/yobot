@@ -143,7 +143,7 @@ class Gacha:
         if flag:
             return reply
 
-    def result(self, fix: str, up_count: dict) -> dict:
+    def result(self, fix: str, up_count: dict = {}) -> dict:
         prop = 0.
         result_list = []
         up_inx = 0
@@ -161,7 +161,8 @@ class Gacha:
                     char = random.choice(p["pool"])
                     result_list.append(p.get("prefix", "") + char)
                     if p.get("name", "") == "Pick Up":
-                        up_count[char] += 1
+                        if up_count.get(char,False):
+                            up_count[char] += 1
                         if up_inx == 0:
                             up_inx = i+1
                         if char in p.get("free_stone", []):
@@ -183,7 +184,8 @@ class Gacha:
                 char = random.choice(p["pool"])
                 result_list.append(p.get("prefix", "") + char)
                 if p.get("name", "") == "Pick Up":
-                    up_count[p.get("prefix")] += 1
+                    if up_count.get(char,False):
+                        up_count[char] += 1
                     if up_inx == 0:
                         up_inx = i+1
                     if char in p.get("free_stone", []):
@@ -322,7 +324,7 @@ class Gacha:
                 reply += "{}抽到第{}发十连时已经达到今日抽卡上限，抽卡结果:".format(nickname, i)
                 flag_fully_30_times = False
                 break
-            single_result = self.result(fix)
+            single_result = self.result(fix,up_count)
             if up_inx == 0 and int(single_result["up_inx"]) != 0:
                 up_inx = int(single_result["up_inx"])+(i-1)*10
             star1_count += int(single_result["star1_count"])
