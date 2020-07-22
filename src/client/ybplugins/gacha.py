@@ -268,9 +268,10 @@ class Gacha:
             prop += p["prop"]
         prop = prop*0.05
         for p in self._pool["pool_"+fix]["pools"].values():
-            chars = [p.get("prefix", "")+x for x in p["pool"]]
-            if char in chars and p["prop"] < prop:
-                return True
+            if p.get("prefix","") == "★★★":
+                chars = [p.get("prefix", "")+x for x in p["pool"]]
+                if char in chars and p["prop"] < prop:
+                    return True
         return False
 
     async def thirtytimes(self, qqid: int, nickname: str, fix: str) -> str:
