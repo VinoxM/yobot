@@ -339,6 +339,20 @@
                 </div>
               </div>
               <el-form label-position="left" label-width="120px">
+                <el-form-item label="昵称匹配">
+                  <el-popover
+                    placement="top-start"
+                    title="说明"
+                    width="200"
+                    trigger="focus">
+                      <slot>
+                        <span>
+                          禁用后将忽略昵称。
+                        </span>
+                      </slot>
+                    <el-checkbox slot="reference" v-model="val.prefix" :label="val.prefix?'启用':'禁用'"></el-checkbox>
+                    </el-popover>
+                </el-form-item>
                 <el-form-item label="关键词">
                   <el-checkbox v-model="val.full_keyword" :label="val.full_keyword?'全匹配：':'头匹配：'"></el-checkbox>
                   <el-popover
