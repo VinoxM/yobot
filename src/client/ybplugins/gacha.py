@@ -378,7 +378,7 @@ class Gacha:
             for c in up_count.keys():
                 if c == "all":
                     continue
-                reply += "{}：{}，".format(c, up_count[c])
+                reply += "{}x{}，".format(c, up_count[c])
             reply = reply[:-1]
         reply_free = ""
         if free_count != 0:
