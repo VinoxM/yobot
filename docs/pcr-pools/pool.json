@@ -1,7 +1,7 @@
 {
     "info": {
         "name": "默认卡池",
-        "ver": 202007221347
+        "ver": 202007231930
     },
     "character": {
         "normal": {
@@ -479,7 +479,7 @@
     "settings": {
         "auto_update": true,
         "combo": 10,
-        "day_limit": 30000,
+        "day_limit": 300,
         "shuffle": false,
         "default_pool": "jp"
     },
