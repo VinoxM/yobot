@@ -6,32 +6,66 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.min.js"></script>
   <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.19.2/axios.min.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/element-ui/2.13.0/index.js"></script>
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/element-ui/2.13.0/theme-chalk/index.css">
+  <!-- CDNJS :: Sortable (https://cdnjs.com/) -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
+  <style>
+    .char-box{
+      display: inline-block;
+      padding: 0px 11px;
+    }
+    .char-box img{
+      display:block;
+      width: 128px;
+    }
+    .char-box>span{
+      display: inline-block;
+      width: 100%;
+      line-height: 18px;
+      font-size: 18px;
+      text-align: center;
+    }
+  </style>
 </head>
 
 <body>
-  <p><a href="../">返回</a></p>
-  <p>所有概率都是相对值，即：抽取率 = 当前奖池概率 ÷ 所有奖池总概率 </p>
   <div id="app">
-    <div v-for="(pdata, pname) in settings.pool">
-      <h2>奖池：[[pname]]</h2>
-      <button @click="$delete(settings.pool, pname)">删除奖池</button><br />
-      名称：<input v-model="pname" /><br />
-      前缀：<input v-model="pdata.prefix" /><br />
-      单抽概率：<input v-model.number="pdata.prop" /><br />
-      保底抽概率：<input v-model.number="pdata.prop_last" /><br />
-      内容:<br /><input v-for="(item, ikey) in pdata.pool" v-model="pdata.pool[ikey]" />
-      <button @click="pdata.pool.push(null)">添加</button>
-      <button @click="pdata.pool.pop()">删除</button>
-    </div>
-    <br /><br />
-    <button @click="addpool">添加奖池</button>
-    <br /><br /><br />
-    <div>
-      每次抽卡数：<input v-model.number="settings.settings.combo" /><br />
-      每日抽卡次数：<input v-model.number="settings.settings.day_limit" /><br />
-      <input type="checkbox" v-model.number="settings.settings.shuffle">保底抽位置不固定
-    </div>
-    <button @click="update">保存</button>
+    <el-card shadow="hover">
+      <div slot="header" class="clearfix" style="position: relative">
+        <el-page-header @back="location='{{ url_for('yobot_setting') }}'" title="返回" content="卡池设置">
+        </el-page-header>
+        <el-button style="position: absolute;top:0px;right:0px" size="small" type="success" @click="update">保存</el-button>
+      </div>
+      <el-button class="el-icon-edit" size="small" type="success" @click="editPools(0)" circle></el-button>
+    </el-card>
+    <el-dialog width="832px"
+      :close-on-click-modal="false"
+      :visible.sync="visible">
+      <div slot="title" style="position: relative">
+        <span>[[star==0?'隐藏池':star+'星池']]</span>
+        <el-switch style="position: absolute;right:30px" v-model="lang_cn" active-text="CN" inactive-text="JP"></el-switch>
+      </div>
+      <div v-if="star==0">
+        <el-card>
+          <div v-for="(v,n,i) in settings.character.hidden" class="char-box">
+            <img :src="'/yobot/resource/icon/unit/'+n+suf+'1.jpg'"/>
+            <span v-text="v[lang]"></span>
+          </div>
+        </el-card>
+      </div>
+      <div v-else>
+        <el-card title="通常池">
+
+        </el-card>
+        <el-card title="限定池">
+
+        </el-card>
+        <el-card title="其他池">
+
+        </el-card>
+      </div>
+    </el-dialog>
   </div>
 </body>
 <script>
@@ -39,5 +73,6 @@
   var csrf_token = "{{ session['csrf_token'] }}";
 </script>
 <script src="{{ url_for('yobot_static', filename='admin/pool-setting.js') }}"></script>
+<script src="{{ url_for('yobot_static', filename='vuedraggable.umd.min.js') }}"></script>
 
 </html>

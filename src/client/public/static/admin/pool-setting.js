@@ -2,6 +2,9 @@ var vm = new Vue({
     el: '#app',
     data: {
         settings: null,
+        visible: false,
+        star: 1,
+        lang_cn: true
     },
     mounted() {
         var thisvue = this;
@@ -14,6 +17,14 @@ var vm = new Vue({
         }).catch(function (error) {
             alert(error, '加载数据错误');
         });
+    },
+    computed:{
+        suf(){
+            return this.star<3?1:3
+        },
+        lang(){
+            return this.lang_cn?1:0
+        }
     },
     methods: {
         addpool: function () {
@@ -40,6 +51,10 @@ var vm = new Vue({
                 alert(error);
             });
         },
+        editPools: function (star) {
+            this.star=star
+            this.visible=true
+        }
     },
     delimiters: ['[[', ']]'],
 })
