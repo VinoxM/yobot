@@ -405,7 +405,11 @@ class Gacha:
         local_files = []
         for r in result:
             char_id = self.nickname_dict[str(r[0])][0]
-            filename = str(char_id)+"31.jpg"
+            filename = str(char_id)
+            if r[1] < 3:
+                filename += "11.jpg"
+            else:
+                filename += "31.jpg"
             localfile = os.path.join(self.resource_path, "icon", "unit", str(r[1]), filename)
             if not os.path.exists(localfile):
                 if filename.endswith('.jpg'):
