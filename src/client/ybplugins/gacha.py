@@ -546,7 +546,7 @@ class Gacha:
                 online_ver = json.loads(res.text)
                 if self._pool["info"].get("ver", 20991231) == 20991231 or self._pool["info"]["ver"] < online_ver["info"]["ver"]:
                     # online_ver["settings"] = self._pool["settings"]
-                    self._pool = online_ver
+                    self._pool["character"] = online_ver["character"]
                     with open(self.pool_file_path, "w", encoding="utf-8") as pf:
                         pf.write(res.text)
                     with open(self.pool_file_path, "r", encoding="utf-8") as f:

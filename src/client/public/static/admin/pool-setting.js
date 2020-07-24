@@ -5,8 +5,32 @@ var vm = new Vue({
         visible: false,
         star: 1,
         lang_cn: true,
-        character:{},
-        activePool:"jp"
+        character:null,
+        activePool:"pool_jp",
+        poolName:{
+            pool_jp:"日服卡池",
+            pool_tw:"台服卡池",
+            pool_cn:"国服卡池"
+        },
+        poolTitle:{
+            star3:"SSR",
+            star2:"SR",
+            star1:"R",
+            hidden:"Hidden",
+        },
+        activeStars:{
+            pool_jp:["star3"],
+            pool_tw:["star3"],
+            pool_cn:["star3"]
+        },
+        nickName_on:false,
+        prop_on:false,
+        hidden_unsel:false,
+        prop:{
+            star1:795,
+            star:180,
+            star:25
+        }
     },
     mounted() {
         var thisvue = this;
@@ -14,27 +38,97 @@ var vm = new Vue({
             if (res.data.code == 0) {
                 thisvue.settings = res.data.settings;
                 let char  = JSON.parse(JSON.stringify(res.data.settings.character))
-                let char_jp = JSON.parse(JSON.stringify(char))
-                for (let type in char) {
-                    for (let star in char[type]) {
-                        for (let id in char[type][star]) {
-                            console.log(star)
-                            // char_jp[type][star][id]={
-                            //     id:id,
-                            //     name:char[type][star][id],
-                            //     sel:thisvue.settings["pool_jp"]["pools"][star]["pool"].indexOf(char[type][star][id][1])!=-1
-                            // }
+                let character = {
+                    pool_jp:{},
+                    pool_tw:{},
+                    pool_cn:{}
+                }
+                let sel_normal = {
+                    pool_jp:{star1:[],star2:[],star3:[]},
+                    pool_tw:{star1:[],star2:[],star3:[]},
+                    pool_cn:{star1:[],star2:[],star3:[]}
+                }
+                let sel_pick_up = {
+                    pool_jp:{star1:{},star2:{},star3:{}},
+                    pool_tw:{star1:{},star2:{},star3:{}},
+                    pool_cn:{star1:{},star2:{},star3:{}}
+                }
+                let pool_prop = {
+                    pool_jp:{star1:0,star2:0,star3:0},
+                    pool_tw:{star1:0,star2:0,star3:0},
+                    pool_cn:{star1:0,star2:0,star3:0}
+                }
+                for (let suf in character) {
+                    let pickUp = {
+                        star1:{
+                            pool: {}
+                        },
+                        star2:{
+                            pool:{}
+                        },
+                        star3:{
+                            pool:{}
+                        },
+                    }
+                    character[suf]=JSON.parse(JSON.stringify(char))
+                    for (let type in thisvue.settings[suf]["pools"]){
+                        if (type.length > 6) {
+                            let pu = thisvue.settings[suf]["pools"][type]
+                            let c = String(pu['prefix']).split("★").length-1
+                            for (let i = 0; i < pu["pool"].length; i++) {
+                                pickUp["star"+c]["pool"][pu["pool"][i]]={
+                                    prop:pu["prop"]/pu["pool"].length,
+                                    prop_last:pu["prop_last"]/pu["pool"].length,
+                                    free_stone: pu["free_stone"].indexOf(pu["pool"][i])!=-1
+                                }
+                            }
+                        }
+                    }
+                    for (let type in char) {
+                        for (let star in char[type]) {
+                            for (let id in char[type][star]) {
+                                pool_prop[suf][star]=thisvue.settings[suf]["pools"][star]["prop"]
+                                let sel = false
+                                let prop = 0
+                                let prop_last = 0
+                                let pick_up = false
+                                let free_stone = false
+                                if (thisvue.settings[suf]["pools"][star]["pool"].indexOf(char[type][star][id][1]) != -1) {
+                                    sel = true
+                                    sel_normal[suf][star].push(id)
+                                    prop = thisvue.settings[suf]["pools"][star]["prop"]/thisvue.settings[suf]["pools"][star]["pool"].length
+                                    prop_last = thisvue.settings[suf]["pools"][star]["prop_last"]/thisvue.settings[suf]["pools"][star]["pool"].length
+                                }else if(pickUp[star]["pool"] && Object.keys(pickUp[star]["pool"]).indexOf(char[type][star][id][1])!=-1){
+                                    sel = true
+                                    prop = pickUp[star]["pool"][char[type][star][id][1]]["prop"]
+                                    sel_pick_up[suf][star][id]=prop
+                                    prop_last = pickUp[star]["pool"][char[type][star][id][1]]["prop_last"]
+                                    pick_up = true
+                                    free_stone = pickUp[star]["pool"][char[type][star][id][1]]["free_stone"]
+                                }
+                                character[suf][type][star][id]={
+                                    id:id,
+                                    name:char[type][star][id],
+                                    sel:sel,
+                                    prop:(prop/10).toFixed(3)+"%",
+                                    prop_last:(prop_last/10).toFixed(3)+"%",
+                                    pick_up:pick_up,
+                                    free_stone:free_stone
+                                }
+                            }
                         }
                     }
                 }
-                thisvue.character=char
-                console.log(char_jp)
+                thisvue.character=character
+                console.log(character)
+                console.log(sel_normal,sel_pick_up,pool_prop)
             } else {
                 vm.$message.warning('加载数据错误:'+res.data.message);
             }
-        }).catch(function (error) {
-            vm.$message.error('加载数据错误:'+error);
-        });
+        })
+        //     .catch(function (error) {
+        //     vm.$message.error('加载数据错误:'+error);
+        // });
     },
     computed:{
         suf(){
