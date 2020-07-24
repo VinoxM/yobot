@@ -526,7 +526,7 @@ class Gacha:
             reply += '\n\n如果无法打开，请仔细阅读教程中《链接无法打开》的说明'
         return reply
 
-    async def check_ver(self, flag: bool = False) -> str:
+    async def check_ver(self, flag: bool = False, pool: bool = False) -> str:
         print("正在更新卡池……")
         auto_update = self._pool["settings"]["auto_update"]
         if not flag and not auto_update:
@@ -547,6 +547,10 @@ class Gacha:
                 if self._pool["info"].get("ver", 20991231) == 20991231 or self._pool["info"]["ver"] < online_ver["info"]["ver"]:
                     # online_ver["settings"] = self._pool["settings"]
                     self._pool["character"] = online_ver["character"]
+                    if pool:
+                        self._pool["pool_jp"] = online_ver["pool_jp"]
+                        self._pool["pool_tw"] = online_ver["pool_tw"]
+                        self._pool["pool_cn"] = online_ver["pool_cn"]
                     with open(self.pool_file_path, "w", encoding="utf-8") as pf:
                         pf.write(res.text)
                     with open(self.pool_file_path, "r", encoding="utf-8") as f:
@@ -577,15 +581,17 @@ class Gacha:
         elif cmd == "在线十连" or cmd == "在线抽卡":
             return 6
         elif cmd == "抽一井" or cmd == "来一井":
-            return 10
+            return 20
         elif cmd == "国服抽一井" or cmd == "国服来一井":
-            return 11
+            return 21
         elif cmd == "台服抽一井" or cmd == "台服来一井":
-            return 12
+            return 22
         elif cmd == "日服抽一井" or cmd == "日服来一井":
-            return 13
-        elif cmd == "更新卡池":
+            return 23
+        elif cmd == "更新角色":
             return 7
+        elif cmd == "更新卡池":
+            return 17
         elif cmd == "卡池版本":
             return 8
         elif cmd == "更新昵称":
@@ -637,6 +643,12 @@ class Gacha:
             if msg["message_type"] == "private":
                 await self.bot_api.send_private_msg(user_id=msg["sender"]["user_id"], message="正在更新卡池……")
             reply = await self.check_ver(flag=True)
+        elif func_num == 17:
+            if msg["message_type"] == "group":
+                await self.bot_api.send_group_msg(group_id=msg["group_id"], message="正在更新卡池……")
+            if msg["message_type"] == "private":
+                await self.bot_api.send_private_msg(user_id=msg["sender"]["user_id"], message="正在更新卡池……")
+            reply = await self.check_ver(flag=True,pool=True)
         elif func_num == 8:
             reply = "当前卡池版本:{}".format(self._pool["info"]["ver"])
         elif func_num == 9:
@@ -645,14 +657,14 @@ class Gacha:
             elif msg["message_type"] == "private":
                 await self.bot_api.send_private_msg(user_id=msg["sender"]["user_id"], message="正在更新昵称……")
             reply = await self.update_nicknames(flag=True)
-        elif func_num >= 10:
-            if func_num == 10:
+        elif func_num >= 20:
+            if func_num == 20:
                 fix = self._pool["settings"]["default_pool"]
-            elif func_num == 11:
+            elif func_num == 21:
                 fix = "cn"
-            elif func_num == 12:
+            elif func_num == 22:
                 fix = "tw"
-            elif func_num == 13:
+            elif func_num == 23:
                 fix = "jp"
             reply = await self.thirtytimes(
                 qqid=msg["sender"]["user_id"],

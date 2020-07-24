@@ -171,12 +171,14 @@ var vm = new Vue({
             this.star=star
             this.visible=true
         },
-        prop_computed:function (sel,pick,n,n1,prop) {
+        prop_computed:function (sel,pick,n,n1,prop,id) {
             if (!sel){
                 return "0.000%"
             }
             if (pick) {
-                return prop
+                if(n1=='star3'){
+                    return this.sel_pick_up[n][n1][id]
+                }
             }else{
                 return (this.pool_prop[n][n1]/this.sel_normal[n][n1].length/10).toFixed(3)+'%'
             }
@@ -199,13 +201,13 @@ var vm = new Vue({
                 let inx = this.sel_normal[n][n1].indexOf(this.sel_normal[n][n1][n2])
                 this.sel_normal[n][n1].splice(inx,1)
                 this.sel_pick_up[n][n1][n2]=0
-                let prop = (7/Object.keys(this.sel_pick_up[n][n1]).length/10).toFixed(3)+"%"
-                for (let k of Object.keys(this.sel_pick_up[n][n1])) {
-                    this.sel_pick_up[n][n1][k]=prop
-                }
-                console.log(prop)
-                this.character[n][type][n1][n2]["prop"]=prop
             }
+            let prop = (7/Object.keys(this.sel_pick_up[n][n1]).length/10).toFixed(3)+"%"
+            for (let k of Object.keys(this.sel_pick_up[n][n1])) {
+                this.sel_pick_up[n][n1][k]=prop
+            }
+            console.log(this.character[n][type][n1][n2])
+            this.character[n][type][n1][n2]["prop"]=prop
         }
     },
     delimiters: ['[[', ']]'],
