@@ -13,12 +13,27 @@ var vm = new Vue({
         axios.get(api_path).then(function (res) {
             if (res.data.code == 0) {
                 thisvue.settings = res.data.settings;
-                thisvue.character = JSON.parse(JSON.stringify(res.data.settings.character))
+                let char  = JSON.parse(JSON.stringify(res.data.settings.character))
+                let char_jp = JSON.parse(JSON.stringify(char))
+                for (let type in char) {
+                    for (let star in char[type]) {
+                        for (let id in char[type][star]) {
+                            console.log(star)
+                            // char_jp[type][star][id]={
+                            //     id:id,
+                            //     name:char[type][star][id],
+                            //     sel:thisvue.settings["pool_jp"]["pools"][star]["pool"].indexOf(char[type][star][id][1])!=-1
+                            // }
+                        }
+                    }
+                }
+                thisvue.character=char
+                console.log(char_jp)
             } else {
-                alert(res.data.message, '加载数据错误');
+                vm.$message.warning('加载数据错误:'+res.data.message);
             }
         }).catch(function (error) {
-            alert(error, '加载数据错误');
+            vm.$message.error('加载数据错误:'+error);
         });
     },
     computed:{
