@@ -21,6 +21,7 @@
     .char-box img{
       display:block;
       width: 96px;
+      cursor: pointer;
     }
     .char-box>div>span{
       display: block;
@@ -51,6 +52,7 @@
       filter: gray;
     }
     .pick-up{
+      cursor: pointer;
       position: absolute;
       top: 3px;
       right: 20px;
@@ -95,20 +97,20 @@
           <el-collapse v-model="activeStars[n]">
             <el-collapse-item v-for="(v1,n1,i1) in poolTitle" :title="v1" :name="n1">
               <el-divider v-if="n1=='star3'||n1=='star1'" content-position="left">常驻</el-divider>
-              <div v-for="(v2,n2,i2) in character[n].normal[n1]" class="char-box" :title="v2.name[lang]" v-show="v2.sel||(!v2.sel&&!hidden_unsel)">
+              <div v-for="(v2,n2,i2) in character[n].normal[n1]" class="char-box" :title="v2.name[lang]" v-show="v2.sel||(!v2.sel&&!hidden_unsel)" >
                 <div :class="v2.sel?'':'gray'">
-                  <img :src="'/yobot/resource/icon/unit/'+v2.id+'31.jpg'"/>
+                  <img @click="tiggleSel(n,'normal',n1,n2)" :src="'/yobot/resource/icon/unit/'+v2.id+'31.jpg'"/>
                   <span v-show="nickName_on" v-text="v2.name[lang]"></span>
-                  <span v-show="prop_on" v-text="v2.prop"></span>
+                  <span v-show="prop_on" v-text="prop_computed(v2.sel,v2.pick_up,n,n1,v2.prop)"></span>
                 </div>
-                <span v-show="v2.sel" :class="v2.pick_up?'pick-up pick-up-on':'pick-up pick-up-off'">Up</span>
+                <span @click="tigglePick(n,'normal',n1,n2)" v-show="v2.sel" :class="v2.pick_up?'pick-up pick-up-on':'pick-up pick-up-off'">Up</span>
               </div>
               <el-divider v-if="n1=='star3'||n1=='star1'" content-position="left">限定</el-divider>
               <div v-if="n1=='star3'||n1=='star1'" v-for="(v2,n2,i2) in character[n].limited[n1]" class="char-box" :title="v2.name[lang]" v-show="v2.sel||(!v2.sel&&!hidden_unsel)">
                 <div :class="v2.sel?'':'gray'">
                   <img :src="'/yobot/resource/icon/unit/'+v2.id+'11.jpg'"/>
                   <span v-show="nickName_on" v-text="v2.name[lang]"></span>
-                  <span v-show="prop_on" v-text="v2.prop"></span>
+                  <span v-show="prop_on" v-text="prop_computed(v2.sel,v2.pick_up,n,n1,v2.prop)"></span>
                 </div>
                 <span v-show="v2.sel" :class="v2.pick_up?'pick-up pick-up-on':'pick-up pick-up-off'">Up</span>
               </div>

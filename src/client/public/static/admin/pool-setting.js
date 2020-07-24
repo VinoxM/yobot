@@ -28,9 +28,12 @@ var vm = new Vue({
         hidden_unsel:false,
         prop:{
             star1:795,
-            star:180,
-            star:25
-        }
+            star2:180,
+            star3:25
+        },
+        sel_normal:null,
+        sel_pick_up:null,
+        pool_prop:null
     },
     mounted() {
         var thisvue = this;
@@ -120,8 +123,9 @@ var vm = new Vue({
                     }
                 }
                 thisvue.character=character
-                console.log(character)
-                console.log(sel_normal,sel_pick_up,pool_prop)
+                thisvue.sel_normal=sel_normal
+                thisvue.sel_pick_up=sel_pick_up
+                thisvue.pool_prop=pool_prop
             } else {
                 vm.$message.warning('加载数据错误:'+res.data.message);
             }
@@ -166,6 +170,42 @@ var vm = new Vue({
         editPools: function (star) {
             this.star=star
             this.visible=true
+        },
+        prop_computed:function (sel,pick,n,n1,prop) {
+            if (!sel){
+                return "0.000%"
+            }
+            if (pick) {
+                return prop
+            }else{
+                return (this.pool_prop[n][n1]/this.sel_normal[n][n1].length/10).toFixed(3)+'%'
+            }
+        },
+        tiggleSel:function (n,type,n1,n2) {
+            this.character[n][type][n1][n2]["sel"]=!this.character[n][type][n1][n2]["sel"]
+            if (!this.character[n][type][n1][n2]["sel"]){
+                let inx = this.sel_normal[n][n1].indexOf(this.sel_normal[n][n1][n2])
+                this.sel_normal[n][n1].splice(inx,1)
+            }else{
+                this.sel_normal[n][n1].push(n2)
+            }
+        },
+        tigglePick:function (n,type,n1,n2) {
+            this.character[n][type][n1][n2]["pick_up"]=!this.character[n][type][n1][n2]["pick_up"]
+            if (!this.character[n][type][n1][n2]["pick_up"]){
+                this.sel_normal[n][n1].push(n2)
+                delete this.sel_pick_up[n][n1][n2]
+            }else{
+                let inx = this.sel_normal[n][n1].indexOf(this.sel_normal[n][n1][n2])
+                this.sel_normal[n][n1].splice(inx,1)
+                this.sel_pick_up[n][n1][n2]=0
+                let prop = (7/Object.keys(this.sel_pick_up[n][n1]).length/10).toFixed(3)+"%"
+                for (let k of Object.keys(this.sel_pick_up[n][n1])) {
+                    this.sel_pick_up[n][n1][k]=prop
+                }
+                console.log(prop)
+                this.character[n][type][n1][n2]["prop"]=prop
+            }
         }
     },
     delimiters: ['[[', ']]'],
