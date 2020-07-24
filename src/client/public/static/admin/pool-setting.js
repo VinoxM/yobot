@@ -4,13 +4,16 @@ var vm = new Vue({
         settings: null,
         visible: false,
         star: 1,
-        lang_cn: true
+        lang_cn: true,
+        character:{},
+        activePool:"jp"
     },
     mounted() {
         var thisvue = this;
         axios.get(api_path).then(function (res) {
             if (res.data.code == 0) {
                 thisvue.settings = res.data.settings;
+                thisvue.character = JSON.parse(JSON.stringify(res.data.settings.character))
             } else {
                 alert(res.data.message, '加载数据错误');
             }

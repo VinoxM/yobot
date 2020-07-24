@@ -37,7 +37,17 @@
         </el-page-header>
         <el-button style="position: absolute;top:0px;right:0px" size="small" type="success" @click="update">保存</el-button>
       </div>
-      <el-button class="el-icon-edit" size="small" type="success" @click="editPools(0)" circle></el-button>
+      <el-tabs type="card" v-model="activePool" >
+        <el-tab-pane label="日服卡池" name="jp">
+
+        </el-tab-pane>
+        <el-tab-pane label="台服卡池" name="tw">
+
+        </el-tab-pane>
+        <el-tab-pane label="国服卡池" name="cn">
+
+        </el-tab-pane>
+      </el-tabs>
     </el-card>
     <el-dialog width="832px"
       :close-on-click-modal="false"
@@ -48,7 +58,7 @@
       </div>
       <div v-if="star==0">
         <el-card>
-          <div v-for="(v,n,i) in settings.character.hidden" class="char-box">
+          <div v-for="(v,n,i) in character.hidden" class="char-box">
             <img :src="'/yobot/resource/icon/unit/'+n+suf+'1.jpg'"/>
             <span v-text="v[lang]"></span>
           </div>
