@@ -99,13 +99,17 @@ var vm = new Vue({
                                 if (thisvue.settings[suf]["pools"][star]["pool"].indexOf(char[type][star][id][1]) != -1) {
                                     sel = true
                                     sel_normal[suf][star].push(id)
-                                    prop = thisvue.settings[suf]["pools"][star]["prop"]/thisvue.settings[suf]["pools"][star]["pool"].length
-                                    prop_last = thisvue.settings[suf]["pools"][star]["prop_last"]/thisvue.settings[suf]["pools"][star]["pool"].length
+                                    let prop_ = thisvue.settings[suf]["pools"][star]["prop"]/thisvue.settings[suf]["pools"][star]["pool"].length
+                                    prop = (prop_/10).toFixed(3)+"%"
+                                    let prop_last_ = thisvue.settings[suf]["pools"][star]["prop_last"]/thisvue.settings[suf]["pools"][star]["pool"].length
+                                    prop_last = (prop_last_/10).toFixed(3)+"%"
                                 }else if(pickUp[star]["pool"] && Object.keys(pickUp[star]["pool"]).indexOf(char[type][star][id][1])!=-1){
                                     sel = true
-                                    prop = pickUp[star]["pool"][char[type][star][id][1]]["prop"]
+                                    let prop_ = pickUp[star]["pool"][char[type][star][id][1]]["prop"]
+                                    prop = (prop_/10).toFixed(3)+"%"
                                     sel_pick_up[suf][star][id]=prop
-                                    prop_last = pickUp[star]["pool"][char[type][star][id][1]]["prop_last"]
+                                    let prop_last_ = pickUp[star]["pool"][char[type][star][id][1]]["prop_last"]
+                                    prop_last = (prop_last_/10).toFixed(3)+"%"
                                     pick_up = true
                                     free_stone = pickUp[star]["pool"][char[type][star][id][1]]["free_stone"]
                                 }
@@ -113,8 +117,8 @@ var vm = new Vue({
                                     id:id,
                                     name:char[type][star][id],
                                     sel:sel,
-                                    prop:(prop/10).toFixed(3)+"%",
-                                    prop_last:(prop_last/10).toFixed(3)+"%",
+                                    prop:prop,
+                                    prop_last:prop_last,
                                     pick_up:pick_up,
                                     free_stone:free_stone
                                 }
@@ -141,6 +145,9 @@ var vm = new Vue({
         lang(){
             return this.lang_cn?1:0
         }
+    },
+    watch:{
+
     },
     methods: {
         addpool: function () {
@@ -176,23 +183,27 @@ var vm = new Vue({
                 return "0.000%"
             }
             if (pick) {
-                if(n1=='star3'){
-                    return this.sel_pick_up[n][n1][id]
-                }
+                return this.sel_pick_up[n][n1][id]
             }else{
                 return (this.pool_prop[n][n1]/this.sel_normal[n][n1].length/10).toFixed(3)+'%'
             }
         },
-        tiggleSel:function (n,type,n1,n2) {
+        toggleSel:function (n,type,n1,n2) {
             this.character[n][type][n1][n2]["sel"]=!this.character[n][type][n1][n2]["sel"]
             if (!this.character[n][type][n1][n2]["sel"]){
-                let inx = this.sel_normal[n][n1].indexOf(this.sel_normal[n][n1][n2])
-                this.sel_normal[n][n1].splice(inx,1)
+                if (this.character[n][type][n1][n2]["pick_up"]) {
+                    this.character[n][type][n1][n2]["pick_up"]=false
+                    delete this.sel_pick_up[n][n1][n2]
+                    this.handlePickProp(n,type,n1,n2,n1)
+                }else{
+                    let inx = this.sel_normal[n][n1].indexOf(this.sel_normal[n][n1][n2])
+                    this.sel_normal[n][n1].splice(inx,1)
+                }
             }else{
                 this.sel_normal[n][n1].push(n2)
             }
         },
-        tigglePick:function (n,type,n1,n2) {
+        togglePick:function (n,type,n1,n2) {
             this.character[n][type][n1][n2]["pick_up"]=!this.character[n][type][n1][n2]["pick_up"]
             if (!this.character[n][type][n1][n2]["pick_up"]){
                 this.sel_normal[n][n1].push(n2)
@@ -202,11 +213,22 @@ var vm = new Vue({
                 this.sel_normal[n][n1].splice(inx,1)
                 this.sel_pick_up[n][n1][n2]=0
             }
-            let prop = (7/Object.keys(this.sel_pick_up[n][n1]).length/10).toFixed(3)+"%"
+            this.handlePickProp(n,type,n1,n2,n1)
+        },
+        handlePickProp:function (n,type,n1,n2,star) {
+            let prop_=0
+            switch (star) {
+                case "star3":
+                    prop_ = 7
+                    break
+                case "star2":
+                    prop_ = 50
+                    break
+            }
+            let prop = (prop_/Object.keys(this.sel_pick_up[n][n1]).length/10).toFixed(3)+"%"
             for (let k of Object.keys(this.sel_pick_up[n][n1])) {
                 this.sel_pick_up[n][n1][k]=prop
             }
-            console.log(this.character[n][type][n1][n2])
             this.character[n][type][n1][n2]["prop"]=prop
         }
     },
