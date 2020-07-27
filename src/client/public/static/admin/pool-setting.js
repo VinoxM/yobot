@@ -33,7 +33,8 @@ var vm = new Vue({
         },
         sel_normal:null,
         sel_pick_up:null,
-        pool_prop:null
+        pool_prop:null,
+        prop_:5.00
     },
     mounted() {
         var thisvue = this;
@@ -204,6 +205,33 @@ var vm = new Vue({
             }
         },
         togglePick:function (n,type,n1,n2) {
+            if (n1 == "star2" && !this.character[n][type][n1][n2]["pick_up"]) {
+                if (Object.keys(this.sel_pick_up[n][n1]).length >= 1) {
+                    const h = vm.$createElement;
+                    vm.$msgbox({
+                      title: '消息',
+                      message: h('p', null, [
+                        h('span', null, '请输入概率: '),
+                        h('el-input', { style: 'color: teal' ,'v-model':'prop_'}, 'VNode')
+                      ]),
+                      showCancelButton: true,
+                      confirmButtonText: '确定',
+                      cancelButtonText: '取消',
+                      beforeClose: (action, instance, done) => {
+                        if (action === 'confirm') {
+                          console.log(instance)
+                        } else {
+                          done();
+                        }
+                      }
+                    }).then(action => {
+                      this.$message({
+                        type: 'info',
+                        message: 'action: ' + action
+                      });
+                    });
+                }
+            }
             this.character[n][type][n1][n2]["pick_up"]=!this.character[n][type][n1][n2]["pick_up"]
             if (!this.character[n][type][n1][n2]["pick_up"]){
                 this.sel_normal[n][n1].push(n2)
