@@ -6,6 +6,7 @@ var vm = new Vue({
         star: 1,
         lang_cn: true,
         character:null,
+        charNames:null,
         activePool:"pool_jp",
         poolName:{
             pool_jp:"日服卡池",
@@ -46,6 +47,7 @@ var vm = new Vue({
                     pool_tw:{},
                     pool_cn:{}
                 }
+                let charNames = {}
                 let sel_normal = {
                     pool_jp:{star1:[],star2:[],star3:[]},
                     pool_tw:{star1:[],star2:[],star3:[]},
@@ -107,7 +109,7 @@ var vm = new Vue({
                                     sel = true
                                     let prop_ = pickUp[star]["pool"][char[type][star][id][1]]["prop"]
                                     prop = prop_/10
-                                    sel_pick_up[suf][star][id]=prop.toFixed(3)+"%"
+                                    sel_pick_up[suf][star][id]=prop.toFixed(3)
                                     let prop_last_ = pickUp[star]["pool"][char[type][star][id][1]]["prop_last"]
                                     prop_last = prop_last_/10
                                     pick_up = true
@@ -124,6 +126,9 @@ var vm = new Vue({
                                     pick_up:pick_up,
                                     free_stone:free_stone
                                 }
+                                if (!charNames[id]) {
+                                    charNames[id]=char[type][star][id]
+                                }
                             }
                         }
                     }
@@ -132,6 +137,7 @@ var vm = new Vue({
                 thisvue.sel_normal=sel_normal
                 thisvue.sel_pick_up=sel_pick_up
                 thisvue.pool_prop=pool_prop
+                thisvue.charNames=charNames
             } else {
                 vm.$message.warning('加载数据错误:'+res.data.message);
             }
@@ -148,32 +154,52 @@ var vm = new Vue({
             return this.lang_cn?1:0
         }
     },
-    watch:{
-
-    },
     methods: {
-        addpool: function () {
-            let newname = "奖池" + (Object.keys(this.settings.pool).length+1);
-            this.$set(this.settings.pool, newname, {
-                prop: 0,
-                prop_last: 0,
-                prefix: "★★★",
-                pool: ["请输入内容"],
-            });
-        },
         update: function () {
-            var thisvue = this;
+            for (let suf in this.poolName) {
+                let pools = {star1:{pool:[],prop:795,prop_last:0,name:"1星",prefix:"★"},star2:{pool:[],prop:180,prop_last:975,name:"2星",prefix:"★★"},star3:{pool:[],prop:25,prop_last:25,name:"3星",prefix:"★★★"}}
+                for (let star in pools) {
+                    for (let char of this.sel_normal[suf][star]) {
+                        pools[star]["pool"].push(this.charNames[char][1])
+                    }
+                }
+                if (Object.keys(this.sel_pick_up[suf].star3).length>0){
+                    pools["pick_up"]={pool:[],prop:7,prop_last:7,name:"Pick Up",prefix:"★★★",free_stone:[]}
+                    for (let char in this.sel_pick_up[suf].star3) {
+                        pools["pick_up"]["pool"].push(this.charNames[char][1])
+                    }
+                    pools.star3.prop-=7
+                    pools.star3.prop_last-=7
+                }
+                if (Object.keys(this.sel_pick_up[suf].star2).length>0){
+                    let char_s2 = {}
+                    for (let char in this.sel_pick_up[suf].star2) {
+                        if (!char_s2[this.sel_pick_up[suf].star2[char] * 10]) {
+                            char_s2[this.sel_pick_up[suf].star2[char] * 10]=[]
+                        }
+                        char_s2[this.sel_pick_up[suf].star2[char] * 10].push(this.charNames[char][1])
+                    }
+                    let i = 1;
+                    for (let k in char_s2) {
+                        pools["pick_up"+i]={pool:char_s2[k],prop:Number(k),prop_last:k*5.4,name:"Pick Up",prefix:"★★",free_stone:[]}
+                        i++
+                    }
+                    pools.star2.prop-=50
+                    pools.star2.prop_last-=270
+                }
+                this.settings[suf]["pools"]=pools
+            }
             axios.put(api_path, {
-                setting: thisvue.settings,
+                setting: this.settings,
                 csrf_token: csrf_token,
             }).then(function (res) {
                 if (res.data.code == 0) {
-                    alert('设置成功，重启后生效');
+                    vm.$message.success('设置成功，重启后生效');
                 } else {
-                    alert('设置失败：' + res.data.message);
+                    vm.$message.warnning('设置失败：' + res.data.message);
                 }
             }).catch(function (error) {
-                alert(error);
+                vm.$message.error(error);
             });
         },
         editPools: function (star) {
@@ -185,7 +211,7 @@ var vm = new Vue({
                 return "0.000%"
             }
             if (pick) {
-                return this.sel_pick_up[n][n1][id]
+                return this.sel_pick_up[n][n1][id]+"%"
             }else{
                 return (this.pool_prop[n][n1]/this.sel_normal[n][n1].length/10).toFixed(3)+'%'
             }
@@ -196,9 +222,9 @@ var vm = new Vue({
                 if (this.character[n][type][n1][n2]["pick_up"]) {
                     this.character[n][type][n1][n2]["pick_up"]=false
                     delete this.sel_pick_up[n][n1][n2]
-                    this.handlePickProp(n,type,n1,n2,n1,true)
+                    this.handlePickProp(n,type,n1,n2)
                 }else{
-                    let inx = this.sel_normal[n][n1].indexOf(this.sel_normal[n][n1][n2])
+                    let inx = this.sel_normal[n][n1].indexOf(n2)
                     this.sel_normal[n][n1].splice(inx,1)
                 }
             }else{
@@ -238,52 +264,61 @@ var vm = new Vue({
             }
         },
         togglePick:function(n,type,n1,n2,prop){
-          this.character[n][type][n1][n2]["pick_up"]=!this.character[n][type][n1][n2]["pick_up"]
+            this.character[n][type][n1][n2]["pick_up"]=!this.character[n][type][n1][n2]["pick_up"]
             if (!this.character[n][type][n1][n2]["pick_up"]){
                 this.sel_normal[n][n1].push(n2)
+                this.character[n][type][n1][n2]["prop"] = Number(this.sel_pick_up[n][n1][n2]).toFixed(3)+"%"
                 delete this.sel_pick_up[n][n1][n2]
             }else{
-                let inx = this.sel_normal[n][n1].indexOf(this.sel_normal[n][n1][n2])
+                let inx = (this.sel_normal[n][n1]).indexOf(n2)
                 this.sel_normal[n][n1].splice(inx,1)
                 if (prop == 0) {
                     this.sel_pick_up[n][n1][n2]=0
                 }else{
                     this.sel_pick_up[n][n1][n2]=prop
                 }
+                this.character[n][type][n1][n2]["prop"] = Number(this.sel_pick_up[n][n1][n2]).toFixed(3)+"%"
             }
-            this.handlePickProp(n,type,n1,n2,n1,prop==0)
+            this.handlePickProp(n,type,n1,n2)
         },
-        handlePickProp:function (n,type,n1,n2,star,auto) {
-            // let prop_=0
-            // switch (star) {
-            //     case "star3":
-            //         prop_ = 7
-            //         break
-            //     case "star2":
-            //         prop_ = 50
-            //         break
-            // }
-            if(star=="star3"){
-                let prop = (7/Object.keys(this.sel_pick_up[n][n1]).length/10).toFixed(3)+"%"
+        handlePickProp:function (n,type,n1,n2) {
+            if(n1=="star3"){
+                let prop = (7/Object.keys(this.sel_pick_up[n][n1]).length/10).toFixed(3)
                 for (let k of Object.keys(this.sel_pick_up[n][n1])) {
                     this.sel_pick_up[n][n1][k]=prop
                 }
-                this.character[n][type][n1][n2]["prop"]=prop
-            }else if(star=="star2"){
-                if (this.character[n][type][n1][n2]["pick_up"]) {
-                    let prop_in = this.sel_pick_up[n][n1][n2]
-                    for (let k of Object.keys(this.sel_pick_up[n][n1])) {
-                        if (k != n2) {
-                            let prop_pre = Number(this.sel_pick_up[n][n1][k].substr(0,this.sel_pick_up[n][n1][k].length-2))
-                            let per = prop_pre/(5-Number(this.character[n][type][n1][n2]["prop"].substr(0,5)))
-                            let prop_o = Number(5-prop_in)*per
-                            this.sel_pick_up[n][n1][k]=prop_o.toFixed(3)+"%"
-                        }
+                this.character[n][type][n1][n2]["prop"]=prop+"%"
+            }else if(n1=="star2"){
+                let prop_in = 0
+                let pick_up = this.character[n][type][n1][n2]["pick_up"]
+                let keys = Object.keys(this.sel_pick_up[n][n1]);
+                if (pick_up) {
+                    if (keys.length==1){
+                        prop_in = "5.000"
+                    }else{
+                        prop_in = this.sel_pick_up[n][n1][n2]
                     }
-                    this.sel_pick_up[n][n1][n2]=prop_in+"%"
+                }else{
+                    prop_in = 0
+                }
+                let prop_a = 5
+                if (!pick_up){
+                    prop_a = 0
+                    for (let e of keys) {
+                        prop_a += Number(this.sel_pick_up[n][n1][e].substr(0,5))
+                    }
+                }
+                for (let k of keys) {
+                    if (k != n2) {
+                        let prop_pre = Number(this.sel_pick_up[n][n1][k].substr(0,5))
+                        let per = prop_pre/prop_a
+                        let prop_o = Number(5-prop_in)*per
+                        this.sel_pick_up[n][n1][k]=Number(prop_o).toFixed(3)
+                    }
+                }
+                if (pick_up) {
+                    this.sel_pick_up[n][n1][n2]=prop_in
                     this.character[n][type][n1][n2]["prop"]=prop_in+"%"
-                }else {
-
                 }
 
             }
