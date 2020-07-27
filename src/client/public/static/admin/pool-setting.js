@@ -33,8 +33,7 @@ var vm = new Vue({
         },
         sel_normal:null,
         sel_pick_up:null,
-        pool_prop:null,
-        prop_:5.00
+        pool_prop:null
     },
     mounted() {
         var thisvue = this;
@@ -101,19 +100,21 @@ var vm = new Vue({
                                     sel = true
                                     sel_normal[suf][star].push(id)
                                     let prop_ = thisvue.settings[suf]["pools"][star]["prop"]/thisvue.settings[suf]["pools"][star]["pool"].length
-                                    prop = (prop_/10).toFixed(3)+"%"
+                                    prop = prop_/10
                                     let prop_last_ = thisvue.settings[suf]["pools"][star]["prop_last"]/thisvue.settings[suf]["pools"][star]["pool"].length
-                                    prop_last = (prop_last_/10).toFixed(3)+"%"
+                                    prop_last = prop_last_/10
                                 }else if(pickUp[star]["pool"] && Object.keys(pickUp[star]["pool"]).indexOf(char[type][star][id][1])!=-1){
                                     sel = true
                                     let prop_ = pickUp[star]["pool"][char[type][star][id][1]]["prop"]
-                                    prop = (prop_/10).toFixed(3)+"%"
-                                    sel_pick_up[suf][star][id]=prop
+                                    prop = prop_/10
+                                    sel_pick_up[suf][star][id]=prop.toFixed(3)+"%"
                                     let prop_last_ = pickUp[star]["pool"][char[type][star][id][1]]["prop_last"]
-                                    prop_last = (prop_last_/10).toFixed(3)+"%"
+                                    prop_last = prop_last_/10
                                     pick_up = true
                                     free_stone = pickUp[star]["pool"][char[type][star][id][1]]["free_stone"]
                                 }
+                                prop = prop.toFixed(3)+"%"
+                                prop_last = prop_last.toFixed(3)+"%"
                                 character[suf][type][star][id]={
                                     id:id,
                                     name:char[type][star][id],
@@ -195,7 +196,7 @@ var vm = new Vue({
                 if (this.character[n][type][n1][n2]["pick_up"]) {
                     this.character[n][type][n1][n2]["pick_up"]=false
                     delete this.sel_pick_up[n][n1][n2]
-                    this.handlePickProp(n,type,n1,n2,n1)
+                    this.handlePickProp(n,type,n1,n2,n1,true)
                 }else{
                     let inx = this.sel_normal[n][n1].indexOf(this.sel_normal[n][n1][n2])
                     this.sel_normal[n][n1].splice(inx,1)
@@ -204,60 +205,88 @@ var vm = new Vue({
                 this.sel_normal[n][n1].push(n2)
             }
         },
-        togglePick:function (n,type,n1,n2) {
+        togglePickCheck:function (n,type,n1,n2) {
+            let prop = 0
+            let flag = false
             if (n1 == "star2" && !this.character[n][type][n1][n2]["pick_up"]) {
-                if (Object.keys(this.sel_pick_up[n][n1]).length >= 1) {
-                    const h = vm.$createElement;
-                    vm.$msgbox({
-                      title: '消息',
-                      message: h('p', null, [
-                        h('span', null, '请输入概率: '),
-                        h('el-input', { style: 'color: teal' ,'v-model':'prop_'}, 'VNode')
-                      ]),
-                      showCancelButton: true,
-                      confirmButtonText: '确定',
-                      cancelButtonText: '取消',
-                      beforeClose: (action, instance, done) => {
-                        if (action === 'confirm') {
-                          console.log(instance)
-                        } else {
-                          done();
+                let keys = Object.keys(this.sel_pick_up[n][n1])
+                if (keys.length >= 1) {
+                    flag = true
+                    prop = 5/(keys.length+1)
+                    vm.$prompt('请输入概率:', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        inputValue:prop.toFixed(3),
+                        inputValidator:function(e){
+                            if (/[0-9]*[\.]{1}[0-9]{3}/.test(e)) {
+                                if (Number(e) - 5 < 0 && Number(e) > 0) {
+                                    return true
+                                }
+                            }
+                        return "请输入大于0,小于5的三位小数"
                         }
-                      }
-                    }).then(action => {
-                      this.$message({
-                        type: 'info',
-                        message: 'action: ' + action
-                      });
+                    }).then(({ value }) => {
+                        prop = value
+                        this.togglePick(n,type,n1,n2,prop)
+                    }).catch(() => {
+                        return
                     });
                 }
             }
-            this.character[n][type][n1][n2]["pick_up"]=!this.character[n][type][n1][n2]["pick_up"]
+            if(!flag){
+                this.togglePick(n,type,n1,n2,prop)
+            }
+        },
+        togglePick:function(n,type,n1,n2,prop){
+          this.character[n][type][n1][n2]["pick_up"]=!this.character[n][type][n1][n2]["pick_up"]
             if (!this.character[n][type][n1][n2]["pick_up"]){
                 this.sel_normal[n][n1].push(n2)
                 delete this.sel_pick_up[n][n1][n2]
             }else{
                 let inx = this.sel_normal[n][n1].indexOf(this.sel_normal[n][n1][n2])
                 this.sel_normal[n][n1].splice(inx,1)
-                this.sel_pick_up[n][n1][n2]=0
+                if (prop == 0) {
+                    this.sel_pick_up[n][n1][n2]=0
+                }else{
+                    this.sel_pick_up[n][n1][n2]=prop
+                }
             }
-            this.handlePickProp(n,type,n1,n2,n1)
+            this.handlePickProp(n,type,n1,n2,n1,prop==0)
         },
-        handlePickProp:function (n,type,n1,n2,star) {
-            let prop_=0
-            switch (star) {
-                case "star3":
-                    prop_ = 7
-                    break
-                case "star2":
-                    prop_ = 50
-                    break
+        handlePickProp:function (n,type,n1,n2,star,auto) {
+            // let prop_=0
+            // switch (star) {
+            //     case "star3":
+            //         prop_ = 7
+            //         break
+            //     case "star2":
+            //         prop_ = 50
+            //         break
+            // }
+            if(star=="star3"){
+                let prop = (7/Object.keys(this.sel_pick_up[n][n1]).length/10).toFixed(3)+"%"
+                for (let k of Object.keys(this.sel_pick_up[n][n1])) {
+                    this.sel_pick_up[n][n1][k]=prop
+                }
+                this.character[n][type][n1][n2]["prop"]=prop
+            }else if(star=="star2"){
+                if (this.character[n][type][n1][n2]["pick_up"]) {
+                    let prop_in = this.sel_pick_up[n][n1][n2]
+                    for (let k of Object.keys(this.sel_pick_up[n][n1])) {
+                        if (k != n2) {
+                            let prop_pre = Number(this.sel_pick_up[n][n1][k].substr(0,this.sel_pick_up[n][n1][k].length-2))
+                            let per = prop_pre/(5-Number(this.character[n][type][n1][n2]["prop"].substr(0,5)))
+                            let prop_o = Number(5-prop_in)*per
+                            this.sel_pick_up[n][n1][k]=prop_o.toFixed(3)+"%"
+                        }
+                    }
+                    this.sel_pick_up[n][n1][n2]=prop_in+"%"
+                    this.character[n][type][n1][n2]["prop"]=prop_in+"%"
+                }else {
+
+                }
+
             }
-            let prop = (prop_/Object.keys(this.sel_pick_up[n][n1]).length/10).toFixed(3)+"%"
-            for (let k of Object.keys(this.sel_pick_up[n][n1])) {
-                this.sel_pick_up[n][n1][k]=prop
-            }
-            this.character[n][type][n1][n2]["prop"]=prop
         }
     },
     delimiters: ['[[', ']]'],
