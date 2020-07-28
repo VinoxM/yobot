@@ -244,6 +244,7 @@ var vm = new Vue({
                 }
                 this.settings[suf]["pools"]=pools
             }
+            this.settings.info.ver=this.getDateNow()
             axios.put(api_path, {
                 setting: this.settings,
                 csrf_token: csrf_token,
@@ -377,6 +378,11 @@ var vm = new Vue({
                 }
 
             }
+        },
+        getDateNow(){
+            let date = new Date()
+            let res = (date.getFullYear())*100000000+(date.getMonth()+1)*1000000+(date.getDate()*10000+date.getHours()*100+date.getMinutes())
+            return res
         }
     },
     delimiters: ['[[', ']]'],
