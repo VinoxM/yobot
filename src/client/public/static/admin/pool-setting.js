@@ -1,6 +1,18 @@
 var vm = new Vue({
     el: '#app',
     data: {
+        fullWidth: document.documentElement.clientWidth,
+        tabPosition:'left',
+        imgWidth:{width:'96px'},
+        spanStyle:{
+            fontSize: "12px",
+            height: "18px",
+            lineHeight: "18px"
+        },
+        bodyStyle:{
+            padding:"15px 5px"
+        },
+        checkTop: false,
         settings: null,
         visible: false,
         star: 1,
@@ -38,6 +50,8 @@ var vm = new Vue({
     },
     mounted() {
         var thisvue = this;
+        window.addEventListener('resize', this.handleResize)
+        this.handleResize()
         axios.get(api_path).then(function (res) {
             if (res.data.code == 0) {
                 thisvue.settings = res.data.settings;
@@ -154,7 +168,34 @@ var vm = new Vue({
             return this.lang_cn?1:0
         }
     },
+    beforeDestroy(){
+        window.removeEventListener('resize', this.handleResize)
+    },
     methods: {
+        handleResize:function(){
+            this.fullWidth = document.documentElement.clientWidth
+            if ( this.fullWidth > 800) {
+                this.imgWidth.width="96px"
+                this.checkTop = true
+                this.spanStyle={
+                    fontSize: "12px",
+                    height: "18px",
+                    lineHeight: "18px"
+                }
+                this.tabPosition="top"
+                this.bodyStyle.padding="20px"
+            }else{
+                this.imgWidth.width="72px"
+                this.checkTop = false
+                this.spanStyle={
+                    fontSize: "9px",
+                    height: "16px",
+                    lineHeight: "16px"
+                }
+                this.tabPosition="left"
+                this.bodyStyle.padding="15px 5px"
+            }
+        },
         update: function () {
             for (let suf in this.poolName) {
                 let pools = {star1:{pool:[],prop:795,prop_last:0,name:"1星",prefix:"★"},star2:{pool:[],prop:180,prop_last:975,name:"2星",prefix:"★★"},star3:{pool:[],prop:25,prop_last:25,name:"3星",prefix:"★★★"}}
