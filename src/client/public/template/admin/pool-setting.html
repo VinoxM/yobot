@@ -77,7 +77,6 @@
     }
     .check-box-div{
       padding: 5px 20px;
-      margin-bottom: 15px;
     }
     .el-form-item{
       margin-bottom: 10px;
@@ -105,11 +104,13 @@
           <el-button style="margin-left: 20px" size="small" type="success" @click="update">保存</el-button>
         </div>
       </div>
-      <div v-if="!checkTop">
+      <div v-if="!checkTop" style="margin-bottom: 10px">
         <div class="check-box-div">
             <el-switch v-model="hidden_unsel" :active-text="hidden_unsel?'隐藏已选择':'显示已选择'"></el-switch>
             <el-switch style="margin-left: 20px" v-model="prop_on" :active-text="prop_on?'显示概率':'隐藏概率'"></el-switch>
-            <el-switch style="margin-left: 20px" v-model="nickName_on" :active-text="nickName_on?'显示角色名':'隐藏角色名'"></el-switch>
+        </div>
+        <div class="check-box-div">
+            <el-switch v-model="nickName_on" :active-text="nickName_on?'显示角色名':'隐藏角色名'"></el-switch>
             <el-switch style="margin-left: 20px" v-model="lang_cn" :active-text="lang_cn?'中文昵称':'日文昵称'" ></el-switch>
         </div>
       </div>
@@ -152,7 +153,7 @@
               <el-checkbox v-model="settings.settings.auto_update" :label="settings.settings.auto_update?'启用':'禁用'"></el-checkbox>
             </el-form-item>
             <el-form-item label="默认卡池:">
-              <el-select v-model="settings.settings.default_pool" size="mini">
+              <el-select v-model="settings.settings.default_pool" size="mini" style="width: 130px">
                 <el-option label="日服" value="jp"></el-option>
                 <el-option label="台服" value="tw"></el-option>
                 <el-option label="国服" value="cn"></el-option>
