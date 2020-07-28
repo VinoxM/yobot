@@ -12,6 +12,7 @@ var vm = new Vue({
         bodyStyle:{
             padding:"15px 5px"
         },
+        drawer:false,
         checkTop: false,
         settings: null,
         visible: false,
@@ -23,7 +24,8 @@ var vm = new Vue({
         poolName:{
             pool_jp:"日服卡池",
             pool_tw:"台服卡池",
-            pool_cn:"国服卡池"
+            pool_cn:"国服卡池",
+            others:"其他设置"
         },
         poolTitle:{
             star3:"SSR",
@@ -184,6 +186,12 @@ var vm = new Vue({
                 }
                 this.tabPosition="top"
                 this.bodyStyle.padding="20px"
+                this.poolName={
+                    pool_jp:"日服卡池",
+                    pool_tw:"台服卡池",
+                    pool_cn:"国服卡池",
+                    others:"其他设置"
+                }
             }else{
                 this.imgWidth.width="72px"
                 this.checkTop = false
@@ -194,6 +202,12 @@ var vm = new Vue({
                 }
                 this.tabPosition="left"
                 this.bodyStyle.padding="15px 5px"
+                this.poolName={
+                    pool_jp:"JP",
+                    pool_tw:"TW",
+                    pool_cn:"CN",
+                    others:""
+                }
             }
         },
         update: function () {

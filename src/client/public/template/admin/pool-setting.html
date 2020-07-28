@@ -76,13 +76,14 @@
       background-color: #CACACA;
     }
     .check-box-div{
-      padding: 5px 20px;
+      margin-bottom: 15px;
+      text-align: center;
     }
     .el-form-item{
       margin-bottom: 10px;
     }
     .el-form-item label{
-      width:120px;
+      width:90px;
       text-align: left;
     }
   </style>
@@ -101,20 +102,11 @@
             <el-checkbox v-model="nickName_on" :label="nickName_on?'显示角色名':'隐藏角色名'"></el-checkbox>
             <el-checkbox v-model="lang_cn" :label="lang_cn?'中文昵称':'日文昵称'" ></el-checkbox>
           </span>
+          <span v-else class="el-icon-d-arrow-right" style="transform: rotate(90deg) scaleY(2);margin-right: 10px;" @click="drawer=true"></span>
           <el-button style="margin-left: 20px" size="small" type="success" @click="update">保存</el-button>
         </div>
       </div>
-      <div v-if="!checkTop" style="margin-bottom: 10px">
-        <div class="check-box-div">
-            <el-switch v-model="hidden_unsel" :active-text="hidden_unsel?'隐藏已选择':'显示已选择'"></el-switch>
-            <el-switch style="margin-left: 20px" v-model="prop_on" :active-text="prop_on?'显示概率':'隐藏概率'"></el-switch>
-        </div>
-        <div class="check-box-div">
-            <el-switch v-model="nickName_on" :active-text="nickName_on?'显示角色名':'隐藏角色名'"></el-switch>
-            <el-switch style="margin-left: 20px" v-model="lang_cn" :active-text="lang_cn?'中文昵称':'日文昵称'" ></el-switch>
-        </div>
-      </div>
-      <el-tabs :tab-position="tabPosition" v-if="character" stretch="true" v-model="activePool">
+      <el-tabs v-if="character" stretch="true" v-model="activePool">
         <el-tab-pane v-for="(v,n,i) in character" :label="poolName[n]" :name="n" class="tab-panel-box">
           <el-collapse v-model="activeStars[n]">
             <el-collapse-item v-for="(v1,n1,i1) in poolTitle" :title="v1" :name="n1" v-show="n1!='hidden'">
@@ -147,7 +139,11 @@
             </el-collapse-item>
           </el-collapse>
         </el-tab-pane>
-        <el-tab-pane label="其他设置" name="others">
+        <el-tab-pane name="others">
+          <span slot="label">
+            <span v-if="poolName['others']!=''" v-text="poolName['others']"></span>
+            <i v-else class="el-icon-setting"></i>
+          </span>
           <el-form style="padding: 0px 15px">
             <el-form-item label="自动更新:">
               <el-checkbox v-model="settings.settings.auto_update" :label="settings.settings.auto_update?'启用':'禁用'"></el-checkbox>
@@ -161,12 +157,24 @@
             </el-form-item>
             <el-form-item label="抽卡上限:">
               <el-input-number size="mini" v-model="settings.settings.day_limit" :min="30" :max="600"></el-input-number>
-              <span style="margin-left: 10px">次</span>
             </el-form-item>
           </el-form>
         </el-tab-pane>
       </el-tabs>
     </el-card>
+    <el-drawer :with-header="false" :visible.sync="drawer" direction="ttb" size="110px" :modal-append-to-body="false">
+      <div style="padding: 20px">
+        <div class="check-box-div">
+          <el-switch v-model="hidden_unsel" :active-text="hidden_unsel?'隐藏已选择':'显示已选择'"></el-switch>
+          <el-switch v-model="prop_on" :active-text="prop_on?'显示概率':'隐藏概率'"></el-switch>
+        </div>
+        <div class="check-box-div">
+          <el-switch v-model="nickName_on" :active-text="nickName_on?'显示角色名':'隐藏角色名'"></el-switch>
+          <el-switch v-model="lang_cn" :active-text="lang_cn?'中文昵称':'日文昵称'" ></el-switch>
+        </div>
+      </div>
+
+    </el-drawer>
   </div>
 </body>
 <script>
