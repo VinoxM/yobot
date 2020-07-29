@@ -228,7 +228,9 @@ var vm = new Vue({
                     pools["pick_up"]={pool:[],prop:7,prop_last:7,name:"Pick Up",prefix:"★★★",free_stone:[]}
                     for (let char in this.sel_pick_up[suf].star3) {
                         pools["pick_up"]["pool"].push(this.charNames[char][1])
-                        pools["pick_up"]["free_stone"].push(this.sel_pick_up[suf].star3[char]["free_stone"])
+                        if (this.sel_pick_up[suf].star3[char]["free_stone"]) {
+                            pools["pick_up"]["free_stone"].push(this.charNames[char][1])
+                        }
                     }
                     pools.star3.prop-=7
                     pools.star3.prop_last-=7
@@ -331,6 +333,7 @@ var vm = new Vue({
             if (!this.character[n][type][n1][n2]["pick_up"]){
                 this.sel_normal[n][n1].push(n2)
                 this.character[n][type][n1][n2]["prop"] = Number(this.sel_pick_up[n][n1][n2]["prop"]).toFixed(3)+"%"
+                this.character[n][type][n1][n2]["free_stone"] = false
                 delete this.sel_pick_up[n][n1][n2]
             }else{
                 let inx = (this.sel_normal[n][n1]).indexOf(n2)

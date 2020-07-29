@@ -141,7 +141,7 @@
                   <span :style="imgWidth" v-show="prop_on" v-text="prop_computed(v2.sel,v2.pick_up,n,n1,v2.prop,v2.id)"></span>
                 </div>
                 <span v-if="n1!='star1'" :style="spanStyle" @click="togglePickCheck(n,'normal',n1,n2)" v-show="v2.sel" :class="v2.pick_up?'pick-up pick-up-on':'pick-up pick-up-off'">Up</span>
-                <span v-if="n1=='star3'" :style="spanStyle" v-show="v2.pick_up" :class="v2.free_stone?'free-stone free-stone-on':'free-stone free-stone-off'">+100</span>
+                <span v-if="n1=='star3'" :style="spanStyle" @click="toggleFreeSt(n,'normal',n1,n2)" v-show="v2.pick_up" :class="v2.free_stone?'free-stone free-stone-on':'free-stone free-stone-off'">+100</span>
               </div>
               <el-divider v-if="n1=='star3'||n1=='star1'" content-position="left">限定</el-divider>
               <div v-if="n1=='star3'||n1=='star1'" v-for="(v2,n2,i2) in character[n].limited[n1]" class="char-box" :title="v2.name[lang]" v-show="v2.sel||(!v2.sel&&!hidden_unsel)">
@@ -151,7 +151,7 @@
                   <span :style="imgWidth" v-show="prop_on" v-text="prop_computed(v2.sel,v2.pick_up,n,n1,v2.prop,v2.id)"></span>
                 </div>
                 <span v-if="n1!='star1'" :style="spanStyle" @click="togglePickCheck(n,'limited',n1,n2)" v-show="v2.sel" :class="v2.pick_up?'pick-up pick-up-on':'pick-up pick-up-off'">Up</span>
-                <span v-if="n1=='star3'" :style="spanStyle" v-show="v2.pick_up" :class="v2.free_stone?'free-stone free-stone-on':'free-stone free-stone-off'">+100</span>
+                <span v-if="n1=='star3'" :style="spanStyle" @click="toggleFreeSt(n,'limited',n1,n2)" v-show="v2.pick_up" :class="v2.free_stone?'free-stone free-stone-on':'free-stone free-stone-off'">+100</span>
               </div>
               <div v-if="n1=='hidden'" v-for="(v2,n2,i2) in character[n].hidden.star1" class="char-box" :title="v2.name[lang]" v-show="v2.sel||(!v2.sel&&!hidden_unsel)">
                 <div :class="v2.sel?'':'gray'">
