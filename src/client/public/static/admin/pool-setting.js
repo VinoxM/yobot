@@ -125,11 +125,14 @@ var vm = new Vue({
                                     sel = true
                                     let prop_ = pickUp[star]["pool"][char[type][star][id][1]]["prop"]
                                     prop = prop_/10
-                                    sel_pick_up[suf][star][id]=prop.toFixed(3)
                                     let prop_last_ = pickUp[star]["pool"][char[type][star][id][1]]["prop_last"]
                                     prop_last = prop_last_/10
                                     pick_up = true
                                     free_stone = pickUp[star]["pool"][char[type][star][id][1]]["free_stone"]
+                                    sel_pick_up[suf][star][id]={
+                                        prop:prop.toFixed(3),
+                                        free_stone:free_stone
+                                    }
                                 }
                                 prop = prop.toFixed(3)+"%"
                                 prop_last = prop_last.toFixed(3)+"%"
@@ -212,6 +215,9 @@ var vm = new Vue({
         },
         update: function () {
             for (let suf in this.poolName) {
+                if (suf == "others") {
+                    continue
+                }
                 let pools = {star1:{pool:[],prop:795,prop_last:0,name:"1星",prefix:"★"},star2:{pool:[],prop:180,prop_last:975,name:"2星",prefix:"★★"},star3:{pool:[],prop:25,prop_last:25,name:"3星",prefix:"★★★"}}
                 for (let star in pools) {
                     for (let char of this.sel_normal[suf][star]) {
@@ -222,6 +228,7 @@ var vm = new Vue({
                     pools["pick_up"]={pool:[],prop:7,prop_last:7,name:"Pick Up",prefix:"★★★",free_stone:[]}
                     for (let char in this.sel_pick_up[suf].star3) {
                         pools["pick_up"]["pool"].push(this.charNames[char][1])
+                        pools["pick_up"]["free_stone"].push(this.sel_pick_up[suf].star3[char]["free_stone"])
                     }
                     pools.star3.prop-=7
                     pools.star3.prop_last-=7
@@ -229,10 +236,10 @@ var vm = new Vue({
                 if (Object.keys(this.sel_pick_up[suf].star2).length>0){
                     let char_s2 = {}
                     for (let char in this.sel_pick_up[suf].star2) {
-                        if (!char_s2[this.sel_pick_up[suf].star2[char] * 10]) {
-                            char_s2[this.sel_pick_up[suf].star2[char] * 10]=[]
+                        if (!char_s2[this.sel_pick_up[suf].star2[char]["prop"] * 10]) {
+                            char_s2[this.sel_pick_up[suf].star2[char]["prop"] * 10]=[]
                         }
-                        char_s2[this.sel_pick_up[suf].star2[char] * 10].push(this.charNames[char][1])
+                        char_s2[this.sel_pick_up[suf].star2[char]["prop"] * 10].push(this.charNames[char][1])
                     }
                     let i = 1;
                     for (let k in char_s2) {
@@ -267,7 +274,7 @@ var vm = new Vue({
                 return "0.000%"
             }
             if (pick) {
-                return this.sel_pick_up[n][n1][id]+"%"
+                return this.sel_pick_up[n][n1][id]["prop"]+"%"
             }else{
                 return (this.pool_prop[n][n1]/this.sel_normal[n][n1].length/10).toFixed(3)+'%'
             }
@@ -323,17 +330,17 @@ var vm = new Vue({
             this.character[n][type][n1][n2]["pick_up"]=!this.character[n][type][n1][n2]["pick_up"]
             if (!this.character[n][type][n1][n2]["pick_up"]){
                 this.sel_normal[n][n1].push(n2)
-                this.character[n][type][n1][n2]["prop"] = Number(this.sel_pick_up[n][n1][n2]).toFixed(3)+"%"
+                this.character[n][type][n1][n2]["prop"] = Number(this.sel_pick_up[n][n1][n2]["prop"]).toFixed(3)+"%"
                 delete this.sel_pick_up[n][n1][n2]
             }else{
                 let inx = (this.sel_normal[n][n1]).indexOf(n2)
                 this.sel_normal[n][n1].splice(inx,1)
                 if (prop == 0) {
-                    this.sel_pick_up[n][n1][n2]=0
+                    this.sel_pick_up[n][n1][n2]={prop:0,free_stone:false}
                 }else{
-                    this.sel_pick_up[n][n1][n2]=prop
+                    this.sel_pick_up[n][n1][n2]={prop:prop,free_stone:false}
                 }
-                this.character[n][type][n1][n2]["prop"] = Number(this.sel_pick_up[n][n1][n2]).toFixed(3)+"%"
+                this.character[n][type][n1][n2]["prop"] = Number(this.sel_pick_up[n][n1][n2]["prop"]).toFixed(3)+"%"
             }
             this.handlePickProp(n,type,n1,n2)
         },
@@ -341,7 +348,7 @@ var vm = new Vue({
             if(n1=="star3"){
                 let prop = (7/Object.keys(this.sel_pick_up[n][n1]).length/10).toFixed(3)
                 for (let k of Object.keys(this.sel_pick_up[n][n1])) {
-                    this.sel_pick_up[n][n1][k]=prop
+                    this.sel_pick_up[n][n1][k]["prop"]=prop
                 }
                 this.character[n][type][n1][n2]["prop"]=prop+"%"
             }else if(n1=="star2"){
@@ -352,7 +359,7 @@ var vm = new Vue({
                     if (keys.length==1){
                         prop_in = "5.000"
                     }else{
-                        prop_in = this.sel_pick_up[n][n1][n2]
+                        prop_in = this.sel_pick_up[n][n1][n2]["prop"]
                     }
                 }else{
                     prop_in = 0
@@ -361,23 +368,27 @@ var vm = new Vue({
                 if (!pick_up){
                     prop_a = 0
                     for (let e of keys) {
-                        prop_a += Number(this.sel_pick_up[n][n1][e].substr(0,5))
+                        prop_a += Number(this.sel_pick_up[n][n1][e]["prop"].substr(0,5))
                     }
                 }
                 for (let k of keys) {
                     if (k != n2) {
-                        let prop_pre = Number(this.sel_pick_up[n][n1][k].substr(0,5))
+                        let prop_pre = Number(this.sel_pick_up[n][n1][k]["prop"].substr(0,5))
                         let per = prop_pre/prop_a
                         let prop_o = Number(5-prop_in)*per
-                        this.sel_pick_up[n][n1][k]=Number(prop_o).toFixed(3)
+                        this.sel_pick_up[n][n1][k]["prop"]=Number(prop_o).toFixed(3)
                     }
                 }
                 if (pick_up) {
-                    this.sel_pick_up[n][n1][n2]=prop_in
+                    this.sel_pick_up[n][n1][n2]["prop"]=prop_in
                     this.character[n][type][n1][n2]["prop"]=prop_in+"%"
                 }
 
             }
+        },
+        toggleFreeSt(n,type,n1,n2){
+            this.sel_pick_up[n][n1][n2]["free_stone"]=!this.sel_pick_up[n][n1][n2]["free_stone"]
+            this.character[n][type][n1][n2]["free_stone"]=!this.character[n][type][n1][n2]["free_stone"]
         },
         getDateNow(){
             let date = new Date()
