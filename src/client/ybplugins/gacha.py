@@ -567,12 +567,14 @@ class Gacha:
                 return reply
 
     async def reload_pool(self) -> str:
+        print("正在加载卡池……")
         with open(self.pool_file_path, "r", encoding="utf-8") as f:
             try:
                 self._pool = json.load(f)
             except json.JSONDecodeError:
                 raise CodingError("卡池文件解析错误，请检查卡池文件语法")
         self.init_pool_pickUp()
+        print("加载卡池成功……")
         return "加载卡池成功，当前版本：{}".format(str(self._pool["info"]["ver"]))
 
     @staticmethod
