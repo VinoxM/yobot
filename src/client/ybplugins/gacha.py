@@ -566,6 +566,15 @@ class Gacha:
                 self.pool_checktime = now + 3600
                 return reply
 
+    async def reload_pool(self) -> str:
+        with open(self.pool_file_path, "r", encoding="utf-8") as f:
+            try:
+                self._pool = json.load(f)
+            except json.JSONDecodeError:
+                raise CodingError("卡池文件解析错误，请检查卡池文件语法")
+        self.init_pool_pickUp()
+        return "加载卡池成功，当前版本：{}".format(str(self._pool["info"]["ver"]))
+
     @staticmethod
     def match(cmd: str) -> int:
         if cmd == "十连" or cmd == "十连抽":
@@ -588,10 +597,12 @@ class Gacha:
             return 22
         elif cmd == "日服抽一井" or cmd == "日服来一井":
             return 23
-        elif cmd == "更新角色":
+        elif cmd == "更新卡池角色":
             return 7
         elif cmd == "更新卡池":
             return 17
+        elif cmd == "重载卡池":
+            return 19
         elif cmd == "卡池版本":
             return 8
         elif cmd == "更新昵称":
@@ -651,6 +662,8 @@ class Gacha:
             reply = await self.check_ver(flag=True,pool=True)
         elif func_num == 8:
             reply = "当前卡池版本:{}".format(self._pool["info"]["ver"])
+        elif func_num == 19:
+            reply = await self.reload_pool();
         elif func_num == 9:
             if msg["message_type"] == "group":
                 await self.bot_api.send_group_msg(group_id=msg["group_id"], message="正在更新昵称……")
