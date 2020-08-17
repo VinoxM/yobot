@@ -8,7 +8,7 @@ class Message:
 
     def __init__(self, glo_setting: dict, *args, **kwargs):
         self.version = glo_setting["verinfo"]["ver_name"]
-        self.ver_id = glo_setting["verinfo"]["ver_id"]+glo_setting["verinfo"].get("extra_commit", 0)
+        self.ver_id = glo_setting["verinfo"].get("ver_id",0)+glo_setting["verinfo"].get("extra_commit", 0)
         self.setting = glo_setting
         if glo_setting["clan_battle_mode"] != "chat":
             self.help_page = urljoin(

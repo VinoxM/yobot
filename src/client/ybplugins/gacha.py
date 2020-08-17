@@ -60,18 +60,31 @@ class Gacha:
                     raise CodingError("卡池文件解析错误，请检查卡池文件语法")
         self.init_pool_pickUp()
         self.nickname_dict: Dict[str, Tuple[str, str]] = {}
-        nickfile = os.path.join(glo_setting["dirname"], "nickname3.csv")
-        if self.setting.get("nickName_autoUpdate",False) or not os.path.exists(nickfile):
-            asyncio.ensure_future(self.update_nicknames(),
-                                  loop=asyncio.get_event_loop())
-        else:
-            with open(nickfile, encoding="utf-8-sig") as f:
-                csv = f.read()
-                for line in csv.split("\n")[1:]:
-                    row = line.split(",")
-                    for col in row:
-                        self.nickname_dict[col] = (row[0], row[1])
-            print("角色昵称加载完成……")
+        self.init_nickName()
+        # nickfile = os.path.join(glo_setting["dirname"], "nickname3.csv")
+        # if self.setting.get("nickName_autoUpdate",False) or not os.path.exists(nickfile):
+        #     asyncio.ensure_future(self.update_nicknames(),
+        #                           loop=asyncio.get_event_loop())
+        # else:
+        #     with open(nickfile, encoding="utf-8-sig") as f:
+        #         csv = f.read()
+        #         for line in csv.split("\n")[1:]:
+        #             row = line.split(",")
+        #             for col in row:
+        #                 self.nickname_dict[col] = (row[0], row[1])
+        #     print("角色昵称加载完成……")
+
+    def init_nickName(self)->str:
+        character=self._pool["character"]
+        for type in character:
+            for star in character[type]:
+                for char in character[type][star]:
+                    self.nickname_dict[character[type][star][char][1]]=(char, character[type][star][char][0])
+        print("昵称加载完成……")
+        return "昵称加载完成……";
+
+    async def reload_nickName(self):
+        return self.init_nickName();
 
     def init_pool_pickUp(self):
         self.pool_up = {
@@ -209,7 +222,7 @@ class Gacha:
             "free_count": free_count
         }
 
-    async def gacha(self, qqid: int, nickname: str ,fix: str) -> str:
+    async def gacha(self, qqid: int, nickname: str , fix: str) -> str:
         # await self.check_ver()  # no more updating
         db_exists = os.path.exists(os.path.join(
             self.setting["dirname"], "collections.db"))
@@ -245,7 +258,8 @@ class Gacha:
         times += 1
         day_times += 1
         reply = ""
-        reply += "[CQ:at, qq={}]-> {}\n第{}抽：".format(qqid, self.fix[fix], times)
+        # reply += "[CQ:at, qq={}]-> {}\n第{}抽：".format(qqid, self.fix[fix], times)
+        reply += "{}-> {}\n第{}抽：".format(nickname, self.fix[fix], times)
         for char in result_single["list"]:
             if char in info:
                 info[char] += 1
@@ -368,7 +382,8 @@ class Gacha:
                 reply += "[CQ:at, qq={}]-> {}\n本次没有抽到ssr。".format(qqid, self.fix[fix])
             return reply
         if flag_fully_30_times:
-            reply += "[CQ:at, qq={}] > {}\n{}\n素敵な仲間が増えますよ！".format(qqid, self.fix[fix], self.pool_up[fix]["title"])
+            # reply += "[CQ:at, qq={}] > {}\n{}\n素敵な仲間が増えますよ！".format(qqid, self.fix[fix], self.pool_up[fix]["title"])
+            reply += "{} > {}\n{}\n素敵な仲間が増えますよ！".format(nickname, self.fix[fix], self.pool_up[fix]["title"])
         db_conn.commit()
         db_conn.close()
         reply += await self.handle_result(result)
@@ -558,7 +573,9 @@ class Gacha:
                             self._pool = json.load(f)
                         except json.JSONDecodeError:
                             raise CodingError("卡池文件解析错误，请检查卡池文件语法")
-                    self.init_pool_pickUp()
+                    self.init_nickName()
+                    if pool:
+                        self.init_pool_pickUp()
                     reply = "卡池已自动更新：{}".format(str(self._pool["info"]["ver"]))
                 else:
                     reply = "卡池已经是最新：{}".format(str(self._pool["info"]["ver"]))
@@ -604,11 +621,13 @@ class Gacha:
         elif cmd == "更新卡池":
             return 17
         elif cmd == "重载卡池":
-            return 19
+            return 18
         elif cmd == "卡池版本":
             return 8
         elif cmd == "更新昵称":
             return 9
+        elif cmd == "重载昵称":
+            return 19
         else:
             return 0
 
@@ -652,19 +671,23 @@ class Gacha:
             reply = None
         elif func_num == 7:
             if msg["message_type"] == "group":
-                await self.bot_api.send_group_msg(group_id=msg["group_id"], message="正在更新卡池……")
+                await self.bot_api.send_group_msg(group_id=msg["group_id"], message="正在更新卡池角色……")
             if msg["message_type"] == "private":
-                await self.bot_api.send_private_msg(user_id=msg["sender"]["user_id"], message="正在更新卡池……")
+                await self.bot_api.send_private_msg(user_id=msg["sender"]["user_id"], message="正在更新卡池角色……")
             reply = await self.check_ver(flag=True)
         elif func_num == 17:
             if msg["message_type"] == "group":
                 await self.bot_api.send_group_msg(group_id=msg["group_id"], message="正在更新卡池……")
             if msg["message_type"] == "private":
                 await self.bot_api.send_private_msg(user_id=msg["sender"]["user_id"], message="正在更新卡池……")
-            reply = await self.check_ver(flag=True,pool=True)
+            reply = await self.check_ver(flag=True, pool=True)
         elif func_num == 8:
             reply = "当前卡池版本:{}".format(self._pool["info"]["ver"])
-        elif func_num == 19:
+        elif func_num == 18:
+            if msg["message_type"] == "group":
+                await self.bot_api.send_group_msg(group_id=msg["group_id"], message="正在重载卡池……")
+            if msg["message_type"] == "private":
+                await self.bot_api.send_private_msg(user_id=msg["sender"]["user_id"], message="正在重载卡池……")
             reply = await self.reload_pool();
         elif func_num == 9:
             if msg["message_type"] == "group":
@@ -672,6 +695,12 @@ class Gacha:
             elif msg["message_type"] == "private":
                 await self.bot_api.send_private_msg(user_id=msg["sender"]["user_id"], message="正在更新昵称……")
             reply = await self.update_nicknames(flag=True)
+        elif func_num == 19:
+            if msg["message_type"] == "group":
+                await self.bot_api.send_group_msg(group_id=msg["group_id"], message="正在重载昵称……")
+            elif msg["message_type"] == "private":
+                await self.bot_api.send_private_msg(user_id=msg["sender"]["user_id"], message="正在重载昵称……")
+            reply = await self.reload_nickName()
         elif func_num >= 20:
             if func_num == 20:
                 fix = self._pool["settings"]["default_pool"]
