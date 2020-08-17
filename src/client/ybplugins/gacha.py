@@ -69,6 +69,7 @@ class Gacha:
                 csv = f.read()
                 for line in csv.split("\n")[1:]:
                     row = line.split(",")
+                    print(row)
                     try:
                         for col in row:
                             self.nickname_dict[col] = (row[0], row[1])
