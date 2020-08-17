@@ -69,8 +69,11 @@ class Gacha:
                 csv = f.read()
                 for line in csv.split("\n")[1:]:
                     row = line.split(",")
-                    for col in row:
-                        self.nickname_dict[col] = (row[0], row[1])
+                    try:
+                        for col in row:
+                            self.nickname_dict[col] = (row[0], row[1])
+                    except Exception as e:
+                        print(row)
             print("角色昵称加载完成……")
 
     def init_pool_pickUp(self):
