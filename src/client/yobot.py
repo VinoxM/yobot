@@ -246,8 +246,8 @@ class Yobot:
         preffix = self._valiPreffix(msg["raw_message"])
         if not preffix is None:
             msg["raw_message"] = (msg["raw_message"][len(preffix):])
-        # else:
-        #     return None
+        elif msg["message_type"] != "private":
+            return None
         # if self.glo_setting.get("preffix_on", False):
         #     preffix = self.glo_setting.get("preffix_string", "")
         #     if not msg["raw_message"].startswith(preffix):

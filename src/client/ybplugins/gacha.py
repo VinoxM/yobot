@@ -566,8 +566,9 @@ class Gacha:
                         self._pool["pool_jp"] = online_ver["pool_jp"]
                         self._pool["pool_tw"] = online_ver["pool_tw"]
                         self._pool["pool_cn"] = online_ver["pool_cn"]
+                    self._pool["info"]["ver"] = online_ver["info"]["ver"]
                     with open(self.pool_file_path, "w", encoding="utf-8") as pf:
-                        pf.write(res.text)
+                        pf.write(json.dumps(self._pool,ensure_ascii=False,indent=2))
                     with open(self.pool_file_path, "r", encoding="utf-8") as f:
                         try:
                             self._pool = json.load(f)
@@ -674,7 +675,7 @@ class Gacha:
                 await self.bot_api.send_group_msg(group_id=msg["group_id"], message="正在更新卡池角色……")
             if msg["message_type"] == "private":
                 await self.bot_api.send_private_msg(user_id=msg["sender"]["user_id"], message="正在更新卡池角色……")
-            reply = await self.check_ver(flag=True)
+            reply = await self.check_ver(flag=True, pool=False)
         elif func_num == 17:
             if msg["message_type"] == "group":
                 await self.bot_api.send_group_msg(group_id=msg["group_id"], message="正在更新卡池……")

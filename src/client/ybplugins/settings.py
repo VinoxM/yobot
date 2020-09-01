@@ -85,7 +85,7 @@ class Setting:
                 config_path = os.path.join(
                     self.setting['dirname'], 'yobot_config.json')
                 with open(config_path, 'w', encoding='utf-8') as f:
-                    json.dump(save_setting, f, indent=4)
+                    json.dump(save_setting, f, ensure_ascii=False, indent=4)
                 return jsonify(
                     code=0,
                     message='success',
