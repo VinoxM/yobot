@@ -258,8 +258,8 @@ class Gacha:
         times += 1
         day_times += 1
         reply = ""
-        # reply += "[CQ:at, qq={}]-> {}\n第{}抽：".format(qqid, self.fix[fix], times)
-        reply += "{}-> {}\n第{}抽：".format(nickname, self.fix[fix], times)
+        reply += "[CQ:at, qq={}]-> {}\n第{}抽：".format(qqid, self.fix[fix], times)
+        # reply += "{}-> {}\n第{}抽：".format(nickname, self.fix[fix], times)
         for char in result_single["list"]:
             if char in info:
                 info[char] += 1
@@ -382,8 +382,8 @@ class Gacha:
                 reply += "[CQ:at, qq={}]-> {}\n本次没有抽到ssr。".format(qqid, self.fix[fix])
             return reply
         if flag_fully_30_times:
-            # reply += "[CQ:at, qq={}] > {}\n{}\n素敵な仲間が増えますよ！".format(qqid, self.fix[fix], self.pool_up[fix]["title"])
-            reply += "{} > {}\n{}\n素敵な仲間が増えますよ！".format(nickname, self.fix[fix], self.pool_up[fix]["title"])
+            reply += "[CQ:at, qq={}] > {}\n{}\n素敵な仲間が増えますよ！".format(qqid, self.fix[fix], self.pool_up[fix]["title"])
+            # reply += "{} > {}\n{}\n素敵な仲間が増えますよ！".format(nickname, self.fix[fix], self.pool_up[fix]["title"])
         db_conn.commit()
         db_conn.close()
         reply += await self.handle_result(result)
