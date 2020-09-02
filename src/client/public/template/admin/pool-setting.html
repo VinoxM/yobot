@@ -17,15 +17,17 @@
     .char-box{
       display: inline-block;
       margin: 10px 10px;
-      position: relative;
       text-align: center;
     }
-    .char-box img{
+    .img-box {
+      position: relative;
+    }
+    .img-box img{
       display:block;
       cursor: pointer;
       border-radius:10px;
     }
-    .char-box>div>span{
+    .char-box>span{
       display: block;
       padding: 5px 0px;
       line-height: 16px;
@@ -64,7 +66,7 @@
       font-size: 12px;
       height: 18px;
       line-height: 18px;
-      padding: 0 6px;
+      padding: 0 6px !important;
       text-align: center;
       white-space: nowrap;
       border: 1px solid #fff;
@@ -86,7 +88,7 @@
       font-size: 8px;
       height: 18px;
       line-height: 18px;
-      padding: 0 3px;
+      padding: 0 3px !important;
       text-align: center;
       white-space: nowrap;
       border-top: 1px solid #fff;
@@ -135,32 +137,32 @@
             <el-collapse-item v-for="(v1,n1,i1) in poolTitle" :title="v1" :name="n1" v-show="n1!='hidden'">
               <el-divider v-if="n1=='star3'||n1=='star1'" content-position="left">常驻</el-divider>
               <div v-for="(v2,n2,i2) in character[n].normal[n1]" class="char-box" :title="v2.name[lang]" v-show="v2.sel||(!v2.sel&&!hidden_unsel)" >
-                <div :class="v2.sel?'':'gray'">
+                <div :class="v2.sel?'img-box':'img-box gray'">
                   <img :style="imgWidth" @click="toggleSel(n,'normal',n1,n2)" :src="'/yobot/resource/icon/unit/'+v2.id+(n1=='star3'?'3':'1')+'1.jpg'"/>
+                  <span v-if="n1!='star1'" :style="spanStyle" @click="togglePickCheck(n,'normal',n1,n2)" v-show="v2.sel" :class="v2.pick_up?'pick-up pick-up-on':'pick-up pick-up-off'">Up</span>
+                  <span v-if="n1=='star3'" :style="spanStyle" @click="toggleFreeSt(n,'normal',n1,n2)" v-show="v2.pick_up" :class="v2.free_stone?'free-stone free-stone-on':'free-stone free-stone-off'">+100</span>
+                </div>
                   <span :style="imgWidth" v-show="nickName_on" v-text="v2.name[lang]"></span>
                   <span :style="imgWidth" v-show="prop_on" v-text="prop_computed(v2.sel,v2.pick_up,n,n1,v2.prop,v2.id)"></span>
-                </div>
-                <span v-if="n1!='star1'" :style="spanStyle" @click="togglePickCheck(n,'normal',n1,n2)" v-show="v2.sel" :class="v2.pick_up?'pick-up pick-up-on':'pick-up pick-up-off'">Up</span>
-                <span v-if="n1=='star3'" :style="spanStyle" @click="toggleFreeSt(n,'normal',n1,n2)" v-show="v2.pick_up" :class="v2.free_stone?'free-stone free-stone-on':'free-stone free-stone-off'">+100</span>
               </div>
               <el-divider v-if="n1=='star3'||n1=='star1'" content-position="left">限定</el-divider>
               <div v-if="n1=='star3'||n1=='star1'" v-for="(v2,n2,i2) in character[n].limited[n1]" class="char-box" :title="v2.name[lang]" v-show="v2.sel||(!v2.sel&&!hidden_unsel)">
-                <div :class="v2.sel?'':'gray'">
+                <div :class="v2.sel?'img-box':'img-box gray'">
                   <img :style="imgWidth" @click="toggleSel(n,'limited',n1,n2)" :src="'/yobot/resource/icon/unit/'+v2.id+(n1=='star3'?'3':'1')+'1.jpg'"/>
+                  <span v-if="n1!='star1'" :style="spanStyle" @click="togglePickCheck(n,'limited',n1,n2)" v-show="v2.sel" :class="v2.pick_up?'pick-up pick-up-on':'pick-up pick-up-off'">Up</span>
+                  <span v-if="n1=='star3'" :style="spanStyle" @click="toggleFreeSt(n,'limited',n1,n2)" v-show="v2.pick_up" :class="v2.free_stone?'free-stone free-stone-on':'free-stone free-stone-off'">+100</span>
+                </div>
                   <span :style="imgWidth" v-show="nickName_on" v-text="v2.name[lang]"></span>
                   <span :style="imgWidth" v-show="prop_on" v-text="prop_computed(v2.sel,v2.pick_up,n,n1,v2.prop,v2.id)"></span>
-                </div>
-                <span v-if="n1!='star1'" :style="spanStyle" @click="togglePickCheck(n,'limited',n1,n2)" v-show="v2.sel" :class="v2.pick_up?'pick-up pick-up-on':'pick-up pick-up-off'">Up</span>
-                <span v-if="n1=='star3'" :style="spanStyle" @click="toggleFreeSt(n,'limited',n1,n2)" v-show="v2.pick_up" :class="v2.free_stone?'free-stone free-stone-on':'free-stone free-stone-off'">+100</span>
               </div>
               <div v-if="n1=='hidden'" v-for="(v2,n2,i2) in character[n].hidden.star1" class="char-box" :title="v2.name[lang]" v-show="v2.sel||(!v2.sel&&!hidden_unsel)">
-                <div :class="v2.sel?'':'gray'">
+                <div :class="v2.sel?'img-box':'img-box gray'">
                   <img :style="imgWidth" style="cursor:not-allowed;" :src="'/yobot/resource/icon/unit/'+v2.id+'11.jpg'"/>
+                  <span v-show="v2.sel" :style="spanStyle" :class="v2.pick_up?'pick-up pick-up-on':'pick-up pick-up-off'">Up</span>
+                  <span v-if="n1=='star3'" :style="spanStyle" v-show="v2.pick_up" :class="v2.free_stone?'free-stone free-stone-on':'free-stone free-stone-off'">+100</span>
+                </div>
                   <span :style="imgWidth" v-show="nickName_on" v-text="v2.name[lang]"></span>
                   <span :style="imgWidth" v-show="prop_on" v-text="v2.prop"></span>
-                </div>
-                <span v-show="v2.sel" :style="spanStyle" :class="v2.pick_up?'pick-up pick-up-on':'pick-up pick-up-off'">Up</span>
-                <span v-if="n1=='star3'" :style="spanStyle" v-show="v2.pick_up" :class="v2.free_stone?'free-stone free-stone-on':'free-stone free-stone-off'">+100</span>
               </div>
             </el-collapse-item>
           </el-collapse>

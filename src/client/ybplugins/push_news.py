@@ -102,7 +102,18 @@ class News:
         for item in feed["entries"]:
             if item["id"] == last_id:
                 break
-            news_list.append(rss_source["pattern"].format_map(item))
+            m = {"title": item["title"], "link": item["link"]}
+            summary = item["summary"]
+            i_start = summary.find("<img")
+            if i_start > -1:
+                i_end = summary.find(">", i_start)
+                img = summary[i_start:i_end]
+                summary.replace(img, "")
+                src_s = img.find("src=")
+                src_e = img.find("\"", src_s+5)
+                src = img[src_s+5:src_e]
+                m["title"] += "\n[CQ:img,url={}]".format(src)
+            news_list.append(rss_source["pattern"].format_map(m))
         if news_list:
             return (rss_source["name"]+"更新：\n=======\n"
                     + "\n-------\n".join(news_list))
