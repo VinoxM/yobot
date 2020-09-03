@@ -112,7 +112,7 @@ class News:
                 src_s = img.find("src=")
                 src_e = img.find("\"", src_s+5)
                 src = img[src_s+5:src_e]
-                m["title"] += "\n[CQ:img,url={}]".format(src)
+                m["title"] += "\n[CQ:image,proxy=1,url={}]".format(src)
             news_list.append(rss_source["pattern"].format_map(m))
         if news_list:
             return (rss_source["name"]+"更新：\n=======\n"

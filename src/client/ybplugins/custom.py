@@ -17,6 +17,8 @@ https://github.com/richardchien/nonebot
 import asyncio
 from typing import Any, Dict, Union
 
+import aiohttp
+import feedparser
 from aiocqhttp.api import Api
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from quart import Quart
@@ -73,14 +75,32 @@ class Custom:
         return
 
         cmd = ctx['raw_message']
-        if cmd == '你好':
-
+        if cmd == 'test' and ctx["message_type"] == 'private':
             # 调用api发送消息，详见cqhttp文档
             await self.api.send_private_msg(
-                user_id=123456, message='收到问好')
+                user_id=ctx["user_id"], message='收到问好[CQ:image,proxy=1,url=https://pbs.twimg.com/media/Eg9XFzZUcAEWnFw?format=jpg&name=orig]')
 
             # 返回字符串：发送消息并阻止后续插件
-            return '世界'
+            # return ''
 
+            # async with aiohttp.ClientSession() as session:
+            #     async with session.get("http://rsshub.app.cdn.cloudflare.net/twitter/user/priconne_redive",
+            #                            headers={"host": "rsshub.app"}) as response:
+            #         res = await response.text()
+            #         feed = feedparser.parse(res)
+            #         for item in feed["entries"]:
+            #             m = {"title": item["title"], "link": item["link"]}
+            #             summary = item["summary"]
+            #             i_start = summary.find("<img")
+            #             if i_start > -1:
+            #                 i_end = summary.find(">", i_start)
+            #                 img = summary[i_start:i_end]
+            #                 summary.replace(img, "")
+            #                 src_s = img.find("src=")
+            #                 src_e = img.find("\"", src_s + 5)
+            #                 src = img[src_s + 5:src_e]
+            #                 m["title"] += "\n[CQ:img,url={}]".format(src)
+            #                 await self.api.send_private_msg(user_id=ctx["user_id"],message=m["title"])
+            #                 break
         # 返回布尔值：是否阻止后续插件（返回None视作False）
         return False
