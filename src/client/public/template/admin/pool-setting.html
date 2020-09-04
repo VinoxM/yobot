@@ -11,6 +11,17 @@
   <!-- CDNJS :: Sortable (https://cdnjs.com/) -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
   <style>
+    .input-new-tag {
+      width: 90px;
+      vertical-align: bottom;
+    }
+    .button-new-tag {
+      display: inline-block;
+      height: 32px;
+      line-height: 30px;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
     .tab-panel-box{
       padding: 5px 5px;
     }
@@ -108,7 +119,7 @@
       margin-bottom: 10px;
     }
     .el-form-item label{
-      width:90px;
+      min-width:90px;
       text-align: left;
     }
   </style>
@@ -185,6 +196,77 @@
             </el-form-item>
             <el-form-item label="抽卡上限:">
               <el-input-number size="mini" v-model="settings.settings.day_limit" :min="30" :max="600"></el-input-number>
+            </el-form-item>
+            <el-divider content-position="left">下井欧气反馈</el-divider>
+            <el-form-item label="两个或以上UP角色:">
+                <el-tag style="margin-right:10px" v-for="(item,i) in settings.replys.r.reply" :key="i" closable @close="closeReplaysTag('r',i)"><span v-text="item"></span></el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="inputVisible_1"
+                  v-model="inputValue_1"
+                  ref="saveTagInput_1"
+                  size="small"
+                  @keyup.enter.native="inputConfirm('r',1)"
+                  @blur="inputConfirm('r',1)"
+                >
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(1)">+ New Reply</el-button>
+            </el-form-item>
+            <el-form-item label="0个UP角色:">
+                <el-tag style="margin-right:10px" v-for="(item,i) in settings.replys.r0.reply" :key="i" closable @close="closeReplaysTag('r0',i)"><span v-text="item"></span></el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="inputVisible_2"
+                  v-model="inputValue_2"
+                  ref="saveTagInput_2"
+                  size="small"
+                  @keyup.enter.native="inputConfirm('r',2)"
+                  @blur="inputConfirm('r0',2)"
+                >
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(2)">+ New Reply</el-button>
+            </el-form-item>
+            <el-form-item label="1到3个SSR:">
+                <el-tag style="margin-right:10px" v-for="(item,i) in settings.replys.r1.reply" :key="i" closable @close="closeReplaysTag('r1',i)"><span v-text="item"></span></el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="inputVisible_3"
+                  v-model="inputValue_3"
+                  ref="saveTagInput_3"
+                  size="small"
+                  @keyup.enter.native="inputConfirm('r',3)"
+                  @blur="inputConfirm('r1',3)"
+                >
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(3)">+ New Reply</el-button>
+            </el-form-item>
+            <el-form-item label="4到9个SSR:">
+                <el-tag style="margin-right:10px" v-for="(item,i) in settings.replys.r2.reply" :key="i" closable @close="closeReplaysTag('r2',i)"><span v-text="item"></span></el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="inputVisible_4"
+                  v-model="inputValue_4"
+                  ref="saveTagInput_4"
+                  size="small"
+                  @keyup.enter.native="inputConfirm('r',4)"
+                  @blur="inputConfirm('r2',4)"
+                >
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(4)">+ New Reply</el-button>
+            </el-form-item>
+            <el-form-item label="10个以上SSR:">
+                <el-tag style="margin-right:10px" v-for="(item,i) in settings.replys.r3.reply" :key="i" closable @close="closeReplaysTag('r3',i)"><span v-text="item"></span></el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="inputVisible_5"
+                  v-model="inputValue_5"
+                  ref="saveTagInput_5"
+                  size="small"
+                  @keyup.enter.native="inputConfirm('r',5)"
+                  @blur="inputConfirm('r3',5)"
+                >
+                </el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(5)">+ New Reply</el-button>
             </el-form-item>
           </el-form>
         </el-tab-pane>

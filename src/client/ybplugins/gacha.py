@@ -406,7 +406,7 @@ class Gacha:
         else:
             reply += "没有抽到UP角色"
             len_ = -1
-        if free_count >= 2:
+        if len_ < 5 and free_count >= 2:
             len_ = -2
         for r in self._pool["replys"].values():
             if len_ in range(r["range"][0], r["range"][1]+1):

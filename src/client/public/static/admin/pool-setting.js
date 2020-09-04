@@ -48,7 +48,17 @@ var vm = new Vue({
         },
         sel_normal:null,
         sel_pick_up:null,
-        pool_prop:null
+        pool_prop:null,
+        inputVisible_1:false,
+        inputValue_1:"",
+        inputVisible_2:false,
+        inputValue_2:"",
+        inputVisible_3:false,
+        inputValue_3:"",
+        inputVisible_4:false,
+        inputValue_4:"",
+        inputVisible_5:false,
+        inputValue_5:"",
     },
     mounted() {
         var thisvue = this;
@@ -397,6 +407,23 @@ var vm = new Vue({
             let date = new Date()
             let res = (date.getFullYear())*100000000+(date.getMonth()+1)*1000000+(date.getDate()*10000+date.getHours()*100+date.getMinutes())
             return res
+        },
+        showInput(key){
+            this['inputVisible_'+key]=true
+            this.$nextTick(_ => {
+              this.$refs['saveTagInput_'+key].$refs.input.focus();
+            });
+        },
+        inputConfirm(key,index){
+            let inputValue = this['inputValue_'+index]
+            if(inputValue!=''){
+                this.settings["replys"][key]["reply"].push(inputValue)
+            }
+            this['inputVisible_'+index]=false
+            this['inputValue_'+index]=""
+        },
+        closeReplaysTag(key,i){
+            this.settings["replys"][key]["reply"].splice(i,1)
         }
     },
     delimiters: ['[[', ']]'],
