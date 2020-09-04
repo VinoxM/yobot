@@ -41,20 +41,20 @@ class Scheduler_Custom:
         for k,i in enumerate(trigger):
             corn = CronTrigger(year= i.get("year",None),month= i.get("month",None),day= i.get("day",None),week= i.get("week",None),day_of_week= i.get("day_of_week",None),hour= i.get("hour",None),minute= i.get("minute",None),second= i.get("second",None),start_date= i.get("start_date",None),end_date= i.get("end_date",None),timezone= i.get("timezone",None),jitter= i.get("jitter",None))
             msg = i.get("msg","")
-            group_ids=i.get("groups",[])
+            group_ids = i.get("groups",[])
             sch = AsyncIOScheduler()
-            sch.add_job(job_func,corn,kwargs={"group_ids":group_ids,"msg":msg,"index":k})
+            sch.add_job(job_func, corn, kwargs={"group_ids": group_ids, "msg": msg, "index": k})
             sch.start()                
-            label_ = i.get("label","")+"\n"
+            label_ = i.get("label", "")+"\n"
             for j in group_ids:
-                if self.triggers.__contains__(j):self.triggers[j].append(label_)
-                else:self.triggers[j]=[label_]
+                if self.triggers.__contains__(j): self.triggers[j].append(label_)
+                else: self.triggers[j] = [label_]
 
     async def execute_async(self, ctx: Dict[str, Any]) -> Union[None, bool, str]:
-        if ctx['raw_message']=="查看定时器":
+        if ctx['raw_message'] == "查看定时器":
             labels = self.triggers[ctx["group_id"]]
             msg = "该群共有"+str(len(labels))+"个定时器\n"
             for i in labels:
-                msg+=i
+                msg += i
             await self.api.send_group_msg(group_id=ctx["group_id"], message=msg)
         return
