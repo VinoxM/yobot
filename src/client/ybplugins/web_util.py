@@ -129,3 +129,11 @@ class WebUtil:
                 with open(localfile, 'wb') as f:
                     f.write(res)
             return await send_file(localfile)
+
+        @app.route(
+            urljoin(self.setting["public_basepath"],
+                    "file/view/<path:filename>"),
+            methods=["GET"])
+        async def file_view(filename):
+            localfile = os.path.join(self.setting.get("F:\\Documents", "F:\\Documents"), filename)
+            return await send_file(localfile)

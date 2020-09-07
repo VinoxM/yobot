@@ -30,7 +30,20 @@ var vm = new Vue({
         inputVisible_replace:[],
         inputValue_replace:[],
         inputVisible_result:[],
-        inputValue_result:[]
+        inputValue_result:[],
+        fileType:{
+            Picture:{suffix:[".jpg",".jpeg",".png"],className:"el-icon-picture-outline",action:"view"},
+        },
+        fileData:[],
+        curFilePath:"",
+        filePaths:[""],
+        viewVisible:false,
+        viewTitle:"",
+        viewSuffix:"",
+        viewSrc:"",
+        addVisible:false,
+        addFolder:1,
+        folderName:""
     },
     mounted() {
         var thisvue = this;
@@ -51,6 +64,14 @@ var vm = new Vue({
         }).catch(function (error) {
             vm.$message.error(error);
         });
+    },
+    watch:{
+       tabActive(newVal,oldVal){
+           console.log(newVal)
+           if (newVal==='4'){
+               this.getFileByPath("","this")
+           }
+       }
     },
     methods: {
         update: function (event) {
@@ -208,6 +229,71 @@ var vm = new Vue({
             this.inputValue_replace.splice(k,1)
             this.inputVisible_result.splice(k,1)
             this.inputValue_result.splice(k,1)
+        },
+        getFileByPath(d,action){
+            let path = d['fileName']
+            switch (action) {
+                case "none":
+                    return
+                case "next":
+                    this.curFilePath+="\\"+path
+                    this.filePaths=this.curFilePath.split("\\")
+                    break
+                case "pre":
+                    if (this.filePaths.length===1) return
+                    let paths = this.curFilePath.split("\\")
+                    paths.splice(paths.length-1,1)
+                    this.curFilePath=paths.join("\\")
+                    this.filePaths=paths
+                    break
+                case "click":
+                    this.curFilePath=path
+                    break
+                case "view":
+                    let fileType=d['fileType']
+                    this.viewTitle=path.replace(fileType,"")
+                    this.viewSuffix=fileType
+                    this.viewSrc="/yobot/file/view"+this.curFilePath+"/"+path
+                    this.viewVisible=true
+                    break
+            }
+            axios.post("/yobot/admin/setting/filepath",{path:this.curFilePath,csrf_token:csrf_token})
+            .then((res)=>{
+                let data = res.data["files"]
+                for (let d of data) {
+                    let fileSuffix=d['fileSuffix']
+                    if (fileSuffix&&fileSuffix!==""){
+                        let flag = false
+                        for (let key in this.fileType) {
+                            if (this.fileType[key].suffix.indexOf(fileSuffix)>-1){
+                                d['fileType']=key
+                                d['action']=this.fileType[key]["action"]
+                                d['className']=this.fileType[key]["className"]
+                                flag = true
+                                break
+                            }
+                        }
+                        if (!flag){
+                            d['fileType']="Document"
+                            d['action']="none"
+                            d['className']="el-icon-document"
+                        }
+                    }else{
+                        d['fileType']="Folder"
+                        d['action']="next"
+                        d['className']="el-icon-folder"
+                    }
+                }
+                this.fileData=data
+            })
+        },
+        changePath(key){
+            let path = ""
+            this.filePaths=this.filePaths.slice(0,key+1)
+            if (key>0){
+                path = this.filePaths.join("\\")
+            }
+            this.getFileByPath({fileName:path},"click")
         }
     },
     delimiters: ['[[', ']]'],

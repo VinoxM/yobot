@@ -31,6 +31,49 @@
       text-align: center;
       cursor: move;
     }
+    .file-table{
+      cursor: default;
+      min-width: 120px;
+      display: inline-block;
+    }
+    .file-table-active{
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .file-table-active:hover{
+      color: cornflowerblue;
+    }
+    p.file-title{
+      margin: 0;
+      line-height: 22px;
+      height: 22px;
+    }
+    p.file-title span{
+      display: inline-block;
+      vertical-align: top;
+    }
+    p.file-title span:nth-child(0){
+      max-width: 220px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .file-path{
+      margin-right: 4px;
+      cursor:default;
+    }
+    .file-path:hover{
+      cursor: pointer;
+      text-decoration: underline;
+      color: cornflowerblue;
+    }
+    span.css-label{
+      min-width: 120px;
+      color:#aaaaaa;
+    }
+    span.css-label:after{
+      content:": "
+    }
   </style>
 </head>
 
@@ -492,7 +535,27 @@
         </el-tab-pane>
 
         <el-tab-pane label="其他设置" name="4">
-
+          <el-divider content-position="left">文件管理</el-divider>
+          <div>
+            <el-button-group style="display: inline-block;margin-right: 20px">
+              <el-button size="small" type="primary" class="el-icon-plus" @click="addVisible=true"></el-button>
+              <el-button size="small" type="primary" class="el-icon-refresh" @click="getFileByPath('','this')"></el-button>
+              <el-button size="small" type="primary" class="el-icon-top" @click="getFileByPath('','pre')"></el-button>
+            </el-button-group>
+            <p style="display: inline-block">
+              <span v-for="(item,key) in filePaths" :key="key" class="file-path" @click="changePath(key)">/[[key==0?"root":item]]</span>
+            </p>
+          </div>
+          <el-table :data="fileData">
+            <el-table-column prop="fileName" label="文件名">
+              <template slot-scope="scope">
+                <i :class="scope.row.className" @click="getFileByPath(scope.row,scope.row.action)">
+                  <span :class="scope.row.action==='none'?'file-table':'file-table file-table-active'">[[scope.row.fileName]]</span>
+                </i>
+              </template>
+            </el-table-column>
+            <el-table-column prop="fileType" label="文件类型" width="200"></el-table-column>
+          </el-table>
         </el-tab-pane>
 
         <el-tab-pane label="站点设置" name="10">
@@ -536,123 +599,28 @@
           </el-form>
         </el-tab-pane>
       </el-tabs>
-
-<!--      <el-form label-position="left" label-width="160px">
-        <el-form-item label="公会战记录">
-          <el-radio v-model="setting.clan_battle_mode" label="chat" @change="comfirm_change_clan_mode">使用旧版（仅聊天）
-          </el-radio>
-          <el-radio v-model="setting.clan_battle_mode" label="web" @change="comfirm_change_clan_mode">使用新版（聊天+网站）
-          </el-radio>
-          <el-radio v-model="setting.clan_battle_mode" label="none">关闭</el-radio>
-        </el-form-item>
-        <el-form-item label="模拟抽卡">
-          <el-checkbox v-model="setting.gacha_on">允许群聊抽卡</el-checkbox>
-          <el-checkbox v-model="setting.gacha_private_on">允许私聊抽卡</el-checkbox>
-        </el-form-item>
-        <el-form-item label="竞技场查询">
-          <el-select v-model="setting.jjc_search">
-            <el-option label="关闭" value="off"></el-option>
-            <el-option label="nomae.net" value="nomae.net"></el-option>
-            <el-option label="pcrdfans.com" value="pcrdfans.com"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="pcrdfans.com apikey" :hidden="setting.jjc_search!='pcrdfans.com'">
-          <el-input v-model="setting.jjc_auth_key" placeholder="如果您没有apikey，请更换其他查询方式">
-          </el-input>
-        </el-form-item>
-        <el-form-item label="新闻推送">
-          <el-checkbox v-model="setting.news_jp_official">日服官网</el-checkbox>
-          <el-checkbox v-model="setting.news_jp_twitter">日服推特</el-checkbox>
-          <el-checkbox v-model="setting.news_tw_official">台服官网</el-checkbox>
-          <el-checkbox v-model="setting.news_cn_official">国服官网</el-checkbox>
-          <el-checkbox v-model="setting.news_cn_bilibili">国服Bilibili动态</el-checkbox>
-        </el-form-item>
-        <el-form-item label="自动选择检测时间">
-          <el-checkbox v-model="setting.news_interval_auto"></el-checkbox>
-        </el-form-item>
-        <el-form-item label="检测间隔（分钟）" :hidden="setting.news_interval_auto">
-          <el-slider v-model.number="setting.news_interval_minutes" :min="10" :max="60" show-input>
-          </el-slider>
-        </el-form-item>
-        <el-form-item label="新闻通知到群">
-          <el-input v-for="(g,i) in setting.notify_groups" v-model.number="setting.notify_groups[i]" placeholder="群号">
-          </el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button size="mini" icon="el-icon-circle-plus-outline" @click="setting.notify_groups.push(null)">添加
-          </el-button>
-          <el-button size="mini" icon="el-icon-remove-outline" @click="setting.notify_groups.pop()">删除 </el-button>
-        </el-form-item>
-        <el-form-item label="新闻通知到人">
-          <el-input v-for="(g,i) in setting.notify_privates" v-model.number="setting.notify_privates[i]"
-            placeholder="QQ号"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button size="mini" icon="el-icon-circle-plus-outline" @click="setting.notify_privates.push(null)">添加
-          </el-button>
-          <el-button size="mini" icon="el-icon-remove-outline" @click="setting.notify_privates.pop()">删除 </el-button>
-        </el-form-item>
-        <el-form-item label="日程表区域">
-          <el-select v-model="setting.calender_region" placeholder="日程表区域">
-            <el-option label="日服日程表" value="jp"></el-option>
-            <el-option label="台服日程表" value="tw"></el-option>
-            <el-option label="国服日程表" value="cn"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="每日推送日程">
-          <el-checkbox v-model="setting.calender_on"></el-checkbox>
-          <el-input :disabled="!setting.calender_on" v-model="setting.calender_time" placeholder="08:00">
-          </el-input>
-        </el-form-item>
-        <el-divider content-position="left">复读功能设置</el-divider>
-        <el-form-item label="复读功能">
-          <el-checkbox v-model="setting.repeat_on" :label="setting.repeat_on?'启用':'禁用'"></el-checkbox>
-          <span :hidden="!setting.repeat_on" style="margin-left:20px">
-            <span style="margin-right:5px">开始复读消息次数:</span>
-            <el-checkbox v-model="setting.repeat_random" style="width:80px" :label="setting.repeat_random?'随机值':'固定值'"></el-checkbox>
-            <span :hidden="setting.repeat_random">
-              <el-input v-model="setting.repeat_count" placeholder="重复消息达到多少次开始复读" style="width:120px"></el-input>
-            </span>
-            <span :hidden="!setting.repeat_random">
-              <el-input v-model="setting['repeat_range'][0]" style="width:120px"></el-input>
-              <span>到</span>
-              <el-input v-model="setting['repeat_range'][1]" style="width:120px"></el-input>
-              <span>之间</span>
-            </span>
-          </span>
-        </el-form-item>
-      </el-form>
-      <p>
-        <el-collapse v-model="activeNames" @change="bossSetting = !bossSetting">
-          <el-collapse-item title="boss设置（点击展开）" name="1">
-            <div :hidden="!bossSetting">
-              <div v-for="area_health,area in setting.boss">
-                <h4>[[ {jp:"日服",tw:"台服",cn:"国服",eff:"得分系数"}[area] ]]</h4>
-                <table>
-                  <tr>
-                    <th></th>
-                    <th v-for="k in 5">[[k]]号boss</th>
-                  </tr>
-                  <tr v-for="level,k in area_health">
-                    <td>[[k+1]]阶段</td>
-                    <td v-for="health,b in level"><input v-model.number="area_health[k][b]" placeholder="boss血量"
-                        type="number" v-bind="{step: (area=='eff')?0.1:1000000}" />
-                    </td>
-                  </tr>
-                </table><button @click="switch_levels(area)">切换阶段数</button>
-              </div>
-              <div class="comment">备注：<br>1阶段：1~3周目<br>2阶段：4~10周目<br>3阶段：11~34周目<br>4阶段：35以上</div>
-            </div>
-          </el-collapse-item>
-        </el-collapse>
-      </p>
-      <p>
-        <a href="{{ url_for('yobot_pool_setting') }}">前往卡池设置</a>
-      </p>
-      <p>
-        <el-button type="success" @click="update">确定</el-button>
-      </p> -->
     </el-card>
+    <el-dialog :visible.sync="viewVisible" center>
+      <p slot="title" class="file-title"><span>[[viewTitle]]</span><span>[[viewSuffix]]</span></p>
+      <div style="text-align: center">
+        <el-image :src="viewSrc"></el-image>
+      </div>
+    </el-dialog>
+    <el-dialog :visible.sync="addVisible" center >
+      <p slot="title" class="file-title">Add Document</p>
+      <el-row style="text-align: center">
+        <el-radio v-model="addFolder" :label="1">新建文件夹</el-radio>
+        <el-radio v-model="addFolder" :label="0">上传文件</el-radio>
+      </el-row>
+      <el-row v-if="addFolder" style="text-align: center;margin:30px 0 0 0">
+        <span class="css-label">文件夹名称</span>
+        <el-input style="width: 280px;display: inline-block" v-model="folderName"></el-input>
+        <div style="margin-top: 30px">
+          <el-button size="small" type="primary" @click="">确定</el-button>
+          <el-button size="small" @click="addVisible=false">取消</el-button>
+        </div>
+      </el-row>
+    </el-dialog>
   </div>
 </body>
 <script>

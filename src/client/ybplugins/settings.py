@@ -313,3 +313,38 @@ class Setting:
                     return jsonify(code=32, message='unknown action')
             except KeyError as e:
                 return jsonify(code=31, message=str(e))
+
+        @app.route(
+            urljoin(self.setting['public_basepath'], 'admin/setting/filepath/'),
+            methods=['POST'])
+        async def yobot_setting_filepath():
+            if 'yobot_user' not in session:
+                return jsonify(
+                    code=10,
+                    message='Not logged in',
+                )
+            user = User.get_by_id(session['yobot_user'])
+            if user.authority_group >= 100:
+                return jsonify(
+                    code=11,
+                    message='Insufficient authority',
+                )
+            req = await request.get_json()
+            if req.get('csrf_token') != session['csrf_token']:
+                return jsonify(
+                    code=15,
+                    message='Invalid csrf_token',
+                )
+            if request.method == 'POST':
+                base_path = self.setting.get("base_file_path", "F:\\Documents")
+                file_path = req.get('path')
+                path = base_path + file_path
+                files = os.listdir(path)
+                res = []
+                for f in files:
+                    res.append({"fileName": f, "isDir": os.path.isdir(path+"\\"+f), "fileSuffix": os.path.splitext(f)[1]})
+                return jsonify(
+                    code=0,
+                    message='success',
+                    files=res
+                )
