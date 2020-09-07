@@ -361,13 +361,13 @@ class Gacha:
                     if self.check_ssr(char, fix):
                         if ssr_inx == 0:
                             ssr_inx = inx + 1 + (i-1)*10
-                        result.append([str(char).replace("★", ""), str(char).count("★")])
+                        result.append([str(char).replace("★", ""), str(char).count("★"), str(char) in self.pool_up[fix]["up"]])
                 else:
                     info[char] = 1
                     if self.check_ssr(char, fix):
                         if ssr_inx == 0:
                             ssr_inx = inx + 1 + (i-1)*10
-                        result.append([str(char).replace("★", ""), str(char).count("★")])
+                        result.append([str(char).replace("★", ""), str(char).count("★"), str(char) in self.pool_up[fix]["up"]])
         sql_info = pickle.dumps(info)
         if mem_exists:
             db.execute("UPDATE Colle SET colle=?, times=?, last_day=?, day_times=? WHERE qqid=?",
@@ -447,7 +447,10 @@ class Gacha:
                     os.makedirs(os.path.dirname(localfile))
                 with open(localfile, 'wb') as f:
                     f.write(res)
-            gacha_path = os.path.join(self.resource_path, "gacha", "unit", str(r[1]))
+            if r[2]:
+                gacha_path = os.path.join(self.resource_path, "gacha", "unit","pickup", str(r[1]))
+            else:
+                gacha_path = os.path.join(self.resource_path, "gacha", "unit", str(r[1]))
             if not os.path.exists(gacha_path):
                 os.makedirs(gacha_path)
             gacha_file = os.path.join(gacha_path, filename[:-4]+".png")
@@ -457,6 +460,9 @@ class Gacha:
                 gacha_img = Image.open(localfile).convert('RGBA')
                 for i in range(1, r[1]+1):
                     gacha_img.paste(gacha_star, (int(star_size*(i*0.6-0.7)), 128-star_size), mask=gacha_star.split()[3])
+                if r[2]:
+                    gacha_pick_up = Image.open(os.path.join(self.resource_path, "gacha", "unit", "up.png")).resize((60, 24), Image.ANTIALIAS).convert('RGBA')
+                    gacha_img.paste(gacha_pick_up, (76, 0), mask=gacha_pick_up.split()[3])
                 gacha_img.save(gacha_file)
             local_files.append(gacha_file)
         img_col = 5
