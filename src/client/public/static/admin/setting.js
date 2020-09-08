@@ -245,6 +245,7 @@ var vm = new Vue({
             let fileSuffix=d['fileSuffix']
             switch (action) {
                 case "none":
+                    this.tableLoading=false
                     return
                 case "next":
                     this.curFilePath+="\\"+path
