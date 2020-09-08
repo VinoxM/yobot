@@ -5,6 +5,7 @@
     "client_salt": null,
     "public_address": null,
     "public_basepath": "/yobot/",
+    "base_file_path": "F:\\Documents",
     "web_mode_hint": true,
     "super-admin": [760254674],
     "black-list": [],
