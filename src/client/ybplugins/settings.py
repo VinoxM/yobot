@@ -2,7 +2,7 @@ import json
 import os
 from urllib.parse import urljoin
 
-from quart import Quart, jsonify, redirect, request, session, url_for
+from quart import Quart, jsonify, redirect, request, session, url_for, send_file
 
 from .templating import render_template
 from .ybdata import User, Clan_group
@@ -18,6 +18,7 @@ class Setting:
                  bot_api,
                  *args, **kwargs):
         self.setting = glo_setting
+        self.base_file_path = self.setting.get("base_file_path", "F:\\Documents")
 
     def register_routes(self, app: Quart):
 
@@ -27,7 +28,7 @@ class Setting:
         async def yobot_setting():
             if 'yobot_user' not in session:
                 return redirect(url_for('yobot_login', callback=request.path))
-            user=User.get_by_id(session['yobot_user'])
+            user = User.get_by_id(session['yobot_user'])
             if user.authority_group > 10:
                 return await render_template(
                     'unauthorized.html',
@@ -198,7 +199,7 @@ class Setting:
                 if action == 'get_data':
                     users = []
                     for user in User.select().where(
-                        User.deleted == False,
+                            User.deleted == False,
                     ):
                         users.append({
                             'qqid': user.qqid,
@@ -291,7 +292,7 @@ class Setting:
                 if action == 'get_data':
                     groups = []
                     for group in Clan_group.select().where(
-                        Clan_group.deleted == False,
+                            Clan_group.deleted == False,
                     ):
                         groups.append({
                             'group_id': group.group_id,
@@ -336,15 +337,139 @@ class Setting:
                     message='Invalid csrf_token',
                 )
             if request.method == 'POST':
-                base_path = self.setting.get("base_file_path", "F:\\Documents")
+                base_path = self.base_file_path
                 file_path = req.get('path')
                 path = base_path + file_path
                 files = os.listdir(path)
                 res = []
                 for f in files:
-                    res.append({"fileName": f, "isDir": os.path.isdir(path+"\\"+f), "fileSuffix": os.path.splitext(f)[1]})
+                    res.append(
+                        {"fileName": f, "isDir": os.path.isdir(path + "\\" + f), "fileSuffix": os.path.splitext(f)[1]})
                 return jsonify(
                     code=0,
                     message='success',
                     files=res
                 )
+
+        @app.route(
+            urljoin(self.setting['public_basepath'], 'admin/setting/file/delete'),
+            methods=['POST'])
+        async def yobot_setting_file_del():
+            if 'yobot_user' not in session:
+                return jsonify(
+                    code=10,
+                    message='Not logged in',
+                )
+            user = User.get_by_id(session['yobot_user'])
+            if user.authority_group >= 100:
+                return jsonify(
+                    code=11,
+                    message='Insufficient authority',
+                )
+            req = await request.get_json()
+            if req.get('csrf_token') != session['csrf_token']:
+                return jsonify(
+                    code=15,
+                    message='Invalid csrf_token',
+                )
+            path = req.get("path")
+            if path.startswith("\\"):
+                path = path[1:]
+            file_path = req.get("file_name")
+            base_path = self.base_file_path
+            del_path = os.path.join(base_path, path, file_path)
+            if os.path.isdir(del_path):
+                if len(os.listdir(del_path)) > 0:
+                    return jsonify(
+                        code=500,
+                        message="You can only delete empty folders"
+                    )
+                else:
+                    os.rmdir(del_path)
+                    return jsonify(
+                        code=0,
+                        message="Delete Folder success"
+                    )
+            else:
+                if os.path.exists(del_path):
+                    os.remove(del_path)
+                    return jsonify(
+                        code=0,
+                        message="Delete document success"
+                    )
+                else:
+                    return jsonify(
+                        code=500,
+                        message="Documents is not exists"
+                    )
+
+        @app.route(
+            urljoin(self.setting["public_basepath"],
+                    "admin/setting/file/view/<path:filename>"),
+            methods=["GET"])
+        async def file_view(filename):
+            local_file = os.path.join(self.base_file_path, filename)
+            return await send_file(local_file)
+
+        @app.route(
+            urljoin(self.setting["public_basepath"],
+                    "admin/setting/file/upload.<path:filepath>"),
+            methods=["POST"])
+        async def file_upload(filepath):
+            if 'yobot_user' not in session:
+                return jsonify(
+                    code=10,
+                    message='Not logged in',
+                )
+            user = User.get_by_id(session['yobot_user'])
+            if user.authority_group >= 100:
+                return jsonify(
+                    code=11,
+                    message='Insufficient authority',
+                )
+            req = request.args
+            if req.get('csrf_token') != session['csrf_token']:
+                return jsonify(
+                    code=15,
+                    message='Invalid csrf_token',
+                )
+            if not str(filepath).startswith("root"):
+                return
+            save_path = os.path.join(self.base_file_path, str(filepath)[5:].replace("/", "\\"))
+            files = await request.files
+            for file in files.values():
+                file_name = file.filename
+                with open(os.path.join(save_path, file_name), 'wb') as f:
+                    f.write(file.stream.read())
+            return jsonify(code=0, message='Upload success')
+
+        @app.route(
+            urljoin(self.setting["public_basepath"],
+                    "admin/setting/file/folder/"),
+            methods=["POST"])
+        async def file_create_folder():
+            if 'yobot_user' not in session:
+                return jsonify(
+                    code=10,
+                    message='Not logged in',
+                )
+            user = User.get_by_id(session['yobot_user'])
+            if user.authority_group >= 100:
+                return jsonify(
+                    code=11,
+                    message='Insufficient authority',
+                )
+            req = await request.get_json()
+            if req.get('csrf_token') != session['csrf_token']:
+                return jsonify(
+                    code=15,
+                    message='Invalid csrf_token',
+                )
+            file_path = req.get("path")
+            folder_name = req.get("folderName")
+            save_path = os.path.join(self.base_file_path, file_path, folder_name)
+            if os.path.isdir(save_path):
+                return jsonify(code=500, message="Folder already exists")
+            else:
+                os.mkdir(save_path)
+                return jsonify(code=0, message="Folder create success")

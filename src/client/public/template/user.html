@@ -7,9 +7,14 @@
     <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.19.2/axios.min.js"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/element-ui/2.13.0/index.js"></script>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/element-ui/2.13.0/theme-chalk/index.css">
+    <style>
+        .el-row{
+            margin-top: 20px;
+        }
+    </style>
 </head>
 
-<body>
+<body style="text-align: center">
     <h1>yobot用户面板</h1>
     <div id="app">
         <p>欢迎{{ user.nickname }}</p>
@@ -27,7 +32,6 @@
                 <el-button type="primary">群管理</el-button>
             </a>
         </el-row>
-        <br />
         {%- endif %}
         <el-row>
             <a href="{{ url_for('yobot_user_info', qqid=user.qqid) }}">
@@ -55,7 +59,7 @@
             {%- endif %}
         </el-row>
     </div>
-    <p><a href="{{ url_for('yobot_about') }}">关于yobot</a></p>
+    <p class="el-row"><a href="{{ url_for('yobot_about') }}">关于yobot</a></p>
     <footer style="position: absolute;bottom: 0;left: 50%;transform: translate(-50%, -50%);">
         powered by <a href="https://github.com/yuudi/yobot">yobot</a>
     </footer>

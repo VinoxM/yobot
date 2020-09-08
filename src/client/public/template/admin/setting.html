@@ -546,7 +546,7 @@
               <span v-for="(item,key) in filePaths" :key="key" class="file-path" @click="changePath(key)">/[[key==0?"root":item]]</span>
             </p>
           </div>
-          <el-table :data="fileData">
+          <el-table :data="fileData" v-loading="tableLoading">
             <el-table-column prop="fileName" label="文件名">
               <template slot-scope="scope">
                 <i :class="scope.row.className" @click="getFileByPath(scope.row,scope.row.action)">
@@ -555,6 +555,14 @@
               </template>
             </el-table-column>
             <el-table-column prop="fileType" label="文件类型" width="200"></el-table-column>
+            <el-table-column label="" width="200">
+              <template slot-scope="scope">
+                <p style="text-align: left;padding: 0;margin: 0">
+                  <el-button class="el-icon-delete" size="mini" type="danger" @click="delDocument(scope.row)"></el-button>
+                  <el-button v-if="!scope.row.isDir" class="el-icon-download" size="mini" @click="downloadFile(scope.row)"></el-button>
+                </p>
+              </template>
+            </el-table-column>
           </el-table>
         </el-tab-pane>
 
@@ -606,7 +614,7 @@
         <el-image :src="viewSrc"></el-image>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="addVisible" center >
+    <el-dialog :visible.sync="addVisible" center @close="dialogClose">
       <p slot="title" class="file-title">Add Document</p>
       <el-row style="text-align: center">
         <el-radio v-model="addFolder" :label="1">新建文件夹</el-radio>
@@ -616,10 +624,32 @@
         <span class="css-label">文件夹名称</span>
         <el-input style="width: 280px;display: inline-block" v-model="folderName"></el-input>
         <div style="margin-top: 30px">
-          <el-button size="small" type="primary" @click="">确定</el-button>
+          <el-button size="small" type="primary" @click="createFolder">确定</el-button>
           <el-button size="small" @click="addVisible=false">取消</el-button>
         </div>
       </el-row>
+      <el-row v-else style="text-align: center;margin-top: 30px">
+        <el-upload ref="upload" :action="'/yobot/admin/setting/file/upload.root'+curFilePath+'?csrf_token='+csrf_token"
+                   :on-preview="handlePreview"
+                   :on-remove="handleRemove"
+                   :on-success="handleUploadSuccess"
+                   :on-error="handleUploadError"
+                   :file-list="fileList"
+                   :auto-upload="false">
+          <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+          <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
+          <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+        </el-upload>
+      </el-row>
+    </el-dialog>
+    <el-dialog :visible.sync="recordVisible" center destroy-on-close>
+      <p slot="title" class="file-title"><span>[[recordTitle]]</span><span>[[recordSuffix]]</span></p>
+      <div style="text-align: center">
+        <audio controls="controls">
+          <source :src="recordSrc" :type="recordType">
+          Your browser does not support the audio element.
+        </audio>
+      </div>
     </el-dialog>
   </div>
 </body>

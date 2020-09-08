@@ -31,8 +31,10 @@ var vm = new Vue({
         inputValue_replace:[],
         inputVisible_result:[],
         inputValue_result:[],
+        tableLoading:true,
         fileType:{
             Picture:{suffix:[".jpg",".jpeg",".png"],className:"el-icon-picture-outline",action:"view"},
+            Record:{suffix:[".ogg",".mp3"],className:"el-icon-headset",action:"record"},
         },
         fileData:[],
         curFilePath:"",
@@ -43,7 +45,13 @@ var vm = new Vue({
         viewSrc:"",
         addVisible:false,
         addFolder:1,
-        folderName:""
+        folderName:"",
+        fileList:[],
+        recordVisible:false,
+        recordTitle:"",
+        recordSuffix:"",
+        recordSrc:"",
+        recordType:""
     },
     mounted() {
         var thisvue = this;
@@ -231,7 +239,10 @@ var vm = new Vue({
             this.inputValue_result.splice(k,1)
         },
         getFileByPath(d,action){
+            this.tableLoading=true
             let path = d['fileName']
+            let fileType=d['fileType'];
+            let fileSuffix=d['fileSuffix']
             switch (action) {
                 case "none":
                     return
@@ -250,19 +261,31 @@ var vm = new Vue({
                     this.curFilePath=path
                     break
                 case "view":
-                    let fileType=d['fileType']
-                    this.viewTitle=path.replace(fileType,"")
-                    this.viewSuffix=fileType
-                    this.viewSrc="/yobot/file/view"+this.curFilePath+"/"+path
+                    this.viewTitle=path.replace(fileSuffix,"")
+                    this.viewSuffix=fileSuffix
+                    this.viewSrc="/yobot/admin/setting/file/view"+this.curFilePath+"/"+path
                     this.viewVisible=true
-                    break
+                    this.tableLoading=false
+                    return
+                case "record":
+                    this.recordTitle=path.replace(fileSuffix,"")
+                    this.recordSuffix=fileSuffix
+                    this.recordType="audio/"+fileSuffix.replace(".","")
+                    this.recordSrc="/yobot/admin/setting/file/view"+this.curFilePath+"/"+path
+                    this.recordVisible=true
+                    this.tableLoading=false
+                    return
             }
             axios.post("/yobot/admin/setting/filepath",{path:this.curFilePath,csrf_token:csrf_token})
             .then((res)=>{
+                if (res.data.code!==0){
+                    this.$message.error("Load error,Cause by:\n"+res.data.message)
+                    return
+                }
                 let data = res.data["files"]
                 for (let d of data) {
                     let fileSuffix=d['fileSuffix']
-                    if (fileSuffix&&fileSuffix!==""){
+                    if (!d['isDir']&&fileSuffix&&fileSuffix!==""){
                         let flag = false
                         for (let key in this.fileType) {
                             if (this.fileType[key].suffix.indexOf(fileSuffix)>-1){
@@ -285,6 +308,24 @@ var vm = new Vue({
                     }
                 }
                 this.fileData=data
+                this.tableLoading=false
+            })
+        },
+        createFolder(){
+            if (this.folderName===""){
+                this.$message.warning("文件夹名称不能为空")
+                return
+            }
+            axios.post("/yobot/admin/setting/file/folder",{path:this.curFilePath,folderName:this.folderName,csrf_token:csrf_token})
+            .then((res)=>{
+                this.$message({
+                    type:res.data.code===0?"success":"error",
+                    message:res.data.message
+                })
+                if (res.data.code===0){
+                    this.addVisible=false
+                    this.getFileByPath({fileName:""},"this")
+                }
             })
         },
         changePath(key){
@@ -294,6 +335,62 @@ var vm = new Vue({
                 path = this.filePaths.join("\\")
             }
             this.getFileByPath({fileName:path},"click")
+        },
+        delDocument(d){
+            this.$confirm('确认删除吗?', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+                axios.post("/yobot/admin/setting/file/delete",{path:this.curFilePath,file_name:d.fileName,csrf_token:csrf_token})
+                .then((res)=>{
+                    this.$message({
+                        type:res.data.code===0?"success":"error",
+                        message:res.data.message
+                    })
+                    if (res.data.code===0){
+                        this.getFileByPath(d,"this")
+                    }
+                })
+            })
+        },
+        submitUpload(){
+            this.$refs.upload.submit();
+        },
+        handleRemove(file,fileList){
+
+        },
+        handlePreview(file){
+
+        },
+        handleUploadSuccess(response, file, fileList){
+            if(response.code===0){
+                this.$message.success("Upload success")
+                this.getFileByPath({fileName: this.curFilePath},"this")
+            }else{
+                this.$message.error("Upload error,Cause by:\n"+response.message)
+                return
+            }
+            fileList.length=0
+        },
+        handleUploadError(err, file, fileList){
+            this.$message.error("Upload error")
+        },
+        dialogClose(){
+            this.folderName=""
+            this.fileList.length=0
+        },
+        downloadFile(d){
+            let eleLink = document.createElement('a');
+              eleLink.download = d.fileName;
+              eleLink.style.display = 'none';
+              eleLink.href = "/yobot/admin/setting/file/view"+this.curFilePath+"/"+d.fileName;
+              // 受浏览器安全策略的因素，动态创建的元素必须添加到浏览器后才能实施点击
+              document.body.appendChild(eleLink);
+              // 触发点击
+              eleLink.click();
+              // 然后移除
+              document.body.removeChild(eleLink);
         }
     },
     delimiters: ['[[', ']]'],
