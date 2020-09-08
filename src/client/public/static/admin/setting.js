@@ -252,7 +252,10 @@ var vm = new Vue({
                     this.filePaths=this.curFilePath.split("\\")
                     break
                 case "pre":
-                    if (this.filePaths.length===1) return
+                    if (this.filePaths.length===1) {
+                        this.tableLoading=false
+                        return
+                    }
                     let paths = this.curFilePath.split("\\")
                     paths.splice(paths.length-1,1)
                     this.curFilePath=paths.join("\\")
@@ -281,6 +284,7 @@ var vm = new Vue({
             .then((res)=>{
                 if (res.data.code!==0){
                     this.$message.error("Load error,Cause by:\n"+res.data.message)
+                    this.tableLoading=false
                     return
                 }
                 let data = res.data["files"]
