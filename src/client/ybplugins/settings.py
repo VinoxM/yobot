@@ -466,6 +466,8 @@ class Setting:
                     message='Invalid csrf_token',
                 )
             file_path = req.get("path")
+            if file_path.startswith("\\"):
+                file_path = file_path[1:]
             folder_name = req.get("folderName")
             save_path = os.path.join(self.base_file_path, file_path, folder_name)
             if os.path.isdir(save_path):
@@ -473,3 +475,39 @@ class Setting:
             else:
                 os.mkdir(save_path)
                 return jsonify(code=0, message="Folder create success")
+
+
+        @app.route(
+            urljoin(self.setting['public_basepath'], 'admin/setting/file/rename'),
+            methods=['POST'])
+        async def yobot_setting_file_rename():
+            if 'yobot_user' not in session:
+                return jsonify(
+                    code=10,
+                    message='Not logged in',
+                )
+            user = User.get_by_id(session['yobot_user'])
+            if user.authority_group >= 100:
+                return jsonify(
+                    code=11,
+                    message='Insufficient authority',
+                )
+            req = await request.get_json()
+            if req.get('csrf_token') != session['csrf_token']:
+                return jsonify(
+                    code=15,
+                    message='Invalid csrf_token',
+                )
+            base_path = self.base_file_path
+            path = req.get("path")
+            if path.startswith("\\"):
+                path = path[1:]
+            old_file_name = os.path.join(base_path, path, req.get("old_file_name"))
+            new_file_name = os.path.join(base_path, path, req.get("new_file_name"))
+            try:
+                os.rename(old_file_name, new_file_name)
+            except FileExistsError:
+                return jsonify(code=500, message="File already exists")
+            except FileNotFoundError:
+                return jsonify(code=500, message="File not found")
+            return jsonify(code=0, message="Rename file success")

@@ -31,6 +31,11 @@ var vm = new Vue({
         inputValue_replace:[],
         inputVisible_result:[],
         inputValue_result:[],
+        inputVisible_tri_msg:[],
+        inputValue_tri_msg:[],
+        inputVisible_tri_group:[],
+        inputValue_tri_group:[],
+        activeName_trigger:"",
         tableLoading:true,
         fileType:{
             Picture:{suffix:[".jpg",".jpeg",".png"],className:"el-icon-picture-outline",action:"view"},
@@ -51,12 +56,56 @@ var vm = new Vue({
         recordTitle:"",
         recordSuffix:"",
         recordSrc:"",
-        recordType:""
+        recordType:"",
+        triggerTimer:{
+            year:{
+                flag:[],
+                label:"年"
+            },
+            month:{
+                flag:[],
+                label:"月"
+            },
+            day:{
+                flag:[],
+                label:"日"
+            },
+            week:{
+                flag:[],
+                label:"周"
+            },
+            day_of_week:{
+                flag:[],
+                label:"星期"
+            },
+            hour:{
+                flag:[],
+                label:"时"
+            },
+            minute:{
+                flag:[],
+                label:"分"
+            },
+            second:{
+                flag:[],
+                label:"秒"
+            },
+            jitter:{
+                flag:[],
+                label:"延迟"
+            },
+        },
+        renameVisible:false,
+        renameFile:{
+            oldFileName:"",
+            newFileName:"",
+            fileSuffix:""
+        }
     },
     mounted() {
         var thisvue = this;
         axios.get(api_path).then(function (res) {
-            if (res.data.code == 0) {
+            if (res.data.code === 0) {
                 thisvue.setting = res.data.settings;
                 for (let i = 0; i < thisvue.setting['extra'].length; i++) {
                     thisvue.inputVisible_filter.push(false)
@@ -65,6 +114,21 @@ var vm = new Vue({
                     thisvue.inputValue_replace.push("")
                     thisvue.inputVisible_result.push(false)
                     thisvue.inputValue_result.push("")
+                }
+                for (let i = 0; i < thisvue.setting['trigger'].length; i++){
+                    let tri = thisvue.setting['trigger'][i]
+                    let triTimer = thisvue.triggerTimer
+                    for (let k in triTimer) {
+                        if (k==='jitter'){
+                            triTimer[k].flag.push(tri[k]!==0)
+                            continue
+                        }
+                        triTimer[k].flag.push(tri[k]!=='*')
+                    }
+                    thisvue.inputVisible_tri_msg.push(false)
+                    thisvue.inputValue_tri_msg.push("")
+                    thisvue.inputVisible_tri_group.push(false)
+                    thisvue.inputValue_tri_group.push("")
                 }
             } else {
                 vm.$message.warning(res.data.message);
@@ -75,8 +139,7 @@ var vm = new Vue({
     },
     watch:{
        tabActive(newVal,oldVal){
-           console.log(newVal)
-           if (newVal==='4'){
+           if (newVal==='9'){
                this.getFileByPath("","this")
            }
        }
@@ -91,7 +154,7 @@ var vm = new Vue({
                     csrf_token: csrf_token,
                 },
             ).then(function (res) {
-                if (res.data.code == 0) {
+                if (res.data.code === 0) {
                     vm.$message.success('设置成功，重启机器人后生效');
                 } else {
                     vm.$message.warning('设置失败：' + res.data.message);
@@ -117,11 +180,11 @@ var vm = new Vue({
                 api + '?name=' + thisvue.applyName + thisvue.domain
             ).then(function (res) {
                 thisvue.domainApply = false;
-                if (res.data.code == 0) {
+                if (res.data.code === 0) {
                     vm.$message.success('申请成功，请等待1分钟左右解析生效');
                     thisvue.setting.public_address = thisvue.setting.public_address.replace(/\/\/([^:\/]+)/, '//' + thisvue.applyName + thisvue.domain);
                     thisvue.update(null);
-                } else if (res.data.code == 1) {
+                } else if (res.data.code === 1) {
                     vm.$message.warning('申请失败，此域已被占用');
                 } else {
                     vm.$message.warning('申请失败，' + res.data.message);
@@ -138,12 +201,6 @@ var vm = new Vue({
             } else {
                 this.setting.boss[area].pop();
             }
-        },
-        comfirm_change_clan_mode: function (event) {
-            this.$alert('修改模式后，公会战数据会重置。请不要在公会战期间修改！', '警告', {
-                confirmButtonText: '知道了',
-                type: 'warning',
-            });
         },
         closeTag:function(key,index){
             this.setting[key].splice(index,1)
@@ -205,6 +262,17 @@ var vm = new Vue({
               this.$refs['saveTagInput_'+key][0].$refs.input.focus();
             });
         },
+        closeTag3:function(key,index,index1){
+            this.setting.trigger[index][key].splice(index1,1)
+        },
+        inputConfirm3:function(key,key1,index){
+            let inputValue = this['inputValue_'+key][index]
+            if(inputValue !==""){
+                this.setting.trigger[index][key1].push(inputValue)
+            }
+            this['inputVisible_'+key].splice(index,1,false)
+            this['inputValue_'+key].splice(index,1,"")
+        },
         extraAdd:function () {
             this.setting.extra.push(
                 {
@@ -237,6 +305,45 @@ var vm = new Vue({
             this.inputValue_replace.splice(k,1)
             this.inputVisible_result.splice(k,1)
             this.inputValue_result.splice(k,1)
+        },
+        triggerAdd:function(){
+            this.setting.trigger.push(
+                {
+                    on: true,
+                    title: "",
+                    year: "*",
+                    month: "*",
+                    day: "*",
+                    week: "*",
+                    day_of_week: "*",
+                    hour: "*",
+                    minute: "*",
+                    second: "*",
+                    jitter: 0,
+                    msg: [],
+                    img_on: true,
+                    img_path: "",
+                    groups: [],
+                    label: "",
+                }
+            )
+            for (let k in this.triggerTimer) {
+                this.triggerTimer[k].flag.push(false)
+            }
+            this.inputVisible_tri_msg.push(false)
+            this.inputValue_tri_msg.push("")
+            this.inputVisible_tri_group.push(false)
+            this.inputValue_tri_group.push("")
+        },
+        triggerDel:function(k){
+            for (let key in this.triggerTimer) {
+                this.triggerTimer[key].flag.splice(k,1)
+            }
+            this.setting.trigger.splice(k,1)
+            this.inputVisible_tri_msg.splice(k,1)
+            this.inputValue_tri_msg.splice(k,1)
+            this.inputVisible_tri_group.splice(k,1)
+            this.inputValue_tri_group.splice(k,1)
         },
         getFileByPath(d,action){
             this.tableLoading=true
@@ -381,7 +488,7 @@ var vm = new Vue({
         handleUploadError(err, file, fileList){
             this.$message.error("Upload error")
         },
-        dialogClose(){
+        addDialogClose(){
             this.folderName=""
             this.fileList.length=0
         },
@@ -396,6 +503,49 @@ var vm = new Vue({
               eleLink.click();
               // 然后移除
               document.body.removeChild(eleLink);
+        },
+        renameDocument(d){
+            this.renameVisible=true
+            this.renameFile.oldFileName=d.fileName
+            this.renameFile.fileSuffix=d.fileSuffix
+        },
+        renameSubmit(){
+            if(this.renameFile.newFileName===''){
+                this.$message({message:"输入不能为空"})
+                return
+            }
+            axios.post("/yobot/admin/setting/file/rename",
+                {
+                    path:this.curFilePath,
+                    old_file_name:this.renameFile.oldFileName,
+                    new_file_name:this.renameFile.newFileName+this.renameFile.fileSuffix,
+                    csrf_token:csrf_token}
+                    )
+                .then((res)=>{
+                    this.$message({
+                        type:res.data.code===0?"success":"error",
+                        message:res.data.message
+                    })
+                    if (res.data.code===0){
+                        this.renameDialogClose()
+                        this.getFileByPath({fileName:''},"this")
+                    }
+                })
+        },
+        renameDialogClose(){
+            this.renameVisible=false
+            this.renameFile.oldFileName=""
+            this.renameFile.newFileName=""
+            this.renameFile.fileSuffix=""
+        },
+        timeCheck(e,k,key){
+            if (!e){
+                let val = "*"
+                if(key==="jitter"){
+                    val=0
+                }
+                this.setting.trigger[k][key]=val
+            }
         }
     },
     delimiters: ['[[', ']]'],

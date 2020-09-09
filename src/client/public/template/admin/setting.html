@@ -74,6 +74,18 @@
     span.css-label:after{
       content:": "
     }
+    .tri-time-box div.el-input{
+      width: 120px;
+    }
+    .tri-time-box div.el-row{
+      margin-left: 72px;
+    }
+    .tri-time-box div.el-row>span{
+      margin-right: 25px;
+    }
+    .tri-time-box label.el-checkbox .el-checkbox__label{
+      width: 40px;
+    }
   </style>
 </head>
 
@@ -534,8 +546,92 @@
           </el-collapse>
         </el-tab-pane>
 
-        <el-tab-pane label="其他设置" name="4">
-          <el-divider content-position="left">文件管理</el-divider>
+        <el-tab-pane label="定时器设置" name="4">
+          <el-divider content-position="left">定时器 <el-button class="el-icon-plus" size="mini" circle type="primary" @click="triggerAdd"></el-button></el-divider>
+          <el-collapse v-model="activeName_trigger" accordion>
+            <el-collapse-item v-for="(item,key) of setting.trigger" :name="key">
+              <div slot="title" style="position: relative;width: 100%">
+                <span>名称：</span>
+                <el-input size="small" v-model="item.title" style="display: inline-block;width: 120px"></el-input>
+                <div style="position: absolute;top: 0px;right: 20px">
+                  <el-checkbox v-model="item.on" :label="item.on?'启用':'禁用'"></el-checkbox>
+                  <el-button class="el-icon-delete" size="mini" circle type="danger" style="margin-left: 10px" @click.stop="triggerDel(key)"></el-button>
+                </div>
+              </div>
+              <el-form label-positon="left" label-width="160">
+                <el-form-item label="定时时间: " class="tri-time-box">
+                  <el-row>
+                    <span v-for="(val,k,index) of triggerTimer">
+                      <el-checkbox v-model="triggerTimer[k].flag[key]" :label="triggerTimer[k].label" @change="timeCheck($event,key,k)"></el-checkbox>
+                      <el-input size="small" v-model="item[k]" :disabled="!triggerTimer[k].flag[key]"></el-input>
+                    </span>
+                  </el-row>
+                </el-form-item>
+                <el-form-item label="发送信息: ">
+                  <draggable style="display:inline-block;"
+                      :list="item.msg">
+                    <el-tag style="margin-right:10px"
+                            v-for="(item,i) in item.msg" :key="i" closable
+                            @close="closeTag3('msg',key,i)"><span v-text="item"></span></el-tag>
+                  </draggable>
+                    <el-popover
+                      v-if="inputVisible_tri_msg[key]"
+                      placement="top-start"
+                      title="提示"
+                      width="200"
+                      trigger="focus">
+                      <slot>
+                        <span>
+                          若启用图片，图片会插入输入"{}"的位置(默认跟随结尾)。
+                        </span>
+                      </slot>
+                      <el-input slot="reference"
+                        class="input-new-tag"
+                        v-model="inputValue_tri_msg[key]"
+                        ref="saveTagInput_tri_msg"
+                        size="small"
+                        @keyup.enter.native="inputConfirm3('tri_msg','msg',key)"
+                        @blur="inputConfirm3('tri_msg','msg',key)"
+                      >
+                      </el-input>
+                    </el-popover>
+                    <el-button class="button-new-tag" size="small" @click="showInput2('tri_msg',key)">+ New Message</el-button>
+                </el-form-item>
+                <el-form-item label="发送图片: ">
+                  <el-checkbox v-model="item.img_on" :label="(item.img_on?'启用':'禁用')+'图片'"></el-checkbox>
+                  <span v-if="item.img_on" style="margin-left: 20px">
+                    <span style="margin-right: 10px">图片路径:</span>
+                    <el-input v-model="item.img_path" size="small" style="width: 220px"></el-input>
+                  </span>
+                </el-form-item>
+                <el-form-item label="发送群聊: ">
+                  <draggable style="display:inline-block;"
+                      :list="item.groups">
+                    <el-tag style="margin-right:10px"
+                            v-for="(item,i) in item.groups" :key="i" closable
+                            @close="closeTag3('groups',key,i)"><span v-text="item"></span></el-tag>
+                  </draggable>
+                      <el-input
+                        v-if="inputVisible_tri_group[key]"
+                        class="input-new-tag"
+                        v-model="inputValue_tri_group[key]"
+                        ref="saveTagInput_tri_group"
+                        size="small"
+                        @keyup.enter.native="inputConfirm3('tri_group','groups',key)"
+                        @blur="inputConfirm3('tri_group','groups',key)"
+                      >
+                      </el-input>
+                    <el-button class="button-new-tag" size="small" @click="showInput2('tri_group',key)">+ New Group</el-button>
+                </el-form-item>
+                <el-form-item label="定时器说明: ">
+                  <el-input type="textarea" v-model="item.label"></el-input>
+                </el-form-item>
+              </el-form>
+            </el-collapse-item>
+          </el-collapse>
+        </el-tab-pane>
+
+        <el-tab-pane label="文件管理" name="9">
           <div>
             <el-button-group style="display: inline-block;margin-right: 20px">
               <el-button size="small" type="primary" class="el-icon-plus" @click="addVisible=true"></el-button>
@@ -558,6 +654,7 @@
             <el-table-column label="" width="200">
               <template slot-scope="scope">
                 <p style="text-align: left;padding: 0;margin: 0">
+                  <el-button class="el-icon-edit" size="mini" @click="renameDocument(scope.row)"></el-button>
                   <el-button class="el-icon-delete" size="mini" type="danger" @click="delDocument(scope.row)"></el-button>
                   <el-button v-if="!scope.row.isDir" class="el-icon-download" size="mini" @click="downloadFile(scope.row)"></el-button>
                 </p>
@@ -614,7 +711,7 @@
         <el-image :src="viewSrc"></el-image>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="addVisible" center @close="dialogClose">
+    <el-dialog :visible.sync="addVisible" center @close="addDialogClose">
       <p slot="title" class="file-title">Add Document</p>
       <el-row style="text-align: center">
         <el-radio v-model="addFolder" :label="1">新建文件夹</el-radio>
@@ -650,6 +747,27 @@
           Your browser does not support the audio element.
         </audio>
       </div>
+    </el-dialog>
+    <el-dialog :visible.sync="renameVisible" center @close="renameDialogClose" title="Rename File">
+      <el-row>
+        <p style="text-align: center">
+          <span>原文件名:</span>
+          <span>[[renameFile.oldFileName]]</span>
+        </p>
+      </el-row>
+      <el-row>
+        <p style="text-align: center">
+          <span>新文件名:</span>
+          <el-input size="small" v-model="renameFile.newFileName" style="width: 220px"></el-input>
+          <span>[[renameFile.fileSuffix]]</span>
+        </p>
+      </el-row>
+      <el-row style="text-align: center">
+        <el-button-group>
+          <el-button size="small" type="primary" @click="renameSubmit">确认</el-button>
+          <el-button size="small" @click="renameVisible=false">取消</el-button>
+        </el-button-group>
+      </el-row>
     </el-dialog>
   </div>
 </body>

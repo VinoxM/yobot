@@ -74,17 +74,11 @@ class Message_Extra:
                             res = ctx['raw_message'][len(keyword):]
                         elif res_ == 'record':
                             re_path = self.setting.get("record_path", "")
-                            re_folder = i.get("record_folder", False)
-                            if re_folder:
-                                re_list = os.listdir(re_path + re_folder)
-                                re_len_ = len(re_list)
-                                re_ran = random.randint(0, re_len_-1)
-                                r_name = re_folder + re_list[re_ran]
-                            else:
-                                r_len_ = len(i.get("record_folder", []))
-                                r_ran = random.randint(0, r_len_-1)
-                                r_name = i.get("record_folder", [])[r_ran]
-                            new_path = re_path + r_name
+                            re_folder = i.get("record_folder", "")
+                            rec_path = os.path.join(self.setting.get("base_file_path", ""), re_path, re_folder)
+                            rec_list = os.listdir(rec_path)
+                            r_name = rec_list[random.randint(0, len(rec_list)-1)]
+                            new_path = os.path.join(rec_path, r_name)
                             res = "[CQ:record,file=file:///" + new_path + "]"
                         else:
                             res = res_
