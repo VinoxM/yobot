@@ -37,11 +37,11 @@ class Scheduler_Custom:
                     img = os.path.join(img_path, img_name)
                     msg_img = "[CQ:image,file=file:///" + img + "]"
                 if msg.find("{}") > -1:
-                    msg = msg.join(msg_img)
+                    res = msg.join(msg_img)
                 else:
-                    msg = msg + msg_img
+                    res = msg + msg_img
                 try:
-                    await self.api.send_group_msg(group_id=i, message=msg)
+                    await self.api.send_group_msg(group_id=i, message=res)
                 except ActionFailed as e:
                     print("Scheduler Plugins send message failed.Cause by retcode:{}".join(e.retcode))
 

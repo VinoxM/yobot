@@ -108,16 +108,29 @@
     ],
     "record_path":"D:\\Documents\\Music\\",
     "img_path":"C:\\Users\\maou8\\Pictures\\",
-    "trigger":[
+    "trigger": [
         {
-            "title":"abyss",
-            "label":"深渊提醒：每周三/周日晚上8点",
-            "day_of_week":"2,6",
-            "hour":"20",
-            "msg":"小仓唯提醒您：今晚深渊结算哦~",
-            "img_on":true,
-            "imgs":["1.jpg","2.jpeg","3.jpeg","4.jpg","5.jpeg","6.jpg","7.jpg"],
-            "groups":[902987930,552501610]
+            "day": "*",
+            "day_of_week": "2,6",
+            "groups": [
+                902987930,
+                552501610
+            ],
+            "hour": "20",
+            "img_on": true,
+            "img_path": "abyss",
+            "jitter": 0,
+            "label": "\u6df1\u6e0a\u63d0\u9192\uff1a\u6bcf\u5468\u4e09/\u5468\u65e5\u665a\u4e0a8\u70b9",
+            "minute": "*",
+            "month": "*",
+            "msg": [
+                "\u5c0f\u4ed3\u552f\u63d0\u9192\u60a8\uff1a\u4eca\u665a\u6df1\u6e0a\u7ed3\u7b97\u54e6~"
+            ],
+            "on": true,
+            "second": "*",
+            "title": "abyss",
+            "week": "*",
+            "year": "*"
         }
     ],
     "nickName_autoUpdate": true,
