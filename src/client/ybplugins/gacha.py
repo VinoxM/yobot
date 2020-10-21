@@ -457,7 +457,7 @@ class Gacha:
             if not os.path.exists(gacha_file):
                 star_size = 36
                 gacha_star = Image.open(os.path.join(self.resource_path, "gacha", "unit", "star.png")).resize((star_size, star_size), Image.ANTIALIAS).convert('RGBA')
-                gacha_img = Image.open(localfile).convert('RGBA')
+                gacha_img = Image.open(localfile).resize((128, 128), Image.ANTIALIAS).convert('RGBA')
                 for i in range(1, r[1]+1):
                     gacha_img.paste(gacha_star, (int(star_size*(i*0.6-0.7)), 128-star_size), mask=gacha_star.split()[3])
                 if r[2]:
